@@ -1,33 +1,136 @@
 /*数据表结构*/
 
 -- 1.user（用户表）
+CREATE TABLE IF NOT EXISTS user (
+  id INT NOT NULL AUTO_INCREMENT,
+  username VARCHAR(50) NOT NULL,
+  password VARCHAR(500) NOT NULL,
+  email VARCHAR(50) NOT NULL,
+  github VARCHAR(50),
+  blog VARCHAR(50),
+  head_portrait VARCHAR(100),
+  mood VARCHAR(100),
+  submit_count TINYINT NOT NULL DEFAULT 0,
+  ac_num TINYINT NOT NULL DEFAULT 0,
+  rating_num TINYINT NOT NULL DEFAULT 0,
+  rating_score TINYINT  NOT NULL DEFAULT 0,
+  rank TINYINT NOT NULL,
+  role_id TINYINT NOT NULL,
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT uk_username UNIQUE KEY(username)
+)
 
 -- 2.user_certification（实名认证表）
+CREATE TABLE IF NOT EXISTS user_certification (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  certification_id TINYINT NOT NULL,
+  real_name VARCHAR(10) NOT NULL,
+  sex ENUM('男', '女') NOT NULL,
+  stu_id INT,
+  school VARCHAR(20),
+  faculty VARCHAR(20),
+  major VARCHAR(20),
+  class VARCHAR(20),
+  phone VARCHAR(20),
+  graduation_time VARCHAR(30),
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+)
 
 -- 3.certification（认证类型）
+CREATE TABLE IF NOT EXISTS certification (
+  id TINYINT NOT NULL AUTO_INCREMENT,
+  type VARCHAR(50) NOT NULL,
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT type UNIQUE KEY(type)
+)
 
 -- 4.solved_problem（用户解决题目表）
+CREATE TABLE IF NOT EXISTS solved_problem (
+  id INT NOT NULL AUTO_INCREMENT,
+  problem_id INT NOT NULL,
+  user_id INT NOT NULL,
+  submit_status VARCHAR(20) NOT NULL,
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+)
 
 -- 5.admin（管理员表）
+CREATE TABLE IF NOT EXISTS admin (
+  id INT NOT NULL AUTO_INCREMENT,
+  username VARCHAR(50) NOT NULL,
+  password VARCHAR(500) NOT NULL,
+  role_id TINYINT NOT NULL,
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT uk_username UNIQUE KEY(username)
+)
 
--- 6.message（消息表）
+-- 6.role（角色表）
+CREATE TABLE IF NOT EXISTS role (
+  id TINYINT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(50) NOT NULL,
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT uk_username UNIQUE KEY(name)
+)
 
--- 7.announcement（公告表）
+-- 7.message（消息表）
+CREATE TABLE IF NOT EXISTS message (
+  id TINYINT NOT NULL AUTO_INCREMENT,
+  title VARCHAR(20) NOT NULL,
+  content VARCHAR(500) NOT NULL,
+  creator VARCHAR(50) NOT NULL,
+  user_id INT NOT NULL,
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+)
 
--- 8.problem（题目表）
+-- 8.announcement（公告表）
+CREATE TABLE IF NOT EXISTS announcement (
+  id TINYINT NOT NULL AUTO_INCREMENT,
+  title VARCHAR(20) NOT NULL,
+  content TEXT NOT NULL,
+  creator VARCHAR(50) NOT NULL,
+  source_id INT NOT NULL,
+  status ENUM(0, 1) NOT NULL DEFAULT 1,
+  crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT pk_id PRIMARY KEY(id),
+)
 
--- 9.problem_judge_type（题目评测方式表）
+-- 9.problem（题目表）
 
--- 10.judge_type（评测方式标准表）
 
--- 11.tag（标签表）
+-- 10.problem_judge_type（题目评测方式表）
 
--- 12.problem_tag（题目标签表）
+-- 11.judge_type（评测方式标准表）
 
--- 13.judge（评测表）
+-- 12.tag（标签表）
 
--- 14.contest（竞赛信息表）
+-- 13.problem_tag（题目标签表）
 
--- 15.contest_user（竞赛用户报名表）
+-- 14.judge（评测表）
 
--- 16.竞赛排名：还未考虑好是实时计算还是落地成表。
+-- 15.contest（竞赛信息表）
+
+-- 16.contest_user（竞赛用户报名表）
+
+-- 17.竞赛排名：还未考虑好是实时计算还是落地成表。
