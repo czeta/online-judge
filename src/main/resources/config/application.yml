@@ -1,24 +1,38 @@
 # online-judge common config
 
-############################# jetty访问路径、端口 start #############################
-server:
-  port: 8888
-  servlet:
-    context-path: /
-  tomcat:
-    max-threads: 1000
-    min-spare-threads: 30
-    uri-encoding: UTF-8
-############################# jetty访问路径、端口 end ###############################
-
-
-################################ spring config start ###############################
+################################ 当前active环境 start ###############################
 spring:
   profiles:
     active: dev
-################################ spring config end #################################
+################################ 当前active环境 end #################################
 
-############################### mybatis-plus start #################################
+############################# jetty config start #############################
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  jetty:
+    connection-idle-timeout: 5000ms
+    max-threads: 500
+    min-threads: 30
+############################# jetty config end ###############################
+
+############################# spring config start #############################
+---
+spring:
+  application:
+    name: online-judge
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  jackson:
+    date-format: yyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+############################# spring config end ###############################
+
+############################### mybatis-plus config start #################################
 mybatis-plus:
   # 启动时是否检查MyBatis XML文件是否存在
   check-config-location: true
@@ -36,9 +50,9 @@ mybatis-plus:
       logic-not-delete-value: 0
   # mapper xml映射路径
   mapper-locations: classpath*:mapper/**/*Mapper.xml
-################################ mybatis-plus end ##################################
+################################ mybatis-plus config end ##################################
 
-############################### DRUID数据源配置 start ################################
+############################### datasource connector config start ################################
 ---
 spring:
   datasource:
@@ -66,8 +80,8 @@ spring:
       pool-prepared-statements: true
       stat-view-servlet:
         enabled: true
-        login-password: druid123
-        login-username: druid
+        login-password: root
+        login-username: 123123
         url-pattern: /druid/*
       test-on-borrow: false
       test-on-return: false
@@ -76,4 +90,19 @@ spring:
       validation-query: SELECT 1
       validation-query-timeout: 60000
     type: com.alibaba.druid.pool.DruidDataSource
-############################### DRUID数据源配置 end ################################
+############################### datasource connector config end ################################
+
+#################################### Swagger start #################################
+# swagger配置
+swagger:
+  base:
+    package: com.czeta.onlinejudge
+  contact:
+    email: 757569797@qq.com
+    name: czeta
+    url: ''
+  description: 'online judge for acm'
+  title: online-judge
+  url: ''
+  version: 0.1.0
+#################################### Swagger end ###################################

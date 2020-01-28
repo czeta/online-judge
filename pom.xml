@@ -22,6 +22,7 @@
         <mybatis-plus-boot-starter.version>3.2.0</mybatis-plus-boot-starter.version>
         <mysql.version>8.0.18</mysql.version>
         <druid.version>1.1.20</druid.version>
+        <swagger2.version>2.6.1</swagger2.version>
         <lombok.version>1.18.10</lombok.version>
         <fastjson.version>1.2.62</fastjson.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
@@ -50,6 +51,10 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -75,7 +80,7 @@
             <scope>test</scope>
         </dependency>
         <!-- spring-boot end -->
-        <!-- mybatis-plus begin -->
+        <!-- mybatis-plus & datasource connector begin -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -91,7 +96,31 @@
             <artifactId>druid-spring-boot-starter</artifactId>
             <version>${druid.version}</version>
         </dependency>
-        <!-- mybatis-plus end -->
+        <!-- mybatis-plus & datasource connector end -->
+        <!-- swagger start -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger2.version}</version>
+        </dependency>
+        <!-- swagger end -->
+        <!-- log begin -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <!-- log end -->
         <!-- tools begin -->
         <dependency>
             <groupId>org.projectlombok</groupId>
