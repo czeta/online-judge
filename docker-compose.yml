@@ -1,0 +1,36 @@
+# docker-compose部署过程：先将yml中本地化的文件夹创建好，并上传对应的文件，然后执行该yml文件创建并启动好容器。
+# 每次更新jar包或者其它本地化文件，需要restart容器。
+version: '3'
+services:
+  mysql:
+    image: mysql/mysql-server:5.7
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123
+      TZ: Asia/Shanghai
+    ports:
+      - '3306:3306'
+    volumes:
+      - ~/data/mysql/data:/var/lib/mysql  # 数据文件宿主机本地化
+      - ~/data/mysql/config/my.cnf:/etc/my.cnf # 配置文件宿主机本地化
+      - ~/data/mysql/init:/docker-entrypoint-initdb.d/ # 容器初始化执行sql脚本
+      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
+    restart: always
+  onlinejudge:
+    image: java:8
+    container_name: onlinejudge
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - '8080:8080'
+    volumes:
+      - ~/data/onlinejudge/workspace/online-judge.jar:/data/online-judge.jar # jar包所在位置宿主机本地化
+      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
+    network_mode: 'host' # 将应用内访问容器localhost转为访问宿主机的localhost
+    command: [
+      'java',
+      '-Xmx200m',
+      '-jar',
+      '/data/online-judge.jar'
+    ]
+    restart: always

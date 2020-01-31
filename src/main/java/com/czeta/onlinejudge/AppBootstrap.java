@@ -4,7 +4,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@MapperScan({"com.czeta.oninejudge.**.mapper"})
+@MapperScan({"com.czeta.onlinejudge.**.mapper"})
 @SpringBootApplication
 public class AppBootstrap {
 
