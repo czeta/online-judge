@@ -1,7 +1,5 @@
 # online-judge
 acm在线评测平台
-# online-judge
-acm在线评测平台
 
 # docker部署
 本应用使用docker-compose部署。
