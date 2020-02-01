@@ -92,6 +92,20 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
 ############################### datasource connector config end ################################
 
+############################### Redis config start ###############################
+---
+spring:
+  redis:
+    timeout: 10s
+    lettuce:
+      pool:
+        max-active: 200
+        max-idle: 8
+        max-wait: 10s
+        min-idle: 2
+      shutdown-timeout: 3s
+############################### Redis config end ##################################
+
 #################################### Swagger start #################################
 # swagger配置
 swagger:

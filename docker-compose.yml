@@ -16,6 +16,23 @@ services:
       - ~/data/mysql/init:/docker-entrypoint-initdb.d/ # 容器初始化执行sql脚本
       - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
     restart: always
+  redis:
+    image: redis:5.0.4
+    container_name: redis
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123
+      TZ: Asia/Shanghai
+    ports:
+      - '6379:6379'
+    volumes:
+      - ~/data/redis/data:/data # 数据文件宿主机本地化
+      - ~/data/redis/config/redis.conf:/etc/redis.conf # 配置文件宿主机本地化
+      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
+    command: [
+      'redis-server',
+      '/etc/redis.conf'
+    ]
+    restart: always
   onlinejudge:
     image: java:8
     container_name: onlinejudge
