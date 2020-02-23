@@ -12,6 +12,12 @@ import org.slf4j.helpers.MessageFormatter;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * @ClassName AssertUtils
+ * @Description 断言工具类，统一抛出APIRuntimeException
+ * @Date 2020/2/23 12:52
+ * @Version 1.0
+ */
 public class AssertUtils {
     /**<==null判定 begin==>**/
     public static void isNull(Object obj, String message) {

@@ -3,6 +3,13 @@ package com.czeta.onlinejudge.util.response;
 import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.util.exception.IBaseException;
 
+/**
+ * @ClassName BaseResponse
+ * @Description 基础response类，一般用于rpc
+ * @Author chenlongjie
+ * @Date 2020/2/23 12:52
+ * @Version 1.0
+ */
 public class BaseResponse implements IBaseResponse {
     private Integer status;
     private String message;

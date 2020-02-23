@@ -17,10 +17,21 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 import java.util.*;
 
+/**
+ * @ClassName RedisCacheConfig
+ * @Description Redis缓存配置
+ * @Author chenlongjie
+ * @Date 2020/2/23 12:52
+ * @Version 1.0
+ */
 @EnableCaching
 @Configuration
 public class RedisCacheConfig extends CachingConfigurerSupport {
 
+    /**
+     * redis key默认生成形式
+     * @return
+     */
     @Bean
     @Override
     public KeyGenerator keyGenerator() {
@@ -35,7 +46,11 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
         };
     }
 
-
+    /**
+     * 缓存管理
+     * @param factory
+     * @return
+     */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
@@ -45,6 +60,11 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
                 .cacheDefaults(redisCacheConfiguration).build();
     }
 
+    /**
+     * redis模板自定义配置（kv存取）
+     * @param redisConnectionFactory
+     * @return
+     */
     @Bean
     public RedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();

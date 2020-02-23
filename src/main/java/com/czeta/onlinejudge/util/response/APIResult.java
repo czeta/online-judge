@@ -3,6 +3,13 @@ package com.czeta.onlinejudge.util.response;
 import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.util.exception.IBaseException;
 
+/**
+ * @ClassName APIResult
+ * @Description 用于Controller返回的通用泛型类
+ * @Author chenlongjie
+ * @Date 2020/2/23 12:52
+ * @Version 1.0
+ */
 public class APIResult<T> {
     private Integer status;
     private String message;

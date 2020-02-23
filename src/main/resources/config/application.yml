@@ -106,6 +106,49 @@ spring:
       shutdown-timeout: 3s
 ############################### Redis config end ##################################
 
+######################## Shiro start ########################
+shiro:
+  # 是否启用
+  enable: true
+  permission:
+    # 排除公共访问页面
+    - urls: /index,/test
+      permission: anon
+    # 排除登陆登出相关
+    - urls: /login,/logout
+      permission: anon
+      # 排除静态资源
+    - urls: /static/**,/templates/**
+      permission: anon
+      # 排除Swagger
+    - urls: /docs,/swagger-ui.html,/webjars/springfox-swagger-ui/**,/swagger-resources/**,/v2/api-docs
+      permission: anon
+######################## Shiro end ##########################
+
+############################ JWT start #############################
+jwt:
+  # token请求头名称
+  token-name: token
+  # jwt密钥
+  secret: 123123
+  # 发行人
+  issuer: online-judge
+  # 观众
+  audience: web
+  # 默认过期时间1小时，单位：秒
+  expire-second: 3600
+  # 是否刷新token
+  refresh-token: true
+  # 刷新token的时间间隔，默认10分钟，单位：秒
+  refresh-token-countdown: 600
+  # redis校验jwt token是否存在,可选
+  redis-check: true
+  # true: 同一个账号只能是最后一次登陆token有效，false：同一个账号可多次登陆
+  single-login: false
+  # 盐值校验，如果不加自定义盐值，则使用secret校验
+  salt-check: false
+############################ JWT end ###############################
+
 #################################### Swagger start #################################
 # swagger配置
 swagger:

@@ -1,5 +1,12 @@
 package com.czeta.onlinejudge.util.enums;
 
+/**
+ * @InterfaceName IBaseStatusMsg
+ * @Description 基础状态码
+ * @Author chenlongjie
+ * @Date 2020/2/23 12:56
+ * @Version 1.0
+ */
 public interface IBaseStatusMsg extends IEnumItem<Integer, String> {
     Integer getCode();
     String getMessage();

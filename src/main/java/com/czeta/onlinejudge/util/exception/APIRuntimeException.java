@@ -2,6 +2,13 @@ package com.czeta.onlinejudge.util.exception;
 
 import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
 
+/**
+ * @ClassName APIRuntimeException
+ * @Description API运行时异常类
+ * @Author chenlongjie
+ * @Date 2020/2/23 12:52
+ * @Version 1.0
+ */
 public class APIRuntimeException extends RuntimeException implements IBaseException {
     private Integer code;
     private String message;
