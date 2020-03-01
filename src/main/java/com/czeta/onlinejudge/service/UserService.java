@@ -3,6 +3,8 @@ package com.czeta.onlinejudge.service;
 import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.model.param.RegisterParamModel;
 
+import java.util.List;
+
 /**
  * @ClassName UserService
  * @Description
@@ -17,4 +19,7 @@ public interface UserService {
 
     User getUserInfoById(Long id);
 
+    List<Long> getSolvedProblemByUserId(Long id);
+
+    List<Long> getNotSolvedProblemByUserId(Long id);
 }

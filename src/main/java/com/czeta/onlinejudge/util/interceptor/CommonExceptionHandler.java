@@ -1,7 +1,9 @@
-package com.czeta.onlinejudge.util.exception;
+package com.czeta.onlinejudge.util.interceptor;
 
 import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.util.exception.APIRuntimeException;
 import com.czeta.onlinejudge.util.response.APIResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @Date 2020/2/23 12:52
  * @Version 1.0
  */
+@Slf4j
 @ControllerAdvice
 public class CommonExceptionHandler {
 
@@ -27,6 +30,8 @@ public class CommonExceptionHandler {
     @ResponseBody
     public APIResult exceptionHandler(Exception e) {
         APIResult apiResult = new APIResult(IBaseStatusMsg.APIEnum.FAILED.getCode(), e.getMessage());
+        log.error("CommonExceptionHandler exceptionHandler Exception={}", e.getMessage());
+        e.printStackTrace();
         return apiResult;
     }
 }

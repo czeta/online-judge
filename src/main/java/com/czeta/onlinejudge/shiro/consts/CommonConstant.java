@@ -22,4 +22,11 @@ public class CommonConstant {
      * JWT用户名
      */
     public static final String JWT_USERNAME = "username";
+
+    /**
+     * JWT用户ID
+     */
+    public static final String JWT_USER_ID = "id";
+
+
 }

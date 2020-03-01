@@ -24,13 +24,13 @@ public class LoginUserModel {
 
     private String username;
 
-    private Long roleId;
+    private Integer roleId;
 
     private String roleName;
 
     private Set<String> permissionCodes;
 
-    private Integer status;
+    private Short status;
 
     public void setPermissionCodes(Set<String> permissionCodes) {
         this.permissionCodes = permissionCodes;

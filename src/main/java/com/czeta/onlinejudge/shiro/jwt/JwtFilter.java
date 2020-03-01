@@ -90,6 +90,9 @@ public class JwtFilter extends AuthenticatingFilter {
             salt = jwtProperties.getSecret();
         }
         log.info("JwtFilter createToken token={}", token);
+        // 添加到attribute中，作为controller的参数传入，避免再次解析token带来的不优雅
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        request.setAttribute("userId", loginRedisService.getUserId(username));
         return JwtToken.build(token, username, salt, jwtProperties.getExpireSecond());
     }
 
@@ -121,7 +124,7 @@ public class JwtFilter extends AuthenticatingFilter {
      * @throws Exception
      */
     @Override
-    protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
+    protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) {
         // 刷新token
         JwtToken jwtToken = (JwtToken) token;
         HttpServletResponse httpServletResponse = WebUtils.toHttp(response);

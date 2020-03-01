@@ -1,14 +1,15 @@
 package com.czeta.onlinejudge.controller;
 
 import com.czeta.onlinejudge.dao.entity.User;
-import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.model.param.RegisterParamModel;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.util.response.APIResult;
-import com.czeta.onlinejudge.util.utils.AssertUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassName UserController
@@ -31,9 +32,27 @@ public class UserController {
         return new APIResult();
     }
 
-    @GetMapping("/userInfo/{id}")
-    public APIResult<User> getUserInfoById(@PathVariable(value = "id") Long id) {
-        AssertUtils.notNull(id, BaseStatusMsg.APIEnum.PARAM_ERROR);
+    @GetMapping("/userInfo")
+    public APIResult<User> getUserInfo(@RequestParam(value = "id", required = false) Long id, @RequestAttribute Long userId) {
+        if (id == null && userId != null) {
+            id = userId;
+        }
         return new APIResult<>(userService.getUserInfoById(id));
+    }
+
+    @GetMapping("/solvedProblems")
+    public APIResult<List<Long>> getSolvedProblem(@RequestParam(value = "id", required = false) Long id, @RequestAttribute Long userId) {
+        if (id == null && userId != null) {
+            id = userId;
+        }
+        return new APIResult<>(userService.getSolvedProblemByUserId(id));
+    }
+
+    @GetMapping("/notSolvedProblems")
+    public APIResult<List<Long>> getNotSolvedProblem(@RequestParam(value = "id", required = false) Long id, @RequestAttribute Long userId) {
+        if (id == null && userId != null) {
+            id = userId;
+        }
+        return new APIResult<>(userService.getNotSolvedProblemByUserId(id));
     }
 }

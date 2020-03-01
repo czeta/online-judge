@@ -56,6 +56,13 @@ public interface LoginRedisService {
     String getSalt(String username);
 
     /**
+     * 通过用户名称获取用户ID
+     * @param username
+     * @return
+     */
+    Long getUserId(String username);
+
+    /**
      * 判断token在redis中是否存在
      * @param token
      * @return

@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @RequestMapping("/index")
-    public String index() {
+    public String index(@RequestAttribute("username") String username) {
         log.info("test");
-        return "index";
+        return username;
     }
 }

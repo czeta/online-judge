@@ -108,6 +108,24 @@ public class JwtTokenUtil {
     }
 
     /**
+     * 获取token的payload中的自定义属性-ID
+     * @param token
+     * @return
+     */
+    public static Long getUserId(String token) {
+        if (StringUtils.isBlank(token)){
+            return null;
+        }
+        DecodedJWT decodedJWT = getJwtInfo(token);
+        if (decodedJWT == null) {
+            return null;
+        }
+        Long userId = decodedJWT.getClaim(CommonConstant.JWT_USER_ID).asLong();
+        return userId;
+    }
+
+
+    /**
      * 判断token是否已过期
      * @param token
      * @return

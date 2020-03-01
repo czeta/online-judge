@@ -122,7 +122,14 @@ public class LoginRedisServiceImpl implements LoginRedisService {
     public String getSalt(String username) {
         AssertUtils.notBlank(username, ShiroStatusMsg.PARAM_ERROR, ShiroStatusMsg.PARAM_ERROR + " username不能为空");
         LoginUserRedisModel loginUserRedisModel = (LoginUserRedisModel) redisTemplate.opsForValue().get(String.format(RedisKeyConstant.LOGIN_USER, username));
-        return loginUserRedisModel.getSalt();
+        return loginUserRedisModel != null ? loginUserRedisModel.getSalt() : null;
+    }
+
+    @Override
+    public Long getUserId(String username) {
+        AssertUtils.notBlank(username, ShiroStatusMsg.PARAM_ERROR, ShiroStatusMsg.PARAM_ERROR + " username不能为空");
+        LoginUserRedisModel loginUserRedisModel = (LoginUserRedisModel) redisTemplate.opsForValue().get(String.format(RedisKeyConstant.LOGIN_USER, username));
+        return loginUserRedisModel != null ? loginUserRedisModel.getId() : null;
     }
 
     @Override
