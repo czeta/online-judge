@@ -1,10 +1,6 @@
 package com.czeta.onlinejudge.shiro.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.czeta.onlinejudge.dao.entity.Role;
-import com.czeta.onlinejudge.dao.entity.User;
-import com.czeta.onlinejudge.dao.mapper.RoleMapper;
-import com.czeta.onlinejudge.dao.mapper.UserMapper;
 import com.czeta.onlinejudge.shiro.cache.LoginRedisService;
 import com.czeta.onlinejudge.shiro.convert.ShiroMapstructConvert;
 import com.czeta.onlinejudge.shiro.enums.ShiroStatusMsg;

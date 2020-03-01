@@ -1,11 +1,6 @@
 package com.czeta.onlinejudge;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.czeta.onlinejudge.dao.entity.User;
-import com.czeta.onlinejudge.dao.mapper.RoleMapper;
-import com.czeta.onlinejudge.dao.mapper.UserMapper;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
-import com.czeta.onlinejudge.util.utils.PasswordUtils;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -20,12 +15,6 @@ class OnlineJudgeApplicationTests {
     private MockMvc mvc;
 
     @Autowired
-    UserMapper userMapper;
-
-    @Autowired
-    RoleMapper roleMapper;
-
-    @Autowired
     private JwtProperties jwtProperties;
 
     @Before
@@ -38,6 +27,6 @@ class OnlineJudgeApplicationTests {
 
     @Test
     void user() {
-        System.out.println(PasswordUtils.encrypt("123123", jwtProperties.getSecret()));
+        System.out.println();
     }
 }

@@ -2,10 +2,15 @@ package com.czeta.onlinejudge.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
+/**
+ * @ClassName User
+ * @Description 用户实体
+ * @Author chenlongjie
+ * @Date 2020/2/29 23:00
+ * @Version 1.0
+ */
 @Data
-@Accessors(chain = true)
 public class User {
     private Long id;
     private String username;
@@ -22,7 +27,7 @@ public class User {
     @TableField("`rank`")
     private Integer rank;
     private Long roleId;
-    private Integer status;
+    private Short status;
     private String crtTs;
     private String lmTs;
 }

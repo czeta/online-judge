@@ -1,6 +1,5 @@
 package com.czeta.onlinejudge.shiro.convert;
 
-import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.shiro.jwt.JwtToken;
 import com.czeta.onlinejudge.shiro.model.result.JwtTokenRedisModel;
 import com.czeta.onlinejudge.shiro.model.result.LoginUserModel;

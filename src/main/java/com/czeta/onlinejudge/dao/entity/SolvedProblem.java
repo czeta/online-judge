@@ -3,17 +3,18 @@ package com.czeta.onlinejudge.dao.entity;
 import lombok.Data;
 
 /**
- * @ClassName Role
+ * @ClassName SolvedProblem
  * @Description
  * @Author chenlongjie
- * @Date 2020/3/1 13:03
+ * @Date 2020/3/1 12:58
  * @Version 1.0
  */
 @Data
-public class Role {
+public class SolvedProblem {
     private Long id;
-    private String name;
-    private String permissionCodes;
+    private Long problemId;
+    private Long userId;
+    private String submitStatus;
     private Short status;
     private String crtTs;
     private String lmTs;
