@@ -1,6 +1,10 @@
 package com.czeta.onlinejudge.shiro.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.czeta.onlinejudge.dao.entity.Role;
+import com.czeta.onlinejudge.dao.entity.User;
+import com.czeta.onlinejudge.dao.mapper.RoleMapper;
+import com.czeta.onlinejudge.dao.mapper.UserMapper;
 import com.czeta.onlinejudge.shiro.cache.LoginRedisService;
 import com.czeta.onlinejudge.shiro.convert.ShiroMapstructConvert;
 import com.czeta.onlinejudge.shiro.enums.ShiroStatusMsg;
@@ -54,7 +58,7 @@ public class LoginServiceImpl implements LoginService {
     public String login(LoginParamModel loginParamModel) {
         String username = loginParamModel.getUsername();
         // 从数据库中获取登陆用户信息
-        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username).eq("status", 1));
+        User user = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getUsername, username).eq(User::getStatus, 1));
         AssertUtils.notNull(user, ShiroStatusMsg.PARAM_ERROR,"用户名或密码错误");
         // 原始密码明文：123456，原始密码前端加密：sha256(123456)。后台加密规则：sha256(sha256(123456) + salt)。
         // 这里使用的是jwt配置的secret（与token加的盐一致，前提是saltCheck为false）
