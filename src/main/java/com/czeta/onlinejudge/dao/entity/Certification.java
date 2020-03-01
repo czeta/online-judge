@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 public class Certification {
-    private Long id;
+    private Integer id;
     private String name;
     private Short status;
     private String crtTs;

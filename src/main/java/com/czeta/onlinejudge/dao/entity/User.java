@@ -1,6 +1,8 @@
 package com.czeta.onlinejudge.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 /**
@@ -12,6 +14,7 @@ import lombok.Data;
  */
 @Data
 public class User {
+    @TableId(value = "id",type = IdType.AUTO)
     private Long id;
     private String username;
     private String password;
@@ -26,7 +29,7 @@ public class User {
     private Integer ratingScore;
     @TableField("`rank`")
     private Integer rank;
-    private Long roleId;
+    private Integer roleId;
     private Short status;
     private String crtTs;
     private String lmTs;

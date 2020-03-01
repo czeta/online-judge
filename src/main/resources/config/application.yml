@@ -111,8 +111,11 @@ shiro:
   # 是否启用
   enable: true
   permission:
+    # 临时测试允许访问页面
+    - urls: /api/user/**
+      permission: anon
     # 排除公共访问页面
-    - urls: /index,/test
+    - urls: /,/api/user/register
       permission: anon
     # 排除登陆登出相关
     - urls: /login,/logout

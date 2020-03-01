@@ -13,7 +13,7 @@ import lombok.Data;
 public class ProblemJudgeType {
     private Long id;
     private Long problemId;
-    private Long judgeId;
+    private Integer judgeId;
     private Long reptileProblemId;
     private String allSampleInput;
     private String allSampleOutput;

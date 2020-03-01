@@ -14,7 +14,7 @@ import lombok.Data;
 public class UserCertification {
     private Long id;
     private Long userId;
-    private Long certification;
+    private Integer certification;
     private String realName;
     private String sex;
     private Integer stuId;

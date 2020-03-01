@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 public class Tag {
-    private Long id;
+    private Integer id;
     private String name;
     private String creator;
     private Short status;

@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 public class JudgeType {
-    private Long id;
+    private Integer id;
     private String name;
     private String reptileName;
     private String reptileUrl;

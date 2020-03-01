@@ -11,11 +11,11 @@ import lombok.Data;
  */
 @Data
 public class Admin {
-    private Long id;
+    private Integer id;
     private String username;
     private String password;
     private String description;
-    private Long roleId;
+    private Integer roleId;
     private Short status;
     private String crtTs;
     private String lmTs;

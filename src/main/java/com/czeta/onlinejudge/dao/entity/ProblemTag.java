@@ -13,7 +13,7 @@ import lombok.Data;
 public class ProblemTag {
     private Long id;
     private Long problemId;
-    private Long tagId;
+    private Integer tagId;
     private Short status;
     private String crtTs;
     private String lmTs;
