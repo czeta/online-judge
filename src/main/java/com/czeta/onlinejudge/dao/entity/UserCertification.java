@@ -17,7 +17,7 @@ public class UserCertification {
     @TableId(value = "id",type = IdType.AUTO)
     private Long id;
     private Long userId;
-    private Integer certification;
+    private Integer certificationId;
     private String realName;
     private String sex;
     private Integer stuId;

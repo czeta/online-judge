@@ -1,8 +1,10 @@
 package com.czeta.onlinejudge.shiro.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.czeta.onlinejudge.dao.entity.Admin;
 import com.czeta.onlinejudge.dao.entity.Role;
 import com.czeta.onlinejudge.dao.entity.User;
+import com.czeta.onlinejudge.dao.mapper.AdminMapper;
 import com.czeta.onlinejudge.dao.mapper.RoleMapper;
 import com.czeta.onlinejudge.dao.mapper.UserMapper;
 import com.czeta.onlinejudge.shiro.cache.LoginRedisService;
@@ -16,6 +18,8 @@ import com.czeta.onlinejudge.shiro.service.LoginService;
 import com.czeta.onlinejudge.shiro.util.JwtTokenUtil;
 import com.czeta.onlinejudge.shiro.util.JwtTokenWebUtil;
 import com.czeta.onlinejudge.shiro.util.SaltUtil;
+import com.czeta.onlinejudge.util.exception.APIException;
+import com.czeta.onlinejudge.util.exception.APIRuntimeException;
 import com.czeta.onlinejudge.util.utils.AssertUtils;
 import com.czeta.onlinejudge.util.utils.PasswordUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +56,9 @@ public class LoginServiceImpl implements LoginService {
     private UserMapper userMapper;
 
     @Autowired
+    private AdminMapper adminMapper;
+
+    @Autowired
     private RoleMapper roleMapper;
 
     @Override
@@ -59,15 +66,32 @@ public class LoginServiceImpl implements LoginService {
         String username = loginParamModel.getUsername();
         // 从数据库中获取登陆用户信息
         User user = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getUsername, username).eq(User::getStatus, 1));
-        AssertUtils.notNull(user, ShiroStatusMsg.PARAM_ERROR,"用户名或密码错误");
+        Admin admin = adminMapper.selectOne(Wrappers.<Admin>lambdaQuery().eq(Admin::getUsername, username).eq(Admin::getStatus, 1));
+        if ((user == null && admin == null) || (user != null && admin != null)) {
+            throw new APIRuntimeException(ShiroStatusMsg.PARAM_ERROR, "用户名或密码错误");
+        }
+        String passwordOfDB = null;
+        Integer roleIdOfDB = null;
+        if (user != null) {
+            passwordOfDB = user.getPassword();
+            roleIdOfDB = user.getRoleId();
+        } else {
+            passwordOfDB = admin.getPassword();
+            roleIdOfDB = admin.getRoleId();
+        }
         // 原始密码明文：123456，原始密码前端加密：sha256(123456)。后台加密规则：sha256(sha256(123456) + salt)。
         // 这里使用的是jwt配置的secret（与token加的盐一致，前提是saltCheck为false）
         String encryptPassword = PasswordUtils.encrypt(loginParamModel.getPassword(), jwtProperties.getSecret());
-        AssertUtils.equal(encryptPassword, user.getPassword(), ShiroStatusMsg.PARAM_ERROR, "用户名或密码错误");
+        AssertUtils.equal(encryptPassword, passwordOfDB, ShiroStatusMsg.PARAM_ERROR, "用户名或密码错误");
         // 将系统用户对象转换成登陆用户对象
-        LoginUserModel loginUserModel = ShiroMapstructConvert.INSTANCE.userToLoginUserModel(user);
+        LoginUserModel loginUserModel = null;
+        if (user != null) {
+            loginUserModel = ShiroMapstructConvert.INSTANCE.userToLoginUserModel(user);
+        } else {
+            loginUserModel = ShiroMapstructConvert.INSTANCE.adminToLoginUserModel(admin);
+        }
         // 获取当前用户角色
-        Role role = roleMapper.selectById(user.getRoleId());
+        Role role = roleMapper.selectById(roleIdOfDB);
         AssertUtils.notNull(role, ShiroStatusMsg.PARAM_ERROR, "角色不存在");
         AssertUtils.notBlank(role.getPermissionCodes(), ShiroStatusMsg.PARAM_ERROR, "权限为空");
         loginUserModel.setRoleName(role.getName()).setPermissionCodesFromString(role.getPermissionCodes());

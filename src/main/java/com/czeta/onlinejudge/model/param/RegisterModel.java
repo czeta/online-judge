@@ -10,7 +10,7 @@ import lombok.Data;
  * @Version 1.0
  */
 @Data
-public class RegisterParamModel {
+public class RegisterModel {
     private String username;
     private String password;
     private String email;
