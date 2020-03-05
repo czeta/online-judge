@@ -1,5 +1,6 @@
 package com.czeta.onlinejudge;
 
+import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
 import com.czeta.onlinejudge.util.utils.DateUtils;
 import org.junit.Before;
@@ -20,6 +21,9 @@ class OnlineJudgeApplicationTests {
     @Autowired
     private JwtProperties jwtProperties;
 
+    @Autowired
+    private UserCertificationMapper userCertificationMapper;
+
     @Before
     public void setUp() {
     }
@@ -30,6 +34,6 @@ class OnlineJudgeApplicationTests {
 
     @Test
     void user() {
-        System.out.println(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+        System.out.println(userCertificationMapper.selectAppliedCertification());
     }
 }

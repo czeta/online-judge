@@ -1,6 +1,8 @@
 package com.czeta.onlinejudge.enums;
 
 
+import com.czeta.onlinejudge.util.enums.IEnumItem;
+
 /**
  * @ClassName RoleEnum
  * @Description
@@ -8,32 +10,41 @@ package com.czeta.onlinejudge.enums;
  * @Date 2020/3/1 15:28
  * @Version 1.0
  */
-public enum RoleType  {
-    COMMON(1, "Common"),
-    ADMIN(2, "Admin"),
-    SUPER_ADMIN(3, "SuperAdmin");
+public enum RoleType implements IEnumItem {
+    COMMON_USER(1, Names.COMMON_USER),
+    COMMON_ADMIN(2, Names.COMMON_ADMIN),
+    SUPER_ADMIN(3, Names.SUPER_ADMIN);
 
-    private Integer id;
-    private String name;
+    private Integer code;
+    private String message;
 
-    private RoleType(Integer id, String name) {
-        this.id = id;
-        this.name = name;
+    public class Names {
+        public static final String COMMON_USER = "CommonUser";
+        public static final String COMMON_ADMIN = "CommonAdmin";
+        public static final String SUPER_ADMIN = "SuperAdmin";
     }
 
-    public Integer getId() {
-        return id;
+    private RoleType(Integer code, String message) {
+        this.code = code;
+        this.message = message;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    @Override
+    public Integer getCode() {
+        return code;
     }
 
-    public String getName() {
-        return name;
+    public void setCode(Integer code) {
+        this.code = code;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public String getMessage() {
+        return message;
     }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
 }

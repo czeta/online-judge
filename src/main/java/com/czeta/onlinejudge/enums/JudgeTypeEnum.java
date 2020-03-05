@@ -1,32 +1,32 @@
 package com.czeta.onlinejudge.enums;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.util.enums.IEnumItem;
 
 /**
- * @ClassName BaseStatusMsg
+ * @EnumName JudgeType
  * @Description
  * @Author chenlongjie
- * @Date 2020/3/1 15:50
+ * @Date 2020/3/4 19:50
  * @Version 1.0
  */
-public enum BaseStatusMsg implements IBaseStatusMsg {
-    EXISTED_USERNAME(2100, "用户名已存在"),
-    EXISTED_NAME(2101, "名称已存在");
+public enum JudgeTypeEnum implements IEnumItem {
+    JUDGE_SPIDER((short) 0, "爬虫评测"),
+    JUDGE_MACHINE((short) 1, "评测机评测");
 
-    private Integer code;
+    private Short code;
     private String message;
 
-    private BaseStatusMsg(Integer code, String message) {
+    private JudgeTypeEnum(Short code, String message) {
         this.code = code;
         this.message = message;
     }
 
     @Override
-    public Integer getCode() {
+    public Short getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
+    public void setCode(Short code) {
         this.code = code;
     }
 
@@ -38,5 +38,4 @@ public enum BaseStatusMsg implements IBaseStatusMsg {
     public void setMessage(String message) {
         this.message = message;
     }
-
 }

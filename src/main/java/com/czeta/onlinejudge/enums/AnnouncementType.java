@@ -1,22 +1,22 @@
 package com.czeta.onlinejudge.enums;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.util.enums.IEnumItem;
 
 /**
- * @ClassName BaseStatusMsg
+ * @EnumName AnnouncementType
  * @Description
  * @Author chenlongjie
- * @Date 2020/3/1 15:50
+ * @Date 2020/3/4 13:51
  * @Version 1.0
  */
-public enum BaseStatusMsg implements IBaseStatusMsg {
-    EXISTED_USERNAME(2100, "用户名已存在"),
-    EXISTED_NAME(2101, "名称已存在");
+public enum AnnouncementType implements IEnumItem {
+    HOME_PAGE(-1, "首页公告"),
+    FAQ(0, "FAQ页面公告");
 
     private Integer code;
     private String message;
 
-    private BaseStatusMsg(Integer code, String message) {
+    private AnnouncementType(Integer code, String message) {
         this.code = code;
         this.message = message;
     }
@@ -38,5 +38,4 @@ public enum BaseStatusMsg implements IBaseStatusMsg {
     public void setMessage(String message) {
         this.message = message;
     }
-
 }

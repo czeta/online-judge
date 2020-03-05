@@ -7,14 +7,12 @@ import com.czeta.onlinejudge.dao.mapper.*;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.enums.SubmitStatus;
-import com.czeta.onlinejudge.model.param.RegisterModel;
-import com.czeta.onlinejudge.model.param.UserAccountModel;
+import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
 import com.czeta.onlinejudge.util.exception.APIRuntimeException;
-import com.czeta.onlinejudge.util.response.APIResult;
 import com.czeta.onlinejudge.util.utils.AssertUtils;
 import com.czeta.onlinejudge.util.utils.DateUtils;
 import com.czeta.onlinejudge.util.utils.PasswordUtils;
@@ -55,15 +53,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserCertificationMapper userCertificationMapper;
 
-    public void saveNewUser(RegisterModel registerModel) {
-        AssertUtils.notNull(registerModel.getUsername(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        AssertUtils.notNull(registerModel.getPassword(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        AssertUtils.notNull(registerModel.getEmail(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        Admin admin = adminMapper.selectOne(Wrappers.<Admin>lambdaQuery().eq(Admin::getUsername, registerModel.getUsername()));
+    public void saveNewUser(UserRegisterModel userRegisterModel) {
+        AssertUtils.notNull(userRegisterModel.getUsername(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        AssertUtils.notNull(userRegisterModel.getPassword(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        AssertUtils.notNull(userRegisterModel.getEmail(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        Admin admin = adminMapper.selectOne(Wrappers.<Admin>lambdaQuery().eq(Admin::getUsername, userRegisterModel.getUsername()));
         AssertUtils.isNull(admin, BaseStatusMsg.EXISTED_USERNAME);
-        User user = UserInfoMapstructConvert.INSTANCE.registerModelToUserInfo(registerModel);
+        User user = UserInfoMapstructConvert.INSTANCE.userRegisterModelToUserInfo(userRegisterModel);
         user.setPassword(PasswordUtils.encrypt(user.getPassword(), jwtProperties.getSecret()));
-        user.setRoleId(RoleType.COMMON.getId());
+        user.setRoleId(RoleType.COMMON_USER.getCode());
         user.setRank(userMapper.selectCount(null) + 1);
         try {
             userMapper.insert(user);
@@ -111,7 +109,8 @@ public class UserServiceImpl implements UserService {
         AssertUtils.notNull(userInfoModel.getId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         User user = UserInfoMapstructConvert.INSTANCE.userInfoModelToUserInfo(userInfoModel);
         user.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        return userMapper.updateById(user) == 1;
+        userMapper.updateById(user);
+        return true;
     }
 
     @Override
@@ -127,7 +126,8 @@ public class UserServiceImpl implements UserService {
         newUserInfo.setId(userId);
         newUserInfo.setEmail(newEmail);
         newUserInfo.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        return userMapper.updateById(newUserInfo) == 1;
+        userMapper.updateById(newUserInfo);
+        return true;
     }
 
     @Override
@@ -145,7 +145,8 @@ public class UserServiceImpl implements UserService {
         newUserInfo.setId(userId);
         newUserInfo.setPassword(newPassword);
         newUserInfo.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        return userMapper.updateById(newUserInfo) == 1;
+        userMapper.updateById(newUserInfo);
+        return true;
     }
 
     @Override
@@ -164,9 +165,10 @@ public class UserServiceImpl implements UserService {
         UserCertification userCertification = UserInfoMapstructConvert.INSTANCE.userCertificationModelToUserCertification(userCertificationModel);
         userCertification.setStatus((short) 0);
         userCertification.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        return userCertificationMapper.update(userCertification, Wrappers.<UserCertification>lambdaQuery()
+        userCertificationMapper.update(userCertification, Wrappers.<UserCertification>lambdaQuery()
                 .eq(UserCertification::getUserId, userCertification.getUserId())
-                .eq(UserCertification::getCertificationId, userCertification.getCertificationId())) == 1;
+                .eq(UserCertification::getCertificationId, userCertification.getCertificationId()));
+        return true;
     }
 
     @Override

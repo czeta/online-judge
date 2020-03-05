@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS user_certification (
   class VARCHAR(20),
   phone VARCHAR(20),
   graduation_time VARCHAR(30),
-  status TINYINT NOT NULL DEFAULT 1,
+  status TINYINT NOT NULL DEFAULT 0,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS certification (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
-  CONSTRAINT uk_type UNIQUE KEY(type)
+  CONSTRAINT uk_type UNIQUE KEY(name)
 )
 
 -- 4.solved_problem（用户解决题目表）
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS message (
   content VARCHAR(500) NOT NULL,
   creator VARCHAR(50) NOT NULL,
   user_id INT NOT NULL,
-  status TINYINT NOT NULL DEFAULT 1,
+  status TINYINT NOT NULL DEFAULT 0,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
@@ -146,8 +146,8 @@ CREATE TABLE IF NOT EXISTS problem (
 CREATE TABLE IF NOT EXISTS problem_judge_type (
   id INT NOT NULL AUTO_INCREMENT,
   problem_id INT NOT NULL,
-  judge_id INT NOT NULL,
-  reptile_problem_id INT,
+  judge_type_id INT NOT NULL,
+  spider_problem_id INT,
   all_sample_input TEXT,
   all_sample_output TEXT,
   status TINYINT NOT NULL DEFAULT 1,
@@ -159,15 +159,25 @@ CREATE TABLE IF NOT EXISTS problem_judge_type (
 
 -- 11.judge_type（评测方式标准表）
 CREATE TABLE IF NOT EXISTS judge_type (
-  id INT NOT NULL AUTO_INCREMENT,
-  name VARCHAR(50) NOT NULL,
-  reptile_name VARCHAR(50),
-  reptile_url VARCHAR(300),
-  status TINYINT NOT NULL DEFAULT 1,
+  id INT NOT NULL AUTO_INCREM ENT,
+  -- 评测方式公用信息
+  type TINYINT NOT NULL, -- 0代表爬虫、1代表评测机
+  name VARCHAR(50) NOT NULL, -- 爬虫名称或评测机名称
+  url VARCHAR(300) NOT NULL, -- 爬虫目标url或评测机服务所在url
+  status TINYINT NOT NULL DEFAULT 0, -- 爬虫和评测机刚创建初始状态，0表示被停用，1表示正常，-1表示异常
+  -- 爬虫专有信息（无）
+  -- 评测机专有信息，初始化可都不填，由心跳进行补充
+  hostname VARCHAR(50),
+  cpu_core TINYINT,
+  cpu_usage VARCHAR(20),
+  memory_usage VARCHAR(20),
+  last_heart_beat TIMESTAMP,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
+
+
 
 -- 12.tag（标签表）
 CREATE TABLE IF NOT EXISTS tag (
@@ -230,7 +240,7 @@ CREATE TABLE IF NOT EXISTS contest_user (
   id INT NOT NULL AUTO_INCREMENT,
   contest_id INT NOT NULL,
   user_id INT NOT NULL,
-  status TINYINT NOT NULL DEFAULT 1,
+  status TINYINT NOT NULL DEFAULT 0,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)

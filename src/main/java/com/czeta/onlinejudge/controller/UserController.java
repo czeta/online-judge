@@ -3,7 +3,7 @@ package com.czeta.onlinejudge.controller;
 import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.dao.entity.UserCertification;
-import com.czeta.onlinejudge.model.param.RegisterModel;
+import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.UserService;
@@ -30,8 +30,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public APIResult saveNewUser(@RequestBody RegisterModel registerModel) {
-        userService.saveNewUser(registerModel);
+    public APIResult saveNewUser(@RequestBody UserRegisterModel userRegisterModel) {
+        userService.saveNewUser(userRegisterModel);
         return new APIResult();
     }
 

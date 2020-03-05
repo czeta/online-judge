@@ -1,11 +1,9 @@
 package com.czeta.onlinejudge.service;
 
-import com.czeta.onlinejudge.dao.entity.Certification;
 import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.dao.entity.UserCertification;
-import com.czeta.onlinejudge.model.param.RegisterModel;
-import com.czeta.onlinejudge.model.param.UserAccountModel;
+import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 
@@ -21,7 +19,7 @@ import java.util.List;
 public interface UserService {
 
 
-    void saveNewUser(RegisterModel registerModel);
+    void saveNewUser(UserRegisterModel userRegisterModel);
 
     User getUserInfoById(Long id);
 

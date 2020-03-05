@@ -17,7 +17,7 @@ public class ProblemJudgeType {
     private Long id;
     private Long problemId;
     private Integer judgeId;
-    private Long reptileProblemId;
+    private Long spiderProblemId;
     private String allSampleInput;
     private String allSampleOutput;
     private Short status;
