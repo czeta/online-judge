@@ -8,7 +8,6 @@ import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.enums.SubmitStatus;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
-import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
@@ -49,9 +48,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private MessageMapper messageMapper;
-
-    @Autowired
-    private UserCertificationMapper userCertificationMapper;
 
     public void saveNewUser(UserRegisterModel userRegisterModel) {
         AssertUtils.notNull(userRegisterModel.getUsername(), BaseStatusMsg.APIEnum.PARAM_ERROR);
@@ -150,31 +146,46 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveNewCertification(UserCertificationModel userCertificationModel) {
-        AssertUtils.notNull(userCertificationModel.getUserId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        AssertUtils.notNull(userCertificationModel.getCertificationId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        UserCertification userCertification = UserInfoMapstructConvert.INSTANCE.userCertificationModelToUserCertification(userCertificationModel);
-        userCertification.setStatus((short) 0);
-        userCertificationMapper.insert(userCertification);
+    public List<User> getUserInfoList() {
+        return userMapper.selectList(null)
+                .stream()
+                .map(s -> {
+                    s.setPassword(null);
+                    return s;
+                }).collect(Collectors.toList());
     }
 
     @Override
-    public boolean updateUserCertification(UserCertificationModel userCertificationModel) {
-        AssertUtils.notNull(userCertificationModel.getUserId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        AssertUtils.notNull(userCertificationModel.getCertificationId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        UserCertification userCertification = UserInfoMapstructConvert.INSTANCE.userCertificationModelToUserCertification(userCertificationModel);
-        userCertification.setStatus((short) 0);
-        userCertification.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        userCertificationMapper.update(userCertification, Wrappers.<UserCertification>lambdaQuery()
-                .eq(UserCertification::getUserId, userCertification.getUserId())
-                .eq(UserCertification::getCertificationId, userCertification.getCertificationId()));
+    public List<User> getUserInfosByUsernameKey(String usernameKey) {
+        AssertUtils.notNull(usernameKey, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        List<User> userList = userMapper.selectList(Wrappers.<User>lambdaQuery()
+                .like(User::getUsername, "%" + usernameKey + "%"))
+                .stream()
+                .map(s -> {
+                    s.setPassword(null);
+                    return s;
+                }).collect(Collectors.toList());
+        return userList;
+    }
+
+    public boolean resetUserPasswordByUsername(String username) {
+        AssertUtils.notNull(username, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        User user = new User();
+        user.setPassword(PasswordUtils.encrypt(username, jwtProperties.getSecret()));
+        user.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+        userMapper.update(user, Wrappers.<User>lambdaQuery()
+                .eq(User::getUsername, username));
         return true;
     }
 
     @Override
-    public UserCertification getUserCertification(Long userId) {
-        AssertUtils.notNull(userId, BaseStatusMsg.APIEnum.PARAM_ERROR);
-        return userCertificationMapper.selectOne(Wrappers.<UserCertification>lambdaQuery()
-                .eq(UserCertification::getUserId, userId));
+    public boolean disableUserAccountByUsername(String username) {
+        AssertUtils.notNull(username, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        User user = new User();
+        user.setStatus((short) 0);
+        user.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+        userMapper.update(user, Wrappers.<User>lambdaQuery()
+                .eq(User::getUsername, username));
+        return true;
     }
 }

@@ -6,6 +6,7 @@ import com.czeta.onlinejudge.dao.entity.UserCertification;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
+import com.czeta.onlinejudge.service.CertificationService;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.util.response.APIResult;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CertificationService certificationService;
 
     @PostMapping("/register")
     public APIResult saveNewUser(@RequestBody UserRegisterModel userRegisterModel) {
@@ -83,19 +87,19 @@ public class UserController {
     @PostMapping("/userCertification/save")
     public APIResult saveNewCertification(@RequestBody UserCertificationModel userCertificationModel, @RequestAttribute Long userId) {
         userCertificationModel.setUserId(userId);
-        userService.saveNewCertification(userCertificationModel);
+        certificationService.saveNewCertification(userCertificationModel);
         return new APIResult();
     }
 
     @PostMapping("/userCertification/update")
     public APIResult<Boolean> updateUserCertification(@RequestBody UserCertificationModel userCertificationModel, @RequestAttribute Long userId) {
         userCertificationModel.setUserId(userId);
-        return new APIResult(userService.updateUserCertification(userCertificationModel));
+        return new APIResult(certificationService.updateUserCertification(userCertificationModel));
     }
 
     @GetMapping("/userCertification")
     public APIResult<UserCertification> getUserCertification(@RequestAttribute Long userId) {
-        return new APIResult(userService.getUserCertification(userId));
+        return new APIResult(certificationService.getUserCertification(userId));
     }
 
 }

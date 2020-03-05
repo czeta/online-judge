@@ -2,10 +2,6 @@ package com.czeta.onlinejudge.service;
 
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.model.param.AdminRegisterModel;
-import com.czeta.onlinejudge.model.param.AnnouncementModel;
-import com.czeta.onlinejudge.model.param.CertificationModel;
-import com.czeta.onlinejudge.model.param.JudgeTypeModel;
-import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
 
 import java.util.List;
 
@@ -18,52 +14,37 @@ import java.util.List;
  */
 public interface AdminService {
 
-    List<User> getUserInfoList();
-
-    List<User> getUserInfosByUsernameKey(String usernameKey);
-
-    boolean resetUserPasswordByUsername(String username);
-
-    boolean disableUserAccountByUsername(String username);
-
-    List<AppliedCertificationModel> getAppliedCertificationList();
-
-    boolean updateAppliedCertificationByUserId(Short status, Long userId);
-
-    List<Certification> getCertificationTypes();
-
-    void saveNewCertificationType(String type);
-
-    boolean updateCertification(CertificationModel certificationModel);
-
+    /**
+     * 获取普通管理员信息列表
+     * @return
+     */
     List<Admin> getAdminInfoList();
 
+    /**
+     * 获取有关普通管理员信息列表通过用户名关键字
+     * @param usernameKey
+     * @return
+     */
     List<Admin> getAdminInfoListByUsernameKey(String usernameKey);
 
+    /**
+     * 添加新的普通管理员
+     * @param adminRegisterModel
+     */
     void saveNewAdmin(AdminRegisterModel adminRegisterModel);
 
+    /**
+     * 重置管理员密码，与用户名一致
+     * @param username
+     * @return
+     */
     boolean resetAdminPasswordByUsername(String username);
 
+    /**
+     * 禁用管理员账号
+     * @param username
+     * @return
+     */
     boolean disableAdminAccountByUsername(String username);
-
-    List<Announcement> getHomePageAnnouncementList();
-
-    void saveNewHomePageAnnouncement(AnnouncementModel announcementModel, Long userId);
-
-    boolean updateHomePageAnnouncement(AnnouncementModel announcementModel);
-
-    String getFAQContent();
-
-    boolean updateFAQContent(String content);
-
-    List<JudgeType> getJudgeMachineList();
-
-    void saveNewJudgeMachine(JudgeTypeModel judgeTypeModel);
-
-    List<JudgeType> getJudgeSpiderList();
-
-    void saveNewJudgeSpider(JudgeTypeModel judgeTypeModel);
-
-    boolean updateJudgeInfoById(JudgeTypeModel judgeTypeModel);
 
 }
