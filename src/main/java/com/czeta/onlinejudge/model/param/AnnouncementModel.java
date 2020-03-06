@@ -14,4 +14,5 @@ public class AnnouncementModel {
     private Long id;
     private String title;
     private String content;
+    private Short status;
 }

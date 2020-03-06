@@ -51,6 +51,13 @@ public interface UserService {
     List<Message> getMessagesByUserId(Long userId);
 
     /**
+     * 修改用户的消息状态：未读->已读
+     * @param msgId
+     * @return
+     */
+    boolean updateMessageStatusById(Long msgId);
+
+    /**
      * 更新用户信息
      * @param userInfoModel
      * @return

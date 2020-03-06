@@ -108,8 +108,8 @@ public class JwtFilter extends AuthenticatingFilter {
         HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
         HttpServletResponse httpServletResponse = WebUtils.toHttp(response);
         httpServletResponse.setStatus(200);
-        // 封装成自定义API（header仍然返回200正确状态码，但是自定义status返回访问受限的状态码）
-        HttpUtils.printJSON(httpServletResponse, new APIResult<>(ShiroStatusMsg.AUTHORITY_EXCEED));
+        // 封装成自定义API（header仍然返回200正确状态码，但是自定义status返回登录受限的状态码）
+        HttpUtils.printJSON(httpServletResponse, new APIResult<>(ShiroStatusMsg.LOGIN_AUTHORITY_EXCEED));
         log.info("login fail, no authority");
         return false;
     }

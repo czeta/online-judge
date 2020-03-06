@@ -2,6 +2,8 @@ package com.czeta.onlinejudge.util.response;
 
 import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.util.exception.IBaseException;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * @ClassName APIResult
@@ -10,9 +12,13 @@ import com.czeta.onlinejudge.util.exception.IBaseException;
  * @Date 2020/2/23 12:52
  * @Version 1.0
  */
+@ApiModel("RESTFUL风格返回接口")
 public class APIResult<T> {
+    @ApiModelProperty("响应码")
     private Integer status;
+    @ApiModelProperty("响应信息")
     private String message;
+    @ApiModelProperty("访问结果数据对象")
     private T data;
 
     public APIResult(T data) {

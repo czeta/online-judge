@@ -5,6 +5,7 @@ import com.czeta.onlinejudge.convert.UserInfoMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.mapper.*;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
+import com.czeta.onlinejudge.enums.CommonItemStatus;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.enums.SubmitStatus;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
@@ -98,6 +99,16 @@ public class UserServiceImpl implements UserService {
     public List<Message> getMessagesByUserId(Long userId) {
         AssertUtils.notNull(userId, BaseStatusMsg.APIEnum.PARAM_ERROR);
         return messageMapper.selectList(Wrappers.<Message>lambdaQuery().eq(Message::getUserId, userId));
+    }
+
+    @Override
+    public boolean updateMessageStatusById(Long msgId) {
+        AssertUtils.notNull(msgId, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        Message message = new Message();
+        message.setId(msgId);
+        message.setStatus(CommonItemStatus.ENABLE.getCode());
+        messageMapper.updateById(message);
+        return true;
     }
 
     @Override

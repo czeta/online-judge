@@ -10,10 +10,12 @@ import com.czeta.onlinejudge.enums.JudgeTypeEnum;
 import com.czeta.onlinejudge.model.param.JudgeTypeModel;
 import com.czeta.onlinejudge.service.JudgeService;
 import com.czeta.onlinejudge.util.utils.AssertUtils;
+import com.czeta.onlinejudge.util.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,6 +53,7 @@ public class JudgeServiceImpl implements JudgeService {
     public boolean updateJudgeInfoById(JudgeTypeModel judgeTypeModel) {
         AssertUtils.notNull(judgeTypeModel.getId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         JudgeType judgeType = JudgeMapstructConvert.INSTANCE.judgeTypeModelToJudgeType(judgeTypeModel);
+        judgeType.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         judgeTypeMapper.updateById(judgeType);
         return true;
     }

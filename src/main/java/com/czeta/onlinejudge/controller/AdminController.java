@@ -82,8 +82,6 @@ public class AdminController {
         return new APIResult<>(certificationService.updateAppliedCertificationByUserId(status, userId));
     }
 
-    // begin
-
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @GetMapping("/certManager/certTypeList")
     public APIResult<List<Certification>> getCertificationTypeList() {
@@ -138,6 +136,12 @@ public class AdminController {
     @GetMapping("/ancManager/ancInfoList")
     public APIResult<List<Announcement>> getHomePageAnnouncementList() {
         return new APIResult<>(announcementService.getHomePageAnnouncementList());
+    }
+
+    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
+    @GetMapping("/ancManager/ancInfo/{id}")
+    public APIResult<Announcement> getHomePageAnnouncement(@PathVariable Long id) {
+        return new APIResult<>(announcementService.getHomePageAnnouncementById(id));
     }
 
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)

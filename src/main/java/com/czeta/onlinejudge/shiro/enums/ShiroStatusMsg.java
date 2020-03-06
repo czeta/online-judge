@@ -11,6 +11,7 @@ import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
  */
 public enum ShiroStatusMsg implements IBaseStatusMsg {
     AUTHORITY_EXCEED(APIEnum.AUTHORITY_EXCEED.getCode(), APIEnum.AUTHORITY_EXCEED.getMessage()),
+    LOGIN_AUTHORITY_EXCEED(APIEnum.LOGIN_AUTHORITY_EXCEED.getCode(), APIEnum.LOGIN_AUTHORITY_EXCEED.getMessage()),
     INVALID_TOKEN(3001, "token无效"),
     PARAM_ERROR(3002, "shiro内部参数错误");
 

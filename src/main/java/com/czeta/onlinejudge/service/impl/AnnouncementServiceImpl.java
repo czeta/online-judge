@@ -44,6 +44,13 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
+    public Announcement getHomePageAnnouncementById(Long id) {
+        return announcementMapper.selectOne(Wrappers.<Announcement>lambdaQuery()
+                .eq(Announcement::getSourceId, AnnouncementType.HOME_PAGE.getCode())
+                .eq(Announcement::getId, id));
+    }
+
+    @Override
     public void saveNewHomePageAnnouncement(AnnouncementModel announcementModel, Long adminId) {
         AssertUtils.notNull(announcementModel.getTitle(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         AssertUtils.notNull(announcementModel.getContent(), BaseStatusMsg.APIEnum.PARAM_ERROR);
@@ -62,6 +69,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcement.setId(announcementModel.getId());
         announcement.setTitle(announcementModel.getTitle());
         announcement.setContent(announcementModel.getContent());
+        announcement.setStatus(announcementModel.getStatus());
         announcement.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         announcementMapper.updateById(announcement);
         return true;

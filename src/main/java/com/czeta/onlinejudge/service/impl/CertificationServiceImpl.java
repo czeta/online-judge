@@ -7,6 +7,7 @@ import com.czeta.onlinejudge.dao.entity.UserCertification;
 import com.czeta.onlinejudge.dao.mapper.CertificationMapper;
 import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
+import com.czeta.onlinejudge.enums.CommonItemStatus;
 import com.czeta.onlinejudge.model.param.CertificationModel;
 import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
@@ -41,6 +42,10 @@ public class CertificationServiceImpl implements CertificationService {
     public void saveNewCertification(UserCertificationModel userCertificationModel) {
         AssertUtils.notNull(userCertificationModel.getUserId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         AssertUtils.notNull(userCertificationModel.getCertificationId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        Certification certification = certificationMapper.selectOne(Wrappers.<Certification>lambdaQuery()
+                .eq(Certification::getId, userCertificationModel.getCertificationId())
+                .eq(Certification::getStatus, CommonItemStatus.ENABLE.getCode()));
+        AssertUtils.notNull(certification, BaseStatusMsg.APIEnum.PARAM_ERROR);
         UserCertification userCertification = UserInfoMapstructConvert.INSTANCE.userCertificationModelToUserCertification(userCertificationModel);
         userCertification.setStatus((short) 0);
         userCertificationMapper.insert(userCertification);

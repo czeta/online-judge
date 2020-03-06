@@ -20,6 +20,13 @@ public interface AnnouncementService {
     List<Announcement> getHomePageAnnouncementList();
 
     /**
+     * 根据公告id获取公告详情
+     * @param id
+     * @return
+     */
+    Announcement getHomePageAnnouncementById(Long id);
+
+    /**
      * 添加新的首页公告信息
      * @param announcementModel
      * @param adminId

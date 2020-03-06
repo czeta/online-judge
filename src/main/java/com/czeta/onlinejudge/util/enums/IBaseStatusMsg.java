@@ -21,7 +21,8 @@ public interface IBaseStatusMsg extends IEnumItem<Integer, String> {
         /**<== 客户端 ==>**/
         PARAM_ERROR(2001, "请求参数错误"),
         PARAM_RESOLVER_ERROR(2002, "非法的请求参数格式"),
-        AUTHORITY_EXCEED(2003, "越权访问");
+        AUTHORITY_EXCEED(2003, "越权访问"),
+        LOGIN_AUTHORITY_EXCEED(2004, "登录权限受限");
 
 
         private Integer code;

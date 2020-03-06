@@ -55,6 +55,7 @@ public class AdminServiceImpl implements AdminService {
     public List<Admin> getAdminInfoListByUsernameKey(String usernameKey) {
         AssertUtils.notNull(usernameKey, BaseStatusMsg.APIEnum.PARAM_ERROR);
         List<Admin> adminList = adminMapper.selectList(Wrappers.<Admin>lambdaQuery()
+                .eq(Admin::getRoleId, RoleType.COMMON_ADMIN.getCode())
                 .like(Admin::getUsername, "%" + usernameKey + "%"))
                 .stream()
                 .map(s -> {
