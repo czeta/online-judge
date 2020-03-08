@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS judge_type (
   hostname VARCHAR(50),
   cpu_core TINYINT,
   cpu_usage VARCHAR(20),
-  memory_usage VARCHAR(20),
+  memory_usage VARCHAR(20), 
   last_heart_beat TIMESTAMP,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

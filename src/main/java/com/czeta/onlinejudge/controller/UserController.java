@@ -38,14 +38,13 @@ public class UserController {
     @Autowired
     private CertificationService certificationService;
 
-    @ApiOperation(value = "新用户注册", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "新用户注册", notes = "")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userRegisterModel", value = "注册实体，三个属性必填", dataType = "UserRegisterModel", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 2100, message = "用户名已存在")
     })
-    @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/register")
     public APIResult saveNewUser(@RequestBody UserRegisterModel userRegisterModel) {
         userService.saveNewUser(userRegisterModel);

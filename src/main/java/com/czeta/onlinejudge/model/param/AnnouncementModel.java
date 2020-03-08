@@ -11,7 +11,7 @@ import lombok.Data;
  * @Date 2020/3/4 14:30
  * @Version 1.0
  */
-@ApiModel("公告model")
+@ApiModel(description = "公告model")
 @Data
 public class AnnouncementModel {
     @ApiModelProperty(value = "公告ID，如果是添加的功能，这部分置为null；如果是修改的功能，这部分不能为null")
