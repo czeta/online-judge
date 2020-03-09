@@ -42,7 +42,7 @@ public class UserController {
 
     @ApiOperation(value = "新用户注册", notes = "")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userRegisterModel", value = "注册实体，三个属性必填", dataType = "UserRegisterModel", required = true)
+            @ApiImplicitParam(name = "userRegisterModel", value = "注册实体，三个属性必填", dataType = "UserRegisterModel", required = false)
     })
     @ApiResponses({
             @ApiResponse(code = 2100, message = "用户名已存在")
@@ -103,7 +103,7 @@ public class UserController {
     @ApiOperation(value = "根据userId分页获得用户的消息列表", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，查看消息详情列表，不过这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id，查看消息详情列表，不过这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -126,7 +126,7 @@ public class UserController {
     @ApiOperation(value = "根据userId更新用户基本信息", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userInfoModel", value = "用户修改后的信息实体", dataType = "UserInfoModel", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -140,7 +140,7 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "oldEmail", value = "用户输入的旧邮箱", dataType = "String", required = true),
             @ApiImplicitParam(name = "newEmail", value = "用户输入的新邮箱", dataType = "String", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -153,7 +153,7 @@ public class UserController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "oldPassword", value = "用户输入的旧密码", dataType = "String", required = true),
             @ApiImplicitParam(name = "newPassword", value = "用户输入的新密码", dataType = "String", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -165,7 +165,7 @@ public class UserController {
     @ApiOperation(value = "根据userId，申请实名认证", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userCertificationModel", value = "用户申请认证的信息实体", dataType = "UserCertificationModel", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -179,7 +179,7 @@ public class UserController {
     @ApiOperation(value = "根据userId，修改实名认证信息并重新申请", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userCertificationModel", value = "用户申请认证的信息实体", dataType = "UserCertificationModel", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -191,7 +191,7 @@ public class UserController {
 
     @ApiOperation(value = "根据userId，获得已申请的实名认证信息", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)

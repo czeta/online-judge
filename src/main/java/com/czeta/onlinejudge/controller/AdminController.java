@@ -242,7 +242,7 @@ public class AdminController {
     @ApiOperation(value = "添加新的首页公告", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "announcementModel", value = "添加的公告实体model", dataType = "AnnouncementModel", required = true),
-            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
