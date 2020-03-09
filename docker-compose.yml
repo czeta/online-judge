@@ -42,6 +42,7 @@ services:
       - '8080:8080'
     volumes:
       - ~/data/onlinejudge/workspace/online-judge.jar:/data/online-judge.jar # jar包所在位置宿主机本地化
+      - /opt/logs/online-judge:/opt/logs/online-judge
       - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
     network_mode: 'host' # 将应用内访问容器localhost转为访问宿主机的localhost
     command: [

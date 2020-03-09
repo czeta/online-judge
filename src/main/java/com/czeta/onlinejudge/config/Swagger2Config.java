@@ -33,49 +33,49 @@ public class Swagger2Config {
     /**
      * 标题
      */
-    @Value("${swagger.title}")
+    @Value("${online-judge.swagger.title}")
     private String title;
 
     /**
      * 基本包
      */
-    @Value("${swagger.base.package}")
+    @Value("${online-judge.swagger.base.package}")
     private String basePackage;
 
     /**
      * 描述
      */
-    @Value("${swagger.description}")
+    @Value("${online-judge.swagger.description}")
     private String description;
 
     /**
      * URL
      */
-    @Value("${swagger.url}")
+    @Value("${online-judge.swagger.url}")
     private String url;
 
     /**
      * 作者
      */
-    @Value("${swagger.contact.name}")
+    @Value("${online-judge.swagger.contact.name}")
     private String contactName;
 
     /**
      * 作者网址
      */
-    @Value("${swagger.contact.url}")
+    @Value("${online-judge.swagger.contact.url}")
     private String contactUrl;
 
     /**
      * 作者邮箱
      */
-    @Value("${swagger.contact.email}")
+    @Value("${online-judge.swagger.contact.email}")
     private String contactEmail;
 
     /**
      * 版本
      */
-    @Value("${swagger.version}")
+    @Value("${online-judge.swagger.version}")
     private String version;
 
     @Bean

@@ -1,7 +1,9 @@
 package com.czeta.onlinejudge.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.Announcement;
 import com.czeta.onlinejudge.model.param.AnnouncementModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 
 import java.util.List;
 
@@ -17,7 +19,7 @@ public interface AnnouncementService {
      * 获取首页公告列表
      * @return
      */
-    List<Announcement> getHomePageAnnouncementList();
+    IPage<Announcement> getHomePageAnnouncementList(PageModel pageModel);
 
     /**
      * 根据公告id获取公告详情

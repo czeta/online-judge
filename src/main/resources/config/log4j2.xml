@@ -6,14 +6,13 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
     <!--定义属性-->
     <Properties>
         <Property name="log_file_path">/opt/logs/online-judge</Property>
-        <Property name="log_level">info</Property>
         <Property name="log_pattern">[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %L %c{1}.%M - %msg%xEx%n</Property>
     </Properties>
     <!--先定义所有的appender，说明日志的去向-->
     <Appenders>
         <!--控制台的配置-->
         <Console name="console" target="SYSTEM_OUT" follow="true">
-            <ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <patternLayout pattern="${log_pattern}"/>
         </Console>
         <!--ERROR级别日志的滚动文件配置-->
@@ -21,7 +20,7 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
                                  immediateFlush="true" fileName="${log_file_path}/error.log"
                                  filePattern="${log_file_path}/logs/error.log.%d{yyyy-MM-dd}">
             <Filters>
-                <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
             <PatternLayout>
                 <Pattern>${log_pattern}</Pattern>
@@ -38,8 +37,8 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
                                  immediateFlush="true" fileName="${log_file_path}/warn.log"
                                  filePattern="${log_file_path}/logs/warn.log.%d{yyyy-MM-dd}">
             <Filters>
-                <ThresholdFilter level="error" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
             <PatternLayout>
                 <pattern>${log_pattern}</pattern>
@@ -56,8 +55,8 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
                                  immediateFlush="true" fileName="${log_file_path}/info.log"
                                  filePattern="${log_file_path}/logs/info.log.%d{yyyy-MM-dd}">
             <Filters>
-                <ThresholdFilter level="warn" onMatch="DENY" onMismatch="ACCEPT"/>
-                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
             <PatternLayout>
                 <pattern>${log_pattern}</pattern>
@@ -79,8 +78,8 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
                                  immediateFlush="true" fileName="${log_file_path}/debug.log"
                                  filePattern="${log_file_path}/logs/debug.log.%d{yyyy-MM-dd}">
             <Filters>
-                <ThresholdFilter level="info" onMatch="DENY" onMismatch="ACCEPT"/>
-                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
             <PatternLayout>
                 <pattern>${log_pattern}</pattern>
@@ -103,7 +102,7 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
         <!--过滤掉spring和mybatis的一些无用的DEBUG信息-->
         <AsyncLogger name="org.springframework" level="INFO"/>
         <AsyncLogger name="org.mybatis" level="INFO"/>
-        <AsyncRoot level="all">
+        <AsyncRoot level="DEBUG">
             <Appender-ref ref="console"/>
             <Appender-ref ref="error_file"/>
             <Appender-ref ref="warn_file"/>

@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * @Version 1.0
  */
 @Api(tags = "Login Features Controller")
+@RequestMapping("/api")
 @RestController
 public class LoginController {
 

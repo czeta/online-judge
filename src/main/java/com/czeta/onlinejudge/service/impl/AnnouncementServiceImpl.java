@@ -1,6 +1,8 @@
 package com.czeta.onlinejudge.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.dao.entity.Admin;
 import com.czeta.onlinejudge.dao.entity.Announcement;
 import com.czeta.onlinejudge.dao.mapper.AdminMapper;
@@ -8,6 +10,7 @@ import com.czeta.onlinejudge.dao.mapper.AnnouncementMapper;
 import com.czeta.onlinejudge.enums.AnnouncementType;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.model.param.AnnouncementModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.service.AnnouncementService;
 import com.czeta.onlinejudge.util.utils.AssertUtils;
 import com.czeta.onlinejudge.util.utils.DateUtils;
@@ -36,8 +39,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private AdminMapper adminMapper;
 
     @Override
-    public List<Announcement> getHomePageAnnouncementList() {
-        return announcementMapper.selectList(Wrappers.<Announcement>lambdaQuery()
+    public IPage<Announcement> getHomePageAnnouncementList(PageModel pageModel) {
+        Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
+        return announcementMapper.selectPage(page, Wrappers.<Announcement>lambdaQuery()
                 .eq(Announcement::getSourceId, AnnouncementType.HOME_PAGE.getCode())
                 .orderByDesc(Announcement::getStatus)
                 .orderByDesc(Announcement::getLmTs));

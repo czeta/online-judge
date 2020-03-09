@@ -1,6 +1,8 @@
 package com.czeta.onlinejudge.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.convert.UserInfoMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.mapper.*;
@@ -13,6 +15,7 @@ import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
 import com.czeta.onlinejudge.util.exception.APIRuntimeException;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.util.utils.AssertUtils;
 import com.czeta.onlinejudge.util.utils.DateUtils;
 import com.czeta.onlinejudge.util.utils.PasswordUtils;
@@ -96,9 +99,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Message> getMessagesByUserId(Long userId) {
+    public IPage<Message> getMessagesByUserId(PageModel pageParam, Long userId) {
         AssertUtils.notNull(userId, BaseStatusMsg.APIEnum.PARAM_ERROR);
-        return messageMapper.selectList(Wrappers.<Message>lambdaQuery().eq(Message::getUserId, userId));
+        Page<Message> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
+        return messageMapper.selectPage(page, Wrappers.<Message>lambdaQuery().eq(Message::getUserId, userId));
     }
 
     @Override
@@ -157,26 +161,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserInfoList() {
-        return userMapper.selectList(null)
+    public IPage<User> getUserInfoList(PageModel pageModel) {
+        Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
+        IPage<User> userIPage = userMapper.selectPage(page,null);
+        userIPage.setRecords(userIPage.getRecords()
                 .stream()
                 .map(s -> {
                     s.setPassword(null);
                     return s;
-                }).collect(Collectors.toList());
+                }).collect(Collectors.toList()));
+        return userIPage;
     }
 
     @Override
-    public List<User> getUserInfosByUsernameKey(String usernameKey) {
-        AssertUtils.notNull(usernameKey, BaseStatusMsg.APIEnum.PARAM_ERROR);
-        List<User> userList = userMapper.selectList(Wrappers.<User>lambdaQuery()
-                .like(User::getUsername, "%" + usernameKey + "%"))
+    public IPage<User> getUserInfosByUsernameKey(PageModel<String> pageModel) {
+        AssertUtils.notNull(pageModel.getParamData(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
+        IPage<User> userIPage = userMapper.selectPage(page, Wrappers.<User>lambdaQuery()
+                .like(User::getUsername, "%" + pageModel.getParamData() + "%"));
+        userIPage.setRecords(userIPage.getRecords()
                 .stream()
                 .map(s -> {
                     s.setPassword(null);
                     return s;
-                }).collect(Collectors.toList());
-        return userList;
+                }).collect(Collectors.toList()));
+        return userIPage;
     }
 
     public boolean resetUserPasswordByUsername(String username) {

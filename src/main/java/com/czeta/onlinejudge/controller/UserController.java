@@ -1,5 +1,6 @@
 package com.czeta.onlinejudge.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.dao.entity.UserCertification;
@@ -9,6 +10,7 @@ import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.CertificationService;
 import com.czeta.onlinejudge.service.UserService;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.util.response.APIResult;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -98,15 +100,16 @@ public class UserController {
         return new APIResult<>(userService.getNotSolvedProblemsByUserId(id));
     }
 
-    @ApiOperation(value = "根据userId获得用户的消息列表", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "根据userId分页获得用户的消息列表", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true),
             @ApiImplicitParam(name = "userId", value = "用户id，查看消息详情列表，不过这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/messages")
-    public APIResult<List<Message>> getMessages(@RequestAttribute Long userId) {
-        return new APIResult<>(userService.getMessagesByUserId(userId));
+    public APIResult<IPage<Message>> getMessages(@RequestBody PageModel page, @RequestAttribute Long userId) {
+        return new APIResult<>(userService.getMessagesByUserId(page, userId));
     }
 
     @ApiOperation(value = "根据消息Id修改message状态：未读->已读", notes = "需要token：普通用户权限")

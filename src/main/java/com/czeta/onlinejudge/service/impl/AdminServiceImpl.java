@@ -1,10 +1,13 @@
 package com.czeta.onlinejudge.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.mapper.*;
 import com.czeta.onlinejudge.enums.*;
 import com.czeta.onlinejudge.model.param.AdminRegisterModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.service.AdminService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
 import com.czeta.onlinejudge.util.exception.APIRuntimeException;
@@ -41,28 +44,33 @@ public class AdminServiceImpl implements AdminService {
 
 
     @Override
-    public List<Admin> getAdminInfoList() {
-        return adminMapper.selectList(Wrappers.<Admin>lambdaQuery()
-                .eq(Admin::getRoleId, RoleType.COMMON_ADMIN.getCode()))
+    public IPage<Admin> getAdminInfoList(PageModel pageModel) {
+        Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
+        IPage<Admin> adminIPage = adminMapper.selectPage(page, Wrappers.<Admin>lambdaQuery()
+                .eq(Admin::getRoleId, RoleType.COMMON_ADMIN.getCode()));
+        adminIPage.setRecords(adminIPage.getRecords()
                 .stream()
                 .map(s -> {
                     s.setPassword(null);
                     return s;
-                }).collect(Collectors.toList());
+                }).collect(Collectors.toList()));
+        return adminIPage;
     }
 
     @Override
-    public List<Admin> getAdminInfoListByUsernameKey(String usernameKey) {
-        AssertUtils.notNull(usernameKey, BaseStatusMsg.APIEnum.PARAM_ERROR);
-        List<Admin> adminList = adminMapper.selectList(Wrappers.<Admin>lambdaQuery()
+    public IPage<Admin> getAdminInfoListByUsernameKey(PageModel<String> pageModel) {
+        AssertUtils.notNull(pageModel.getParamData(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
+        IPage<Admin> adminIPage = adminMapper.selectPage(page, Wrappers.<Admin>lambdaQuery()
                 .eq(Admin::getRoleId, RoleType.COMMON_ADMIN.getCode())
-                .like(Admin::getUsername, "%" + usernameKey + "%"))
+                .like(Admin::getUsername, "%" + pageModel.getParamData() + "%"));
+        adminIPage.setRecords(adminIPage.getRecords()
                 .stream()
                 .map(s -> {
                     s.setPassword(null);
                     return s;
-                }).collect(Collectors.toList());
-        return adminList;
+                }).collect(Collectors.toList()));
+        return adminIPage;
     }
 
     @Override

@@ -12,6 +12,6 @@ public class TestController {
     @RequestMapping("/index")
     public String index(@RequestAttribute("username") String username) {
         log.info("test");
-        return username;
+        return "index";
     }
 }

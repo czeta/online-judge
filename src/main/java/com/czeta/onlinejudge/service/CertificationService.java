@@ -1,8 +1,10 @@
 package com.czeta.onlinejudge.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.Certification;
 import com.czeta.onlinejudge.dao.entity.UserCertification;
 import com.czeta.onlinejudge.model.param.CertificationModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
 
@@ -40,7 +42,7 @@ public interface CertificationService {
      * 获取所有用户申请的认证列表
      * @return
      */
-    List<AppliedCertificationModel> getAppliedCertificationList();
+    IPage<AppliedCertificationModel> getAppliedCertificationList(PageModel pageModel);
 
     /**
      * 通过或不通过用户申请的认证

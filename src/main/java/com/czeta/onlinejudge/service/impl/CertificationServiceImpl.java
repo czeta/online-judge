@@ -1,6 +1,8 @@
 package com.czeta.onlinejudge.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.convert.UserInfoMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.Certification;
 import com.czeta.onlinejudge.dao.entity.UserCertification;
@@ -9,6 +11,7 @@ import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.enums.CommonItemStatus;
 import com.czeta.onlinejudge.model.param.CertificationModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.model.param.UserCertificationModel;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
 import com.czeta.onlinejudge.service.CertificationService;
@@ -72,8 +75,9 @@ public class CertificationServiceImpl implements CertificationService {
     }
 
     @Override
-    public List<AppliedCertificationModel> getAppliedCertificationList() {
-        return userCertificationMapper.selectAppliedCertification();
+    public IPage<AppliedCertificationModel> getAppliedCertificationList(PageModel pageModel) {
+        Page page = new Page<>(pageModel.getOffset(), pageModel.getLimit());
+        return userCertificationMapper.selectAppliedCertification(page);
     }
 
     @Override

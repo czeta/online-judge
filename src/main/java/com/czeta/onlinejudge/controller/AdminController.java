@@ -1,5 +1,6 @@
 package com.czeta.onlinejudge.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
@@ -40,24 +41,26 @@ public class AdminController {
     @Autowired
     private JudgeService judgeService;
 
-    @ApiOperation(value = "获得所有用户的详情信息列表", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({})
-    @ApiResponses({})
-    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/userManager/userInfoList")
-    public APIResult<List<User>> getUserInfoList() {
-        return new APIResult<>(userService.getUserInfoList());
-    }
-
-    @ApiOperation(value = "根据用户名关键字获取相关用户信息列表", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "分页获得所有用户的详情信息列表", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "usernameKey", value = "搜索用户名关键字", dataType = "String", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/userManager/userInfoList/{usernameKey}")
-    public APIResult<List<User>> getUserInfoList(@PathVariable String usernameKey) {
-        return new APIResult<>(userService.getUserInfosByUsernameKey(usernameKey));
+    @GetMapping("/userManager/userInfoList")
+    public APIResult<IPage<User>> getUserInfoList(@RequestBody PageModel pageModel) {
+        return new APIResult<>(userService.getUserInfoList(pageModel));
+    }
+
+    @ApiOperation(value = "根据用户名关键字分页获取相关用户信息列表", notes = "需要token：超级admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData为搜索用户名关键字", dataType = "PageModel", required = true)
+    })
+    @ApiResponses({})
+    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
+    @GetMapping("/userManager/searchResult")
+    public APIResult<IPage<User>> getUserSearchResult(@RequestBody PageModel<String> pageModel) {
+        return new APIResult<>(userService.getUserInfosByUsernameKey(pageModel));
     }
 
     @ApiOperation(value = "添加新的用户", notes = "需要token：超级admin权限")
@@ -99,12 +102,14 @@ public class AdminController {
 
 
     @ApiOperation(value = "获得用户申请的实名认证信息列表（待审核）", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
+    })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @GetMapping("/userManager/appliedCertificationList")
-    public APIResult<List<AppliedCertificationModel>> getAppliedCertificationList() {
-        return new APIResult<>(certificationService.getAppliedCertificationList());
+    public APIResult<IPage<AppliedCertificationModel>> getAppliedCertificationList(@RequestBody PageModel pageModel) {
+        return new APIResult<>(certificationService.getAppliedCertificationList(pageModel));
     }
 
     @ApiOperation(value = "审核实名认证信息：通过或不通过", notes = "需要token：超级admin权限")
@@ -154,24 +159,27 @@ public class AdminController {
         return new APIResult<>(certificationService.updateCertification(certificationModel));
     }
 
-    @ApiOperation(value = "获取普通管理员详细信息列表", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({})
+    @ApiOperation(value = "分页获取普通管理员详细信息列表", notes = "需要token：超级admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
+    })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @GetMapping("/adminManager/adminInfoList")
-    public APIResult<List<Admin>> getAdminInfoList() {
-        return new APIResult<>(adminService.getAdminInfoList());
+    public APIResult<IPage<Admin>> getAdminInfoList(@RequestBody PageModel pageModel) {
+        return new APIResult<>(adminService.getAdminInfoList(pageModel));
     }
 
 
-    @ApiOperation(value = "根据管理员用户名关键字获得相关普通管理员账号信息", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "根据管理员用户名关键字分页获得相关普通管理员账号信息", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "usernameKey", value = "管理员用户名关键字", dataType = "String", required = true)})
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData为用户名关键字", dataType = "PageModel", required = true)
+    })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/adminManager/adminInfoList/{usernameKey}")
-    public APIResult<List<Admin>> getAdminInfoList(@PathVariable String usernameKey) {
-        return new APIResult<>(adminService.getAdminInfoListByUsernameKey(usernameKey));
+    @GetMapping("/adminManager/searchResult")
+    public APIResult<IPage<Admin>> getAdminSearchResult(@RequestBody PageModel<String> pageModel) {
+        return new APIResult<>(adminService.getAdminInfoListByUsernameKey(pageModel));
     }
 
     @ApiOperation(value = "添加新的普通管理员账户", notes = "需要token：超级admin权限")
@@ -209,13 +217,15 @@ public class AdminController {
         return new APIResult<>(adminService.disableAdminAccountByUsername(username));
     }
 
-    @ApiOperation(value = "获得主页公告信息列表", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({})
+    @ApiOperation(value = "分页获得主页公告信息列表", notes = "需要token：超级admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
+    })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @GetMapping("/ancManager/ancInfoList")
-    public APIResult<List<Announcement>> getHomePageAnnouncementList() {
-        return new APIResult<>(announcementService.getHomePageAnnouncementList());
+    public APIResult<IPage<Announcement>> getHomePageAnnouncementList(@RequestBody PageModel pageModel) {
+        return new APIResult<>(announcementService.getHomePageAnnouncementList(pageModel));
     }
 
 

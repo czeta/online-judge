@@ -15,7 +15,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Data
-@ConfigurationProperties(prefix = "shiro")
+@ConfigurationProperties(prefix = "online-judge.shiro")
 public class ShiroProperties {
 
     private boolean enable;

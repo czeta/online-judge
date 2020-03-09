@@ -34,6 +34,5 @@ class OnlineJudgeApplicationTests {
 
     @Test
     void user() {
-        System.out.println(userCertificationMapper.selectAppliedCertification());
     }
 }

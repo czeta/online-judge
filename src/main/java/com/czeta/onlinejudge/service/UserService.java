@@ -1,9 +1,11 @@
 package com.czeta.onlinejudge.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 
 import java.util.List;
 
@@ -48,7 +50,7 @@ public interface UserService {
      * @param userId
      * @return
      */
-    List<Message> getMessagesByUserId(Long userId);
+    IPage<Message> getMessagesByUserId(PageModel pageParam, Long userId);
 
     /**
      * 修改用户的消息状态：未读->已读
@@ -86,14 +88,14 @@ public interface UserService {
      * 获取所有用户信息列表
      * @return
      */
-    List<User> getUserInfoList();
+    IPage<User> getUserInfoList(PageModel pageModel);
 
     /**
      * 通过用户名关键字获取有关的用户信息
-     * @param usernameKey
+     * @param pageModel
      * @return
      */
-    List<User> getUserInfosByUsernameKey(String usernameKey);
+    IPage<User> getUserInfosByUsernameKey(PageModel<String> pageModel);
 
     /**
      * 重置用户密码，与用户名一致

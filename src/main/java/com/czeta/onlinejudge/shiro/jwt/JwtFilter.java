@@ -53,6 +53,10 @@ public class JwtFilter extends AuthenticatingFilter {
      */
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        String url = httpServletRequest.getRequestURL().toString();
+        String method = httpServletRequest.getMethod();
+        log.info("请求URL={}; 请求类型={}", url, method);
         boolean allowed = false;
         try {
             allowed = executeLogin(request, response);

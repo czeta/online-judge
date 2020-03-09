@@ -1,7 +1,9 @@
 package com.czeta.onlinejudge.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.model.param.AdminRegisterModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 
 import java.util.List;
 
@@ -18,14 +20,14 @@ public interface AdminService {
      * 获取普通管理员信息列表
      * @return
      */
-    List<Admin> getAdminInfoList();
+    IPage<Admin> getAdminInfoList(PageModel pageModel);
 
     /**
      * 获取有关普通管理员信息列表通过用户名关键字
-     * @param usernameKey
+     * @param pageModel
      * @return
      */
-    List<Admin> getAdminInfoListByUsernameKey(String usernameKey);
+    IPage<Admin> getAdminInfoListByUsernameKey(PageModel<String> pageModel);
 
     /**
      * 添加新的普通管理员

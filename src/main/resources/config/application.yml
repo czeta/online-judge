@@ -32,6 +32,11 @@ spring:
     time-zone: GMT+8
 ############################# spring config end ###############################
 
+############################# log config end ###############################
+logging:
+  config: classpath:config/log4j2.xml
+############################# log config end ###############################
+
 ############################### mybatis-plus config start #################################
 mybatis-plus:
   # 启动时是否检查MyBatis XML文件是否存在
@@ -106,66 +111,71 @@ spring:
       shutdown-timeout: 3s
 ############################### Redis config end ##################################
 
-######################## Shiro start ########################
-shiro:
-  # 是否启用
-  enable: true
-  permission:
-    # 临时测试允许访问页面
-    - urls: /
-      permission: anon
-    # 排除公共访问页面
-    - urls: /api/user/register
-      permission: anon
-    # 排除登陆登出相关
-    - urls: /login,/logout
-      permission: anon
-      # 排除静态资源
-    - urls: /static/**,/templates/**
-      permission: anon
-      # 排除Swagger
-    - urls: /docs.html,/docs,/swagger-ui.html,/webjars/springfox-swagger-ui/**,/swagger-resources/**,/v2/api-docs
-      permission: anon
-######################## Shiro end ##########################
+############################### online-judge config begin ##################################
+online-judge:
+  ######################## Shiro start ########################
+  shiro:
+    # 是否启用
+    enable: true
+    permission:
+      # 临时测试允许访问页面
+      - urls: /,/index
+        permission: anon
+      # 排除公共访问页面
+      - urls: /api/user/register
+        permission: anon
+      # 排除登陆登出相关
+      - urls: /api/login,/api/logout
+        permission: anon
+        # 排除静态资源
+      - urls: /static/**,/templates/**
+        permission: anon
+        # 排除Swagger
+      - urls: /docs.html,/docs,/swagger-ui.html,/webjars/springfox-swagger-ui/**,/swagger-resources/**,/v2/api-docs
+        permission: anon
+  ######################## Shiro end ##########################
 
-############################ JWT start #############################
-jwt:
-  # token请求头名称
-  token-name: token
-  # jwt密钥
-  secret: 123123
-  # 发行人
-  issuer: online-judge
-  # 观众
-  audience: web
-  # 默认过期时间1小时，单位：秒
-  expire-second: 3600
-  # 是否刷新token
-  refresh-token: true
-  # 刷新token的时间间隔，默认10分钟，单位：秒
-  refresh-token-countdown: 600
-  # redis校验jwt token是否存在,可选
-  redis-check: true
-  # true: 同一个账号只能是最后一次登陆token有效，false：同一个账号可多次登陆
-  single-login: false
-  # 盐值校验，如果不加自定义盐值，则使用secret校验
-  salt-check: false
-############################ JWT end ###############################
+  ############################ JWT start ###########################
+  jwt:
+    # token请求头名称
+    token-name: token
+    # jwt密钥
+    secret: 123123
+    # 发行人
+    issuer: online-judge
+    # 观众
+    audience: web
+    # 默认过期时间1小时，单位：秒
+    expire-second: 3600
+    # 是否刷新token
+    refresh-token: true
+    # 刷新token的时间间隔，默认10分钟，单位：秒
+    refresh-token-countdown: 600
+    # redis校验jwt token是否存在,可选
+    redis-check: true
+    # true: 同一个账号只能是最后一次登陆token有效，false：同一个账号可多次登陆
+    single-login: false
+    # 盐值校验，如果不加自定义盐值，则使用secret校验
+    salt-check: false
+  ############################ JWT end ###############################
 
-#################################### Swagger start #################################
-# swagger配置
-swagger:
-  base:
-    package: com.czeta.onlinejudge
-  contact:
-    email: 757569797@qq.com
-    name: czeta
+  #################################### Swagger config start #################
+  # swagger配置
+  swagger:
+    base:
+      package: com.czeta.onlinejudge
+    contact:
+      email: 757569797@qq.com
+      name: czeta
+      url: ''
+    description: 'API接口约定：
+     （1）返回结果：返回接口封装成RESTFUL风格的，http响应码永远是200 OK的，对于结果的响应码会放置在自定义接口中的status字段
+     （2）传入参数：默认都自带着一个token字段，有的访问链接（公共页面）不需要添加这个字段，对于加或不加我都有说明。
+     注意一旦加token字段，那么说明中响应码都是有效的，不加则跟权限有关响应码(2003、2004)的都请无视
+     （3）分页请求参数：对于分页请求参数，该对象内的paramData字段对于有的方法是不需要填的，而是由后台token自动解析的，也就是说一旦出现传入参数userId备注不需要填写，那么这里的paramData也不需要填写'
+    title: online-judge
     url: ''
-  description: 'API接口约定：
-   （1）返回结果：返回接口封装成RESTFUL风格的，http响应码永远是200 OK的，对于结果的响应码会放置在自定义接口中的status字段
-   （2）传入参数：默认都自带着一个token字段，有的访问链接（公共页面）不需要添加这个字段，对于不需要添加的我会在备注的，默认认为都加。
-   注意一旦加token字段，那么说明中响应码都是有效的，不加则跟权限有关响应码(2003、2004)的都请无视'
-  title: online-judge
-  url: ''
-  version: 0.1.0
-#################################### Swagger end ###################################
+    version: 0.1.0
+  #################################### Swagger config end ###################
+
+############################### online-judge config begin ##################################
