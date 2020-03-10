@@ -4,7 +4,7 @@ package com.czeta.onlinejudge.shiro.jwt;
 import com.czeta.onlinejudge.shiro.cache.LoginRedisService;
 import com.czeta.onlinejudge.shiro.enums.ShiroStatusMsg;
 import com.czeta.onlinejudge.shiro.model.result.LoginUserRedisModel;
-import com.czeta.onlinejudge.util.utils.AssertUtils;
+import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;

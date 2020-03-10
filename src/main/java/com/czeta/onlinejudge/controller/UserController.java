@@ -12,9 +12,9 @@ import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.CertificationService;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.model.param.PageModel;
-import com.czeta.onlinejudge.util.response.APIResult;
-import com.czeta.onlinejudge.util.utils.DownloadUtils;
-import com.czeta.onlinejudge.util.utils.UploadUtils;
+import com.czeta.onlinejudge.utils.response.APIResult;
+import com.czeta.onlinejudge.utils.utils.DownloadUtils;
+import com.czeta.onlinejudge.utils.utils.UploadUtils;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -212,9 +212,14 @@ public class UserController {
         return new APIResult(certificationService.getUserCertification(userId));
     }
 
-    /**
-     * 修改头像
-     */
+    @ApiOperation(value = "上传头像", notes = "需要token：普通用户权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "head", value = "二进制文件", dataType = "MultipartFile", required = false),
+            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", required = false)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 1001, message = "失败")
+    })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/uploadHead")
     public APIResult<Boolean> uploadHead(@RequestParam("head") MultipartFile head, @RequestAttribute Long userId) throws Exception{
@@ -239,6 +244,13 @@ public class UserController {
     }
 
 
+    @ApiOperation(value = "获取头像", notes = "需要token：普通用户权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "headImageName", value = "头像文件名", dataType = "String", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 1001, message = "失败")
+    })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/head/{headImageName}")
     public void getImage(@PathVariable String headImageName, HttpServletResponse response) throws IOException{
@@ -246,6 +258,13 @@ public class UserController {
         response.sendRedirect(multipartProperties.getResourceAccessPath() + headImageName);
     }
 
+    @ApiOperation(value = "下载头像", notes = "需要token：普通用户权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "downloadFileName", value = "头像文件名", dataType = "String", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 1001, message = "失败")
+    })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/downloadHead/{downloadFileName}")
     public void download(@PathVariable String downloadFileName, HttpServletResponse response) throws Exception{

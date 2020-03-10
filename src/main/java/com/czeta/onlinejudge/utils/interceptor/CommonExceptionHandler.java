@@ -1,8 +1,8 @@
-package com.czeta.onlinejudge.util.interceptor;
+package com.czeta.onlinejudge.utils.interceptor;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
-import com.czeta.onlinejudge.util.exception.APIRuntimeException;
-import com.czeta.onlinejudge.util.response.APIResult;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
+import com.czeta.onlinejudge.utils.response.APIResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,6 +1,6 @@
-package com.czeta.onlinejudge.util.utils;
+package com.czeta.onlinejudge.utils.utils;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**

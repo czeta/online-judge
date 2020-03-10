@@ -1,7 +1,7 @@
 package com.czeta.onlinejudge.shiro.interceptor;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
-import com.czeta.onlinejudge.util.response.APIResult;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.response.APIResult;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

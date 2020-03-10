@@ -6,7 +6,7 @@ import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
 import com.czeta.onlinejudge.service.*;
-import com.czeta.onlinejudge.util.response.APIResult;
+import com.czeta.onlinejudge.utils.response.APIResult;
 import io.swagger.annotations.*;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +98,13 @@ public class AdminController {
     @PostMapping("/userManager/account/update/{username}")
     public APIResult<Boolean> updateUserAccount(@PathVariable String username) {
         return new APIResult<>(userService.disableUserAccountByUsername(username));
+    }
+
+
+    @RequiresRoles(RoleType.Names.COMMON_USER)
+    @PostMapping("/userManager/generateUsers")
+    public void generateUsers(@RequestBody RangedUserModel rangedUserModel) {
+
     }
 
 
@@ -336,5 +343,4 @@ public class AdminController {
     public APIResult<Boolean> updateJudgeInfo(@RequestBody JudgeTypeModel judgeTypeModel) {
         return new APIResult<>(judgeService.updateJudgeInfoById(judgeTypeModel));
     }
-
 }

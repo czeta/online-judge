@@ -1,4 +1,4 @@
-package com.czeta.onlinejudge.util.enums;
+package com.czeta.onlinejudge.utils.enums;
 
 import java.util.Objects;
 

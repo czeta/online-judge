@@ -1,8 +1,7 @@
 package com.czeta.onlinejudge.config;
 
-import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.shiro.util.JwtTokenWebUtil;
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.czeta.onlinejudge.util.exception;
+package com.czeta.onlinejudge.utils.exception;
 
 /**
  * @InterfaceName IBaseException

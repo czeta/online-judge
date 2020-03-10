@@ -1,7 +1,7 @@
-package com.czeta.onlinejudge.util.response;
+package com.czeta.onlinejudge.utils.response;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
-import com.czeta.onlinejudge.util.exception.IBaseException;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.exception.IBaseException;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 

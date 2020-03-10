@@ -8,7 +8,7 @@ import com.czeta.onlinejudge.shiro.jwt.JwtFilter;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
 import com.czeta.onlinejudge.shiro.jwt.JwtRealm;
 import com.czeta.onlinejudge.shiro.service.LoginService;
-import com.czeta.onlinejudge.util.exception.APIRuntimeException;
+import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;

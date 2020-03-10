@@ -1,6 +1,6 @@
 package com.czeta.onlinejudge.enums;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 
 /**
  * @ClassName BaseStatusMsg

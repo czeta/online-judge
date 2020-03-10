@@ -1,4 +1,4 @@
-package com.czeta.onlinejudge.util.utils;
+package com.czeta.onlinejudge.utils.utils;
 
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;

@@ -1,4 +1,4 @@
-package com.czeta.onlinejudge.util.consts;
+package com.czeta.onlinejudge.utils.consts;
 
 /**
  * @InterfaceName IConstItem

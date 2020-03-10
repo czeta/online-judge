@@ -1,6 +1,6 @@
-package com.czeta.onlinejudge.util.exception;
+package com.czeta.onlinejudge.utils.exception;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 
 /**
  * @ClassName APIRuntimeExceptionWithData

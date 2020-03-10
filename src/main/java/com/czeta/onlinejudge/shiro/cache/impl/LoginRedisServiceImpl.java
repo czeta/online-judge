@@ -9,7 +9,7 @@ import com.czeta.onlinejudge.shiro.jwt.JwtToken;
 import com.czeta.onlinejudge.shiro.model.result.JwtTokenRedisModel;
 import com.czeta.onlinejudge.shiro.model.result.LoginUserModel;
 import com.czeta.onlinejudge.shiro.model.result.LoginUserRedisModel;
-import com.czeta.onlinejudge.util.utils.AssertUtils;
+import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.CollectionUtils;

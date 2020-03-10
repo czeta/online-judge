@@ -2,7 +2,7 @@ package com.czeta.onlinejudge.shiro.jwt;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.czeta.onlinejudge.shiro.util.JwtTokenUtil;
-import com.czeta.onlinejudge.util.utils.IpUtils;
+import com.czeta.onlinejudge.utils.utils.IpUtils;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.shiro.authc.HostAuthenticationToken;

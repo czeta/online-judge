@@ -1,7 +1,7 @@
-package com.czeta.onlinejudge.util.utils;
+package com.czeta.onlinejudge.utils.utils;
 
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
-import com.czeta.onlinejudge.util.exception.APIRuntimeException;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

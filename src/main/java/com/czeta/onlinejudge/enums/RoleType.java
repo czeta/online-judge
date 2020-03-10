@@ -1,7 +1,7 @@
 package com.czeta.onlinejudge.enums;
 
 
-import com.czeta.onlinejudge.util.enums.IEnumItem;
+import com.czeta.onlinejudge.utils.enums.IEnumItem;
 
 /**
  * @ClassName RoleEnum

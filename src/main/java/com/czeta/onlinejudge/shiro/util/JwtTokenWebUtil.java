@@ -1,8 +1,8 @@
 package com.czeta.onlinejudge.shiro.util;
 
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
-import com.czeta.onlinejudge.util.enums.IBaseStatusMsg;
-import com.czeta.onlinejudge.util.utils.AssertUtils;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;

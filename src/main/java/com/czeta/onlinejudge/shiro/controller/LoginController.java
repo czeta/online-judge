@@ -3,7 +3,7 @@ package com.czeta.onlinejudge.shiro.controller;
 import com.czeta.onlinejudge.shiro.model.param.LoginParamModel;
 import com.czeta.onlinejudge.shiro.service.LoginService;
 import com.czeta.onlinejudge.shiro.util.JwtTokenWebUtil;
-import com.czeta.onlinejudge.util.response.APIResult;
+import com.czeta.onlinejudge.utils.response.APIResult;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

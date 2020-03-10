@@ -1,4 +1,4 @@
-package com.czeta.onlinejudge.util.response;
+package com.czeta.onlinejudge.utils.response;
 
 /**
  * @InterfaceName IBaseResponse

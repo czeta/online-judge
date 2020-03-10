@@ -6,7 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.czeta.onlinejudge.shiro.consts.CommonConstant;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
-import com.czeta.onlinejudge.util.utils.UUIDUtils;
+import com.czeta.onlinejudge.utils.utils.UUIDUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;

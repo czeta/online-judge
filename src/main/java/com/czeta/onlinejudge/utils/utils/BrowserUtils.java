@@ -1,4 +1,4 @@
-package com.czeta.onlinejudge.util.utils;
+package com.czeta.onlinejudge.utils.utils;
 
 import javax.servlet.http.HttpServletRequest;
 

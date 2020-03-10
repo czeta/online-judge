@@ -10,16 +10,15 @@ import com.czeta.onlinejudge.model.param.AdminRegisterModel;
 import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.service.AdminService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
-import com.czeta.onlinejudge.util.exception.APIRuntimeException;
-import com.czeta.onlinejudge.util.utils.AssertUtils;
-import com.czeta.onlinejudge.util.utils.DateUtils;
-import com.czeta.onlinejudge.util.utils.PasswordUtils;
+import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
+import com.czeta.onlinejudge.utils.utils.AssertUtils;
+import com.czeta.onlinejudge.utils.utils.DateUtils;
+import com.czeta.onlinejudge.utils.utils.PasswordUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
