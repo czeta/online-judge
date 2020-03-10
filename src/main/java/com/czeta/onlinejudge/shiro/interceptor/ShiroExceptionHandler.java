@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @ClassName ShiroExceptionHandler
- * @Description shiro异常处理器
+ * @Description shiro异常处理拦截器
  * @Author chenlongjie
  * @Date 2020/3/3 11:25
  * @Version 1.0

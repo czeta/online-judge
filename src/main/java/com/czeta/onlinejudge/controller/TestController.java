@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @RequestMapping("/index")
-    public String index(@RequestAttribute("username") String username) {
+    public String index() {
         log.info("test");
         return "index";
     }

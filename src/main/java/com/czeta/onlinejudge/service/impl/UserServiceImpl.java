@@ -208,4 +208,13 @@ public class UserServiceImpl implements UserService {
                 .eq(User::getUsername, username));
         return true;
     }
+
+    @Override
+    public boolean updateUserHeadByUserId(Long userId, String headPath) {
+        AssertUtils.notNull(userId, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        User user = new User();
+        user.setId(userId);
+        user.setHeadPortrait(headPath);
+        return userMapper.updateById(user) == 1;
+    }
 }

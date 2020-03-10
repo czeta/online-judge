@@ -118,13 +118,13 @@ online-judge:
     # 是否启用
     enable: true
     permission:
-      # 临时测试允许访问页面
+        # 临时测试允许访问页面
       - urls: /,/index
         permission: anon
-      # 排除公共访问页面
+        # 排除公共访问页面
       - urls: /api/user/register
         permission: anon
-      # 排除登陆登出相关
+        # 排除登陆登出相关
       - urls: /api/login,/api/logout
         permission: anon
         # 排除静态资源
@@ -198,5 +198,19 @@ online-judge:
     # 该响应的有效时间默认为30分钟，在有效时间内，浏览器无须为同一请求再次发起预检请求
     max-age: 1800
   ############################ CORS end ##############################
+
+  ############################ multipart file config begin ##############################
+  multipart:
+    # 文件上传下载配置
+    # 上传路径配置
+    upload-path: /opt/upload/
+    # 资源访问路径
+    resource-access-path: /resource/
+    # 资源访问路径匹配：/resource/**
+    resource-access-patterns: ${online-judge.multipart.resource-access-path}**
+    # 全局允许上传的类型
+    allow-upload-file-extensions: jpg,png,docx,xlsx,pptx,pdf
+    allow-download-file-extensions: jpg,png,docx,xlsx,pptx,pdf
+    ############################ multipart file config end ##############################
 
 ############################### online-judge config begin ##################################

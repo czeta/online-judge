@@ -110,4 +110,12 @@ public interface UserService {
      * @return
      */
     boolean disableUserAccountByUsername(String username);
+
+    /**
+     * 更改用户头像
+     * @param userId
+     * @param headPath
+     * @return
+     */
+    boolean updateUserHeadByUserId(Long userId, String headPath);
 }

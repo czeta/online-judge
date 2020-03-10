@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.dao.entity.UserCertification;
@@ -12,12 +13,20 @@ import com.czeta.onlinejudge.service.CertificationService;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.util.response.APIResult;
+import com.czeta.onlinejudge.util.utils.DownloadUtils;
+import com.czeta.onlinejudge.util.utils.UploadUtils;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -39,6 +48,9 @@ public class UserController {
 
     @Autowired
     private CertificationService certificationService;
+
+    @Autowired
+    private MultipartProperties multipartProperties;
 
     @ApiOperation(value = "新用户注册", notes = "")
     @ApiImplicitParams({
@@ -200,4 +212,53 @@ public class UserController {
         return new APIResult(certificationService.getUserCertification(userId));
     }
 
+    /**
+     * 修改头像
+     */
+    @RequiresRoles(RoleType.Names.COMMON_USER)
+    @PostMapping("/uploadHead")
+    public APIResult<Boolean> uploadHead(@RequestParam("head") MultipartFile head, @RequestAttribute Long userId) throws Exception{
+        // 头像图片所在文件夹名
+        String headDirName = "/head/";
+        // 上传文件，返回保存的文件名称
+        String uploadPath = multipartProperties.getUploadPath();
+        String saveFileName = UploadUtils.upload(uploadPath, head, originalFilename -> {
+            String fileExtension= FilenameUtils.getExtension(originalFilename);
+            String dateString = "head_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssS"));
+            String fileName = dateString + "." +fileExtension;
+            return fileName;
+        }, multipartProperties.getAllowUploadFileExtensions());
+        // 上传成功之后，保存文件全称
+        log.info("headPath:{}", saveFileName);
+        if (userService.updateUserHeadByUserId(userId, saveFileName)) {
+            return new APIResult<>(true);
+        }
+        // 上传失败，删除图片文件
+        UploadUtils.deleteQuietly(uploadPath, saveFileName);
+        return new APIResult<>(false);
+    }
+
+
+    @RequiresRoles(RoleType.Names.COMMON_USER)
+    @GetMapping("/head/{headImageName}")
+    public void getImage(@PathVariable String headImageName, HttpServletResponse response) throws IOException{
+        // 重定向到图片访问路径
+        response.sendRedirect(multipartProperties.getResourceAccessPath() + headImageName);
+    }
+
+    @RequiresRoles(RoleType.Names.COMMON_USER)
+    @GetMapping("/downloadHead/{downloadFileName}")
+    public void download(@PathVariable String downloadFileName, HttpServletResponse response) throws Exception{
+        // 下载目录，既是上传目录
+        String downloadDir = multipartProperties.getUploadPath();
+        // 允许下载的文件后缀
+        List<String> allowFileExtensions = multipartProperties.getAllowDownloadFileExtensions();
+        // 文件下载，使用默认下载处理器
+//        DownloadUtil.download(downloadDir,downloadFileName,allowFileExtensions,response);
+        // 文件下载，使用自定义下载处理器
+        DownloadUtils.download(downloadDir,downloadFileName,allowFileExtensions,response, (dir, fileName, file, fileExtension, contentType, length) -> {
+            // 下载自定义处理，返回true：执行下载，false：取消下载
+            return true;
+        });
+    }
 }
