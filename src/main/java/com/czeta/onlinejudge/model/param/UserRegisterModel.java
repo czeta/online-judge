@@ -1,5 +1,6 @@
 package com.czeta.onlinejudge.model.param;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,9 +16,12 @@ import lombok.Data;
 @Data
 public class UserRegisterModel {
     @ApiModelProperty(value = "用户名")
+    @ExcelProperty("用户名")
     private String username;
     @ApiModelProperty(value = "密码")
+    @ExcelProperty("密码(与用户名一致)")
     private String password;
     @ApiModelProperty(value = "邮箱")
+    @ExcelProperty("邮箱(临时邮箱)")
     private String email;
 }

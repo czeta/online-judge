@@ -14,6 +14,7 @@ import com.czeta.onlinejudge.utils.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Slf4j
+@Transactional
 @Service
 public class JudgeServiceImpl implements JudgeService {
 

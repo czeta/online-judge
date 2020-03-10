@@ -3,6 +3,7 @@ package com.czeta.onlinejudge.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.User;
+import com.czeta.onlinejudge.model.param.RangedUserModel;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.model.param.PageModel;
@@ -118,4 +119,11 @@ public interface UserService {
      * @return
      */
     boolean updateUserHeadByUserId(Long userId, String headPath);
+
+    /**
+     * 根据条件批量生成用户
+     * @param rangedUserModel
+     * @return
+     */
+    List<UserRegisterModel> insertRangedUserList(RangedUserModel rangedUserModel);
 }

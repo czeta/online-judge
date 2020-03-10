@@ -3,6 +3,7 @@ package com.czeta.onlinejudge.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.czeta.onlinejudge.consts.EmailConstant;
 import com.czeta.onlinejudge.convert.UserInfoMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.mapper.*;
@@ -10,6 +11,7 @@ import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.enums.CommonItemStatus;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.enums.SubmitStatus;
+import com.czeta.onlinejudge.model.param.RangedUserModel;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.UserService;
@@ -20,9 +22,12 @@ import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import com.czeta.onlinejudge.utils.utils.DateUtils;
 import com.czeta.onlinejudge.utils.utils.PasswordUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +40,7 @@ import java.util.stream.Collectors;
  * @Version 1.0
  */
 @Slf4j
+@Transactional
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -216,5 +222,30 @@ public class UserServiceImpl implements UserService {
         user.setId(userId);
         user.setHeadPortrait(headPath);
         return userMapper.updateById(user) == 1;
+    }
+
+    @Override
+    public List<UserRegisterModel> insertRangedUserList(RangedUserModel rangedUserModel) {
+        List<UserRegisterModel> userRegisterModels = new ArrayList<>();
+        for (int i = rangedUserModel.getStartNumber(); i <= rangedUserModel.getEndNumber(); ++i) {
+            String username = rangedUserModel.getPrefix() + i + rangedUserModel.getSuffix();
+            String password = RandomStringUtils.random(rangedUserModel.getPasswordLength(), true, true);
+            String email = username + EmailConstant.TEMP_EMAIL;
+            UserRegisterModel userRegisterModel = new UserRegisterModel();
+            userRegisterModel.setUsername(username);
+            userRegisterModel.setPassword(password);
+            userRegisterModel.setEmail(email);
+            userRegisterModels.add(userRegisterModel);
+            try {
+                User user = UserInfoMapstructConvert.INSTANCE.userRegisterModelToUserInfo(userRegisterModel);
+                user.setPassword(PasswordUtils.encrypt(user.getPassword(), jwtProperties.getSecret()));
+                user.setRoleId(RoleType.COMMON_USER.getCode());
+                user.setRank(userMapper.selectCount(null) + 1);
+                userMapper.insert(user);
+            } catch (Exception e) {
+                throw new APIRuntimeException(BaseStatusMsg.EXISTED_USERNAME);
+            }
+        }
+        return userRegisterModels;
     }
 }

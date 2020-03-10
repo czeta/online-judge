@@ -2,6 +2,7 @@ package com.czeta.onlinejudge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.config.MultipartProperties;
+import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.User;
 import com.czeta.onlinejudge.dao.entity.UserCertification;
@@ -229,7 +230,7 @@ public class UserController {
         String uploadPath = multipartProperties.getUploadPath();
         String saveFileName = UploadUtils.upload(uploadPath, head, originalFilename -> {
             String fileExtension= FilenameUtils.getExtension(originalFilename);
-            String dateString = "head_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssS"));
+            String dateString = FileConstant.PREFIX_USER_HEAD + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssS"));
             String fileName = dateString + "." +fileExtension;
             return fileName;
         }, multipartProperties.getAllowUploadFileExtensions());

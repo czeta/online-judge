@@ -1,17 +1,28 @@
 package com.czeta.onlinejudge.controller;
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.config.MultipartProperties;
+import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
 import com.czeta.onlinejudge.service.*;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.response.APIResult;
+import com.czeta.onlinejudge.utils.utils.DownloadUtils;
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -21,6 +32,7 @@ import java.util.List;
  * @Date 2020/3/3 9:11
  * @Version 1.0
  */
+@Slf4j
 @Api(tags = "Admin Manager Controller")
 @RestController
 @RequestMapping("/api/admin")
@@ -40,6 +52,9 @@ public class AdminController {
 
     @Autowired
     private JudgeService judgeService;
+
+    @Autowired
+    private MultipartProperties multipartProperties;
 
     @ApiOperation(value = "分页获得所有用户的详情信息列表", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
@@ -100,11 +115,33 @@ public class AdminController {
         return new APIResult<>(userService.disableUserAccountByUsername(username));
     }
 
-
-    @RequiresRoles(RoleType.Names.COMMON_USER)
+    @ApiOperation(value = "按条件批量注册用户", notes = "需要token：超级admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "rangedUserModel", value = "注册条件", dataType = "RangedUserModel", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 1001, message = "失败"),
+            @ApiResponse(code = 2100, message = "用户名已存在")
+    })
+    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/userManager/generateUsers")
-    public void generateUsers(@RequestBody RangedUserModel rangedUserModel) {
-
+    public void generateUsers(@RequestBody RangedUserModel rangedUserModel, HttpServletResponse response) throws Exception {
+        List<UserRegisterModel> userRegisterModels = userService.insertRangedUserList(rangedUserModel);
+        File saveDir = new File(multipartProperties.getUploadPath());
+        if (!saveDir.exists()) {
+            boolean flag = saveDir.mkdirs();
+            if (!flag) {
+                log.error("上传文件中创建{}目录失败", saveDir);
+                throw new APIRuntimeException(IBaseStatusMsg.APIEnum.FAILED);
+            }
+        }
+        String fileName = FileConstant.PREFIX_GENERATE_USERS
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssS")) + FileConstant.SUFFIX_EXCEL;
+        String filePath =  multipartProperties.getUploadPath() + fileName;
+        EasyExcel.write(filePath, UserRegisterModel.class).sheet("批量生成用户").doWrite(userRegisterModels);
+        DownloadUtils.download(multipartProperties.getUploadPath(), fileName, multipartProperties.getAllowDownloadFileExtensions(), response, (dir, fileName0, file, fileExtension, contentType, length) -> {
+            return true;
+        });
     }
 
 
