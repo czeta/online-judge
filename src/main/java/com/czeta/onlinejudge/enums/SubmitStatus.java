@@ -10,13 +10,14 @@ package com.czeta.onlinejudge.enums;
 public enum SubmitStatus {
     ACCEPTED("Accepted", "通过"),
     WRONG_ANSWER("WrongAnswer", "答案错误"),
-    TIME_LIMIT_EXCEED("TimeLimitExceed", "超时"),
-    OUTPUT_LIMIT_EXCEED("OutputLimitExceed", "超过输出限制"),
-    MEMORY_LIMIT_EXCEED("MemoryLimitExceed", "超过内存限制"),
+    TIME_LIMIT_EXCEEDED("TimeLimitExceeded", "超时"),
+    OUTPUT_LIMIT_EXCEEDED("OutputLimitExceeded", "超过输出限制"),
+    MEMORY_LIMIT_EXCEEDED("MemoryLimitExceeded", "超过内存限制"),
     RUNTIME_ERROR("RuntimeError", "运行时错误"),
     PRESENTATION_ERROR("PresentationError", "格式错误"),
-    COMPILE_ERROR("CompileError", "编译错误"),
-    PENDING("Pending", "正在评测");
+    COMPILATION_ERROR("CompilationError", "编译错误"),
+    PENDING("Pending", "正在评测"),
+    SYSTEM_ERROR("SystemError", "系统出错");
 
 
 

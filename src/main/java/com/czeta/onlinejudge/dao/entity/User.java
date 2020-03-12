@@ -47,7 +47,7 @@ public class User {
     private Integer rank;
     @ApiModelProperty(value = "角色ID")
     private Integer roleId;
-    @ApiModelProperty(value = "用户账户状态")
+    @ApiModelProperty(value = "用户账户状态，1表示正常，0表示禁用")
     private Short status;
     @ApiModelProperty(value = "注册时间")
     private String crtTs;

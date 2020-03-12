@@ -12,7 +12,7 @@ import lombok.Data;
  * @Version 1.0
  */
 @Data
-public class Judge {
+public class Submit {
     @TableId(value = "id",type = IdType.AUTO)
     private Long id;
     private Long problemId;

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS user_certification (
   class VARCHAR(20),
   phone VARCHAR(20),
   graduation_time VARCHAR(30),
-  status TINYINT NOT NULL DEFAULT 0,
+  status TINYINT NOT NULL DEFAULT 0, -- 认证状态：0表示尚未审核、1表示审核通过、-1表示审核不通过或者申请的认证类型失效，需要重新申请
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS message (
   content VARCHAR(500) NOT NULL,
   creator VARCHAR(50) NOT NULL,
   user_id INT NOT NULL,
-  status TINYINT NOT NULL DEFAULT 0,
+  status TINYINT NOT NULL DEFAULT 0, -- 消息状态：0为未读，1为已读
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
@@ -111,35 +111,38 @@ CREATE TABLE IF NOT EXISTS announcement (
   title VARCHAR(50) NOT NULL,
   content TEXT NOT NULL,
   creator VARCHAR(50) NOT NULL,
-  source_id INT NOT NULL,
+  source_id INT NOT NULL, -- 公告类型（来源）：-1表示主页公告、0表示FAQ、大于0表示竞赛的公告，数字代表竞赛ID
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
 
--- 9.problem（题目表）
+-- 9.problem（题目信息表）
 CREATE TABLE IF NOT EXISTS problem (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(50) NOT NULL,
-  description VARCHAR(2000) NOT NULL,
-  input VARCHAR(500) NOT NULL,
-  output VARCHAR(500) NOT NULL,
-  sample_input VARCHAR(300) NOT NULL,
-  sample_output VARCHAR(300) NOT NULL,
-  source_id INT NOT NULL,
-  time_limit VARCHAR(20) NOT NULL,
-  memory_limit VARCHAR(20) NOT NULL,
-  io_mode VARCHAR(20) NOT NULL,
+  description TEXT NOT NULL,
+  input_description VARCHAR(500) NOT NULL,
+  output_description VARCHAR(500) NOT NULL,
+  input_samples VARCHAR(300) NOT NULL,
+  output_samples VARCHAR(300) NOT NULL,
+  hint VARCHAR(500),
+  source_name VARCHAR(50) NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分随意填。无论如何超链接只查询比赛列表
+  time_limit INT NOT NULL,  -- 单位固定ms
+  memory_limit INT NOT NULL, -- 单位固定mb
+  io_mode VARCHAR(20) NOT NULL, -- io模型，目前只支持standard io
   level VARCHAR(10) NOT NULL,
+  language VARCHAR(100) NOT NULL, -- 题目支持语言(多种语言之间用逗号间隔)
   submit_count INT NOT NULL DEFAULT 0,
   ac_count INT NOT NULL DEFAULT 0,
   ac_num INT NOT NULL DEFAULT 0,
   creator VARCHAR(20) NOT NULL,
-  status TINYINT NOT NULL DEFAULT 1,
+  status TINYINT NOT NULL DEFAULT 1, -- 状态：1表示正常并可视，0表示正常但不可视（这部分是比赛题目才有的），-1表示题目禁用
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT pk_id PRIMARY KEY(id)
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT uq_id UNIQUE KEY(title)
 )
 
 -- 10.problem_judge_type（题目评测方式表）
@@ -147,9 +150,9 @@ CREATE TABLE IF NOT EXISTS problem_judge_type (
   id INT NOT NULL AUTO_INCREMENT,
   problem_id INT NOT NULL,
   judge_type_id INT NOT NULL,
-  spider_problem_id INT,
-  all_sample_input TEXT,
-  all_sample_output TEXT,
+  problem_type INT, -- 题目类型：0表示ACM/ICPC题型、1表示函数型题型
+  spj INT, -- 是否特判（针对judge_type_id为评测机）
+  spider_problem_id INT, -- 表示目标OJ的ID（针对judge_type_id为爬虫）
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -174,7 +177,8 @@ CREATE TABLE IF NOT EXISTS judge_type (
   last_heart_beat TIMESTAMP,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT pk_id PRIMARY KEY(id)
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT uq_id PRIMARY KEY(name)
 )
 
 
@@ -187,7 +191,8 @@ CREATE TABLE IF NOT EXISTS tag (
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT pk_id PRIMARY KEY(id)
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT uq_id UNIQUE KEY(name)
 )
 
 -- 13.problem_tag（题目标签表）
@@ -201,8 +206,8 @@ CREATE TABLE IF NOT EXISTS problem_tag (
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
 
--- 14.judge（评测表）
-CREATE TABLE IF NOT EXISTS judge (
+-- 14.judge（提交评测表）
+CREATE TABLE IF NOT EXISTS submit (
   id INT NOT NULL AUTO_INCREMENT,
   problem_id INT NOT NULL,
   code TEXT NOT NULL,
@@ -210,13 +215,15 @@ CREATE TABLE IF NOT EXISTS judge (
   memory VARCHAR(20),
   language VARCHAR(10) NOT NULL,
   submit_status VARCHAR(20) NOT NULL,
-  source_id INT NOT NULL,
+  source_id INT NOT NULL,  -- 来源ID，0表示无，大于0表示比赛ID
   creator VARCHAR(20) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
+
+-- end this
 
 -- 15.contest（竞赛信息表）
 CREATE TABLE IF NOT EXISTS contest (
@@ -232,7 +239,8 @@ CREATE TABLE IF NOT EXISTS contest (
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT pk_id PRIMARY KEY(id)
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT pk_id UNIQUE KEY(name),
 )
 
 -- 16.contest_user（竞赛用户报名表）

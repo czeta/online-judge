@@ -17,7 +17,7 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-class OnlineJudgeApplicationTests {
+class OnlineSubmitApplicationTests {
     private MockMvc mvc;
 
     @Autowired

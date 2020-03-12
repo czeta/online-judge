@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @ClassName Problem
  * @Description
@@ -17,15 +20,17 @@ public class Problem {
     private Long id;
     private String title;
     private String description;
-    private String input;
-    private String output;
-    private String sample_input;
-    private String sample_output;
-    private Long sourceId;
+    private String inputDescription;
+    private String outputDescription;
+    private String inputSamples;
+    private String outputSamples;
+    private String hint;
+    private String sourceName;
     private String timeLimit;
     private String memoryLimit;
     private String ioMode;
     private String level;
+    private List<String> language;
     private Integer submitCount;
     private Integer acCount;
     private Integer acNum;
@@ -33,4 +38,8 @@ public class Problem {
     private Short status;
     private String crtTs;
     private String lmTs;
+
+    public void setLanguage(String language) {
+        this.language = Arrays.asList(language.split(","));
+    }
 }

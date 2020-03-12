@@ -16,10 +16,10 @@ public class ProblemJudgeType {
     @TableId(value = "id",type = IdType.AUTO)
     private Long id;
     private Long problemId;
-    private Integer judgeId;
+    private Integer judgeTypeId;
+    private Integer problemType;
+    private Integer spj;
     private Long spiderProblemId;
-    private String allSampleInput;
-    private String allSampleOutput;
     private Short status;
     private String crtTs;
     private String lmTs;
