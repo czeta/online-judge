@@ -18,7 +18,7 @@ import lombok.Data;
 @Data
 public class User {
     @ApiModelProperty(value = "用户ID")
-    @TableId(value = "id",type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
     @ApiModelProperty(value = "用户名")
     private String username;

@@ -75,6 +75,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public Admin getAdminInfoById(Long adminId) {
+        return adminMapper.selectById(adminId);
+    }
+
+    @Override
     public void saveNewAdmin(AdminRegisterModel adminRegisterModel) {
         AssertUtils.notNull(adminRegisterModel.getUsername(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         AssertUtils.notNull(adminRegisterModel.getPassword(), BaseStatusMsg.APIEnum.PARAM_ERROR);

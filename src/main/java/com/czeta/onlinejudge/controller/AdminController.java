@@ -58,7 +58,7 @@ public class AdminController {
 
     @ApiOperation(value = "分页获得所有用户的详情信息列表", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -69,7 +69,7 @@ public class AdminController {
 
     @ApiOperation(value = "根据用户名关键字分页获取相关用户信息列表", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData为搜索用户名关键字", dataType = "PageModel", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData为搜索用户名关键字", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -80,7 +80,7 @@ public class AdminController {
 
     @ApiOperation(value = "添加新的用户", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userRegisterModel", value = "新的用户注册信息", dataType = "UserRegisterModel", required = true)
+            @ApiImplicitParam(name = "userRegisterModel", value = "新的用户注册信息", dataType = "UserRegisterModel", paramType = "body", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 2100, message = "用户名已存在")
@@ -94,7 +94,7 @@ public class AdminController {
 
     @ApiOperation(value = "重置用户密码为与用户名一致", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "重置密码的目标用户名", dataType = "String", required = true)
+            @ApiImplicitParam(name = "username", value = "重置密码的目标用户名", dataType = "String", paramType = "path", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -106,7 +106,7 @@ public class AdminController {
 
     @ApiOperation(value = "禁用用户账户", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "禁用账户的目标用户名", dataType = "String", required = true)
+            @ApiImplicitParam(name = "username", value = "禁用账户的目标用户名", dataType = "String", paramType = "path", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -117,7 +117,7 @@ public class AdminController {
 
     @ApiOperation(value = "按条件批量注册用户", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "rangedUserModel", value = "注册条件", dataType = "RangedUserModel", required = true)
+            @ApiImplicitParam(name = "rangedUserModel", value = "注册条件", dataType = "RangedUserModel", paramType = "body", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 1001, message = "失败"),
@@ -147,7 +147,7 @@ public class AdminController {
 
     @ApiOperation(value = "获得用户申请的实名认证信息列表（待审核）", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -158,8 +158,8 @@ public class AdminController {
 
     @ApiOperation(value = "审核实名认证信息：通过或不通过", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "status", value = "审核结果：1表示通过、-1表示不通过", dataType = "Short", required = true),
-            @ApiImplicitParam(name = "userId", value = "申请的用户ID", dataType = "Long", required = true)
+            @ApiImplicitParam(name = "status", value = "审核结果：1表示通过、-1表示不通过", dataType = "Short", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "申请的用户ID", dataType = "Long", paramType = "query", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -181,7 +181,7 @@ public class AdminController {
 
     @ApiOperation(value = "添加新的实名认证类型", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "实名认证类型", dataType = "String", required = true)})
+            @ApiImplicitParam(name = "type", value = "实名认证类型", dataType = "String", paramType = "query", required = true)})
     @ApiResponses({
             @ApiResponse(code = 2101, message = "已存在的名称")
     })
@@ -195,7 +195,7 @@ public class AdminController {
 
     @ApiOperation(value = "更新实名认证类型的状态：启用或弃用", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "certificationModel", value = "实名认证类型", dataType = "CertificationModel", required = true)})
+            @ApiImplicitParam(name = "certificationModel", value = "实名认证类型", dataType = "CertificationModel", paramType = "body", required = true)})
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/certManager/update")
@@ -205,7 +205,7 @@ public class AdminController {
 
     @ApiOperation(value = "分页获取普通管理员详细信息列表", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -217,7 +217,7 @@ public class AdminController {
 
     @ApiOperation(value = "根据管理员用户名关键字分页获得相关普通管理员账号信息", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData为用户名关键字", dataType = "PageModel", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData为用户名关键字", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -228,7 +228,7 @@ public class AdminController {
 
     @ApiOperation(value = "添加新的普通管理员账户", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "adminRegisterModel", value = "管理员注册基本信息", dataType = "AdminRegisterModel", required = true)})
+            @ApiImplicitParam(name = "adminRegisterModel", value = "管理员注册基本信息", dataType = "AdminRegisterModel", paramType = "body", required = true)})
     @ApiResponses({
             @ApiResponse(code = 2100, message = "用户名已存在")
     })
@@ -242,7 +242,7 @@ public class AdminController {
 
     @ApiOperation(value = "重置普通管理员密码", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "重置密码的目标管理员用户名", dataType = "String", required = true)})
+            @ApiImplicitParam(name = "username", value = "重置密码的目标管理员用户名", dataType = "String", paramType = "path", required = true)})
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/adminManager/password/update/{username}")
@@ -253,7 +253,7 @@ public class AdminController {
 
     @ApiOperation(value = "禁用普通管理员账号", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "禁用账户的目标管理员用户名", dataType = "String", required = true)})
+            @ApiImplicitParam(name = "username", value = "禁用账户的目标管理员用户名", dataType = "String", paramType = "path", required = true)})
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/adminManager/account/update/{username}")
@@ -263,7 +263,7 @@ public class AdminController {
 
     @ApiOperation(value = "分页获得主页公告信息列表", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -275,7 +275,7 @@ public class AdminController {
 
     @ApiOperation(value = "根据公告ID获取首页公告信息", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "公告ID", dataType = "Long", required = true)})
+            @ApiImplicitParam(name = "id", value = "公告ID", dataType = "Long", paramType = "path", required = true)})
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @GetMapping("/ancManager/ancInfo/{id}")
@@ -285,8 +285,8 @@ public class AdminController {
 
     @ApiOperation(value = "添加新的首页公告", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "announcementModel", value = "添加的公告实体model", dataType = "AnnouncementModel", required = true),
-            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", required = false)
+            @ApiImplicitParam(name = "announcementModel", value = "添加的公告实体model", dataType = "AnnouncementModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -298,7 +298,7 @@ public class AdminController {
 
     @ApiOperation(value = "更新首页公告", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "announcementModel", value = "修改的公告实体model", dataType = "AnnouncementModel", required = true)
+            @ApiImplicitParam(name = "announcementModel", value = "修改的公告实体model", dataType = "AnnouncementModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -318,11 +318,11 @@ public class AdminController {
 
     @ApiOperation(value = "更新FAQ内容", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "content", value = "修改后的FAQ内容", dataType = "String", required = true)
+            @ApiImplicitParam(name = "content", value = "修改后的FAQ内容", dataType = "String", paramType = "query", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/faq/update")
+    @PostMapping("/faq/update")
     public APIResult<Boolean> updateFAQContent(String content) {
         return new APIResult<>(announcementService.updateFAQContent(content));
     }
@@ -339,7 +339,7 @@ public class AdminController {
 
     @ApiOperation(value = "添加新的评测机", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", required = true)
+            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -360,7 +360,7 @@ public class AdminController {
 
     @ApiOperation(value = "添加新的评测爬虫", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", required = true)
+            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -372,7 +372,7 @@ public class AdminController {
 
     @ApiOperation(value = "修改评测类型（爬虫or评测机）", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", required = true)
+            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
@@ -380,4 +380,6 @@ public class AdminController {
     public APIResult<Boolean> updateJudgeInfo(@RequestBody JudgeTypeModel judgeTypeModel) {
         return new APIResult<>(judgeService.updateJudgeInfoById(judgeTypeModel));
     }
+
+
 }

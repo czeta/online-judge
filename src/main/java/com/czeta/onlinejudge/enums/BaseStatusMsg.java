@@ -11,7 +11,9 @@ import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
  */
 public enum BaseStatusMsg implements IBaseStatusMsg {
     EXISTED_USERNAME(2100, "用户名已存在"),
-    EXISTED_NAME(2101, "名称已存在");
+    EXISTED_NAME(2101, "名称已存在"),
+    EXISTED_PROBLEM(2102, "题目已存在"),
+    EXISTED_PROBLEM_JUDGE_TYPE(2103, "该题目已设置评测方式");
 
     private Integer code;
     private String message;

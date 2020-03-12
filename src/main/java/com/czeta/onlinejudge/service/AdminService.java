@@ -29,6 +29,14 @@ public interface AdminService {
      */
     IPage<Admin> getAdminInfoListByUsernameKey(PageModel<String> pageModel);
 
+
+    /**
+     * 根据id获取管理员信息
+     * @param adminId
+     * @return
+     */
+    Admin getAdminInfoById(Long adminId);
+
     /**
      * 添加新的普通管理员
      * @param adminRegisterModel

@@ -9,7 +9,7 @@ import com.czeta.onlinejudge.utils.enums.IEnumItem;
  * @Date 2020/3/4 20:24
  * @Version 1.0
  */
-public enum JudgeStatus implements IEnumItem {
+public enum JudgeServerStatus implements IEnumItem {
     NORMAL((short) 1, "评测服务正常"),
     STOPPED((short) 0, "评测服务被停用"),
     ABNORMAL((short) -1, "评测服务异常");
@@ -17,7 +17,7 @@ public enum JudgeStatus implements IEnumItem {
     private Short code;
     private String message;
 
-    private JudgeStatus(Short code, String message) {
+    private JudgeServerStatus(Short code, String message) {
         this.code = code;
         this.message = message;
     }

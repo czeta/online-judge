@@ -5,7 +5,7 @@ import com.czeta.onlinejudge.convert.JudgeMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.JudgeType;
 import com.czeta.onlinejudge.dao.mapper.JudgeTypeMapper;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
-import com.czeta.onlinejudge.enums.JudgeStatus;
+import com.czeta.onlinejudge.enums.JudgeServerStatus;
 import com.czeta.onlinejudge.enums.JudgeTypeEnum;
 import com.czeta.onlinejudge.model.param.JudgeTypeModel;
 import com.czeta.onlinejudge.service.JudgeService;
@@ -47,7 +47,7 @@ public class JudgeServiceImpl implements JudgeService {
         AssertUtils.notNull(judgeTypeModel.getUrl(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         JudgeType judgeType = JudgeMapstructConvert.INSTANCE.judgeTypeModelToJudgeType(judgeTypeModel);
         judgeType.setType(JudgeTypeEnum.JUDGE_MACHINE.getCode());
-        judgeType.setStatus(JudgeStatus.STOPPED.getCode());
+        judgeType.setStatus(JudgeServerStatus.STOPPED.getCode());
         judgeTypeMapper.insert(judgeType);
     }
 
@@ -73,7 +73,7 @@ public class JudgeServiceImpl implements JudgeService {
         AssertUtils.notNull(judgeTypeModel.getUrl(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         JudgeType judgeType = JudgeMapstructConvert.INSTANCE.judgeTypeModelToJudgeType(judgeTypeModel);
         judgeType.setType(JudgeTypeEnum.JUDGE_SPIDER.getCode());
-        judgeType.setStatus(JudgeStatus.STOPPED.getCode());
+        judgeType.setStatus(JudgeServerStatus.STOPPED.getCode());
         judgeTypeMapper.insert(judgeType);
     }
 }

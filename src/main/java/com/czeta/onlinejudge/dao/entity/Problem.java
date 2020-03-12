@@ -39,6 +39,9 @@ public class Problem {
     private String crtTs;
     private String lmTs;
 
+    public void setLanguage(List<String> language) {
+        this.language = language;
+    }
     public void setLanguage(String language) {
         this.language = Arrays.asList(language.split(","));
     }

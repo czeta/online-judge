@@ -118,6 +118,8 @@ CREATE TABLE IF NOT EXISTS announcement (
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
 
+-- db end this
+
 -- 9.problem（题目信息表）
 CREATE TABLE IF NOT EXISTS problem (
   id INT NOT NULL AUTO_INCREMENT,
@@ -151,12 +153,13 @@ CREATE TABLE IF NOT EXISTS problem_judge_type (
   problem_id INT NOT NULL,
   judge_type_id INT NOT NULL,
   problem_type INT, -- 题目类型：0表示ACM/ICPC题型、1表示函数型题型
-  spj INT, -- 是否特判（针对judge_type_id为评测机）
+  spj INT, -- 是否特判（针对judge_type_id为评测机），1表示特判，0表示不是
   spider_problem_id INT, -- 表示目标OJ的ID（针对judge_type_id为爬虫）
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT pk_id PRIMARY KEY(id)
+  CONSTRAINT pk_id PRIMARY KEY(id),
+  CONSTRAINT uq_id UNIQUE KEY(problem_id)
 )
 
 

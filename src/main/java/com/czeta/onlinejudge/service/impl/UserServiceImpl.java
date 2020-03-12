@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
         User oldUserInfo = userMapper.selectOne(Wrappers.<User>lambdaQuery()
                 .eq(User::getId, userId)
                 .eq(User::getEmail, oldEmail));
-        AssertUtils.notNull(oldUserInfo, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        AssertUtils.notNull(oldUserInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "邮箱错误");
         // 更新信息
         User newUserInfo = new User();
         newUserInfo.setId(userId);
@@ -156,7 +156,7 @@ public class UserServiceImpl implements UserService {
         User oldUserInfo = userMapper.selectOne(Wrappers.<User>lambdaQuery()
                 .eq(User::getId, userId)
                 .eq(User::getPassword, oldPassword));
-        AssertUtils.notNull(oldUserInfo, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        AssertUtils.notNull(oldUserInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "密码错误");
         // 更新信息
         User newUserInfo = new User();
         newUserInfo.setId(userId);
