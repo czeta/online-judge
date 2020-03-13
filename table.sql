@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS problem_judge_type (
 
 -- 11.judge_type（评测方式标准表）
 CREATE TABLE IF NOT EXISTS judge_type (
-  id INT NOT NULL AUTO_INCREM ENT,
+  id INT NOT NULL AUTO_INCREMENT,
   -- 评测方式公用信息
   type TINYINT NOT NULL, -- 0代表爬虫、1代表评测机
   name VARCHAR(50) NOT NULL, -- 爬虫名称或评测机名称

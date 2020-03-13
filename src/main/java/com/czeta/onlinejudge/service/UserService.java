@@ -7,7 +7,10 @@ import com.czeta.onlinejudge.model.param.RangedUserModel;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.model.param.PageModel;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -126,4 +129,21 @@ public interface UserService {
      * @return
      */
     List<UserRegisterModel> insertRangedUserList(RangedUserModel rangedUserModel);
+
+    /**
+     * 上传用户头像
+     * @param multipartFile
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    boolean uploadHeadImage(MultipartFile multipartFile, Long userId) throws Exception;
+
+    /**
+     * 下载用户头像
+     * @param fileName
+     * @param httpServletResponse
+     * @throws Exception
+     */
+    void downloadHeadImage(String fileName, HttpServletResponse httpServletResponse) throws Exception;
 }

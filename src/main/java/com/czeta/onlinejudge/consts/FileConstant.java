@@ -12,4 +12,6 @@ public interface FileConstant {
     public static final String PREFIX_GENERATE_USERS = "generate_users_";
 
     public static final String SUFFIX_EXCEL = ".xlsx";
+    public static final String SUFFIX_EXTENSION_IN = "in";
+    public static final String SUFFIX_EXTENSION_OUT = "out";
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.dao.entity.*;
+import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
@@ -15,9 +16,11 @@ import com.czeta.onlinejudge.utils.response.APIResult;
 import com.czeta.onlinejudge.utils.utils.DownloadUtils;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -52,6 +55,9 @@ public class AdminController {
 
     @Autowired
     private JudgeService judgeService;
+
+    @Autowired
+    private ProblemService problemService;
 
     @Autowired
     private MultipartProperties multipartProperties;
@@ -381,5 +387,33 @@ public class AdminController {
         return new APIResult<>(judgeService.updateJudgeInfoById(judgeTypeModel));
     }
 
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/saveSpider")
+    public APIResult<Long> saveNewProblemBySpider(@RequestBody SpiderProblemModel spiderProblemModel, @RequestAttribute Long adminId) throws Exception {
+        return new APIResult<>(problemService.saveNewProblemBySpider(spiderProblemModel, adminId));
+    }
 
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/saveMachine")
+    public APIResult<Long> saveNewProblemByMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long adminId) throws Exception {
+        return new APIResult<>(problemService.saveNewProblemByMachine(machineProblemModel, adminId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/uploadFile")
+    public APIResult<Boolean> uploadProblemJudgeFile(@RequestParam("file") MultipartFile[] files, @RequestParam Long problemId) throws Exception {
+        return new APIResult<>(problemService.uploadProblemJudgeFile(files, problemId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/uploadSpj")
+    public APIResult<Boolean> uploadSpjProblemJudgeFile(@RequestParam("file") MultipartFile file, @RequestParam Long problemId) throws Exception {
+        return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.SPJ));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/uploadInsert")
+    public APIResult<Boolean> uploadInsertProblemJudgeFile(@RequestParam("file") MultipartFile file, @RequestParam Long problemId) throws Exception {
+        return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.FUNCTION));
+    }
 }

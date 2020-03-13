@@ -1,8 +1,10 @@
 package com.czeta.onlinejudge;
 
 import com.alibaba.excel.EasyExcel;
+import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
+import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
@@ -11,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +30,12 @@ class OnlineSubmitApplicationTests {
     @Autowired
     private UserCertificationMapper userCertificationMapper;
 
+    @Autowired
+    private MultipartProperties multipartProperties;
+
+    @Autowired
+    private ProblemService problemService;
+
     @Before
     public void setUp() {
     }
@@ -36,8 +46,7 @@ class OnlineSubmitApplicationTests {
 
     @Test
     void user() {
-        String fileName = "/opt/upload/excel_" + 3 + ".xlsx";
-        EasyExcel.write(fileName, UserRegisterModel.class).sheet("模板").doWrite(data());
+
     }
     private List<UserRegisterModel> data() {
         List<UserRegisterModel> list = new ArrayList<>();

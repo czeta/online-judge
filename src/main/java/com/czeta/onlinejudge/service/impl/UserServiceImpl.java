@@ -3,7 +3,9 @@ package com.czeta.onlinejudge.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.EmailConstant;
+import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.convert.UserInfoMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.mapper.*;
@@ -16,17 +18,23 @@ import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.model.param.UserInfoModel;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.model.param.PageModel;
-import com.czeta.onlinejudge.utils.utils.AssertUtils;
-import com.czeta.onlinejudge.utils.utils.DateUtils;
-import com.czeta.onlinejudge.utils.utils.PasswordUtils;
+import com.czeta.onlinejudge.utils.response.APIResult;
+import com.czeta.onlinejudge.utils.utils.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +54,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JwtProperties jwtProperties;
+
+    @Autowired
+    private MultipartProperties multipartProperties;
 
     @Autowired
     private UserMapper userMapper;
@@ -247,5 +258,41 @@ public class UserServiceImpl implements UserService {
             }
         }
         return userRegisterModels;
+    }
+
+    @Override
+    public boolean uploadHeadImage(MultipartFile head, Long userId) throws Exception {
+        AssertUtils.notNull(userId, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        // 上传文件，返回保存的文件名称
+        String uploadPath = multipartProperties.getUploadPath();
+        String saveFileName = UploadUtils.upload(uploadPath, head, originalFilename -> {
+            String fileExtension= FilenameUtils.getExtension(originalFilename);
+            String dateString = FileConstant.PREFIX_USER_HEAD + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssS"));
+            String fileName = dateString + "." +fileExtension;
+            return fileName;
+        }, multipartProperties.getAllowUploadFileExtensions());
+        // 上传成功之后，保存文件全称
+        log.info("headPath:{}", saveFileName);
+        if (updateUserHeadByUserId(userId, saveFileName)) {
+            return true;
+        }
+        // 上传失败，删除图片文件
+        UploadUtils.deleteQuietly(uploadPath, saveFileName);
+        return false;
+    }
+
+    @Override
+    public void downloadHeadImage(String fileName, HttpServletResponse response) throws Exception {
+        // 下载目录，既是上传目录
+        String downloadDir = multipartProperties.getUploadPath();
+        // 允许下载的文件后缀
+        List<String> allowFileExtensions = multipartProperties.getAllowDownloadFileExtensions();
+        // 文件下载，使用默认下载处理器
+//        DownloadUtil.download(downloadDir,downloadFileName,allowFileExtensions,response);
+        // 文件下载，使用自定义下载处理器
+        DownloadUtils.download(downloadDir, fileName, allowFileExtensions, response, (dir, fileName0, file, fileExtension, contentType, length) -> {
+            // 下载自定义处理，返回true：执行下载，false：取消下载
+            return true;
+        });
     }
 }

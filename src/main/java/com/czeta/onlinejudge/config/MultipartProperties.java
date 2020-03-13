@@ -37,4 +37,23 @@ public class MultipartProperties {
      * 允许下载的文件后缀集合
      */
     private List<String> allowDownloadFileExtensions;
+
+    /**<= 评测文件目录 begin =>**/
+
+    /**
+     * 评测文件目录
+     */
+    private String uploadJudgeFile;
+
+    /**
+     * 评测文件的数据目录
+     */
+    private String uploadJudgeFileData;
+
+    /**
+     * 评测文件的评测目录（结果目录）
+     */
+    private String uploadJudgeFileJudge;
+
+    /**<= 评测文件目录 end =>**/
 }
