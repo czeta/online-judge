@@ -101,6 +101,12 @@ public class CertificationServiceImpl implements CertificationService {
     }
 
     @Override
+    public List<Certification> getValidCertificationTypes() {
+        return certificationMapper.selectList(Wrappers.<Certification>lambdaQuery()
+                .eq(Certification::getStatus, CommonItemStatus.ENABLE));
+    }
+
+    @Override
     public void saveNewCertificationType(String type) {
         Certification certification = new Certification();
         certification.setName(type);

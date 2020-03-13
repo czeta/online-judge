@@ -183,7 +183,7 @@ public class UserController {
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/userCertification/certTypeList")
     public APIResult<List<Certification>> getCertificationTypeList() {
-        return new APIResult<>(certificationService.getCertificationTypes());
+        return new APIResult<>(certificationService.getValidCertificationTypes());
     }
 
     @ApiOperation(value = "根据userId，申请实名认证", notes = "需要token：普通用户权限")
