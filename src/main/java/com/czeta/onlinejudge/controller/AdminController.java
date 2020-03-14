@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.dao.entity.*;
+import com.czeta.onlinejudge.dao.entity.Tag;
 import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
@@ -55,6 +56,9 @@ public class AdminController {
 
     @Autowired
     private JudgeService judgeService;
+
+    @Autowired
+    private TagService tagService;
 
     @Autowired
     private ProblemService problemService;
@@ -333,10 +337,10 @@ public class AdminController {
         return new APIResult<>(announcementService.updateFAQContent(content));
     }
 
-    @ApiOperation(value = "获得评测机信息列表", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "获得评测机信息列表", notes = "需要token：超级admin权限，或普通管理员权限（仅在创建题目时选择评测机）")
     @ApiImplicitParams({})
     @ApiResponses({})
-    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/judgeManager/judgeMachineList")
     public APIResult<List<JudgeType>> getJudgeMachineList() {
         return new APIResult<>(judgeService.getJudgeMachineList());
@@ -355,10 +359,10 @@ public class AdminController {
         return new APIResult();
     }
 
-    @ApiOperation(value = "获得爬虫信息列表", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "获得爬虫信息列表", notes = "需要token：超级admin权限，或普通管理员权限（仅在创建题目时选择爬虫）")
     @ApiImplicitParams({})
     @ApiResponses({})
-    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/judgeManager/judgeSpiderList")
     public APIResult<List<JudgeType>> getJudgeSpiderList() {
         return new APIResult<>(judgeService.getJudgeSpiderList());
@@ -388,15 +392,28 @@ public class AdminController {
     }
 
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @PostMapping("/problemManager/saveSpider")
-    public APIResult<Long> saveNewProblemBySpider(@RequestBody SpiderProblemModel spiderProblemModel, @RequestAttribute Long adminId) throws Exception {
-        return new APIResult<>(problemService.saveNewProblemBySpider(spiderProblemModel, adminId));
+    @PostMapping("/problemManager/tag/save")
+    public APIResult saveNewTag(@RequestParam String tagName, @RequestAttribute Long userId) {
+        tagService.saveNewTag(tagName, userId);
+        return new APIResult();
     }
 
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @PostMapping("/problemManager/saveMachine")
-    public APIResult<Long> saveNewProblemByMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long adminId) throws Exception {
-        return new APIResult<>(problemService.saveNewProblemByMachine(machineProblemModel, adminId));
+    @GetMapping("/problemManager/tags")
+    public APIResult<List<Tag>> getTagInfoList() {
+        return new APIResult<>(tagService.getTagInfoList());
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/spider/save")
+    public APIResult<Long> saveNewProblemBySpider(@RequestBody SpiderProblemModel spiderProblemModel, @RequestAttribute Long userId) throws Exception {
+        return new APIResult<>(problemService.saveNewProblemBySpider(spiderProblemModel, userId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/machine/save")
+    public APIResult<Long> saveNewProblemByMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long userId) throws Exception {
+        return new APIResult<>(problemService.saveNewProblemByMachine(machineProblemModel, userId));
     }
 
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)

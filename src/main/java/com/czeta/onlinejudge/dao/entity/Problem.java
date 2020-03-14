@@ -26,11 +26,11 @@ public class Problem {
     private String outputSamples;
     private String hint;
     private String sourceName;
-    private String timeLimit;
-    private String memoryLimit;
+    private Integer timeLimit;
+    private Integer memoryLimit;
     private String ioMode;
     private String level;
-    private List<String> language;
+    private String language;
     private Integer submitCount;
     private Integer acCount;
     private Integer acNum;
@@ -40,9 +40,15 @@ public class Problem {
     private String lmTs;
 
     public void setLanguage(List<String> language) {
-        this.language = language;
+        StringBuffer sb = new StringBuffer();
+        language.stream().forEach(l -> {
+            sb.append(l);
+            sb.append(",");
+        });
+        this.language = sb.substring(0, sb.length() - 1);
     }
+
     public void setLanguage(String language) {
-        this.language = Arrays.asList(language.split(","));
+        this.language = language;
     }
 }

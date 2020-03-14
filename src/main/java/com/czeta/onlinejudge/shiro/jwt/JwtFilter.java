@@ -79,7 +79,7 @@ public class JwtFilter extends AuthenticatingFilter {
         String token = JwtTokenWebUtil.getTokenFromRequestHeader();
         AssertUtils.notBlank(token, ShiroStatusMsg.INVALID_TOKEN, "JWT Token为空");
         if (JwtTokenUtil.isExpired(token)) {
-            throw new APIRuntimeException(ShiroStatusMsg.INVALID_TOKEN);
+            throw new APIRuntimeException(ShiroStatusMsg.INVALID_TOKEN, "JWT Token过期");
         }
         // 如果开启redis二次校验，或者设置为单个用户token登陆，则先在redis中判断token是否存在
         if (jwtProperties.isRedisCheck()) {
@@ -96,7 +96,9 @@ public class JwtFilter extends AuthenticatingFilter {
         log.info("JwtFilter createToken token={}", token);
         // 添加到attribute中，作为controller的参数传入，避免再次解析token带来的不优雅
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        request.setAttribute("userId", loginRedisService.getUserId(username));
+        Long userId = loginRedisService.getUserId(username);
+        request.setAttribute("userId", userId);
+        log.info("RequestAttribute userId={}", userId);
         return JwtToken.build(token, username, salt, jwtProperties.getExpireSecond());
     }
 

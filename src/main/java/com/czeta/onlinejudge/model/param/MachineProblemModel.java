@@ -21,8 +21,8 @@ public class MachineProblemModel {
     private String outputSamples;
     private String hint;
     private String sourceName;
-    private String timeLimit;
-    private String memoryLimit;
+    private Integer timeLimit;
+    private Integer memoryLimit;
     private String ioMode;
     private String level;
     private List<String> language;

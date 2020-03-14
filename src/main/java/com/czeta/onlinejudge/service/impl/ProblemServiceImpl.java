@@ -1,5 +1,6 @@
 package com.czeta.onlinejudge.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.convert.ProblemMapstructConvert;
@@ -10,6 +11,8 @@ import com.czeta.onlinejudge.dao.mapper.ProblemJudgeTypeMapper;
 import com.czeta.onlinejudge.dao.mapper.ProblemMapper;
 import com.czeta.onlinejudge.dao.mapper.ProblemTagMapper;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
+import com.czeta.onlinejudge.enums.ProblemLanguage;
+import com.czeta.onlinejudge.enums.ProblemLevel;
 import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.model.param.MachineProblemModel;
 import com.czeta.onlinejudge.model.param.SpiderProblemModel;
@@ -27,13 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.net.FileNameMap;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @ClassName ProblemServiceImpl
@@ -70,13 +68,21 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public long saveNewProblemByMachine(MachineProblemModel machineProblemModel, Long adminId) {
+        // 校验：管理员id是否合法
         AssertUtils.notNull(adminId, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        // 校验：题目的水平与语言是否是合法的
+        AssertUtils.isTrue(ProblemLevel.isContainMessage(machineProblemModel.getLevel()),
+                BaseStatusMsg.APIEnum.PARAM_ERROR, "题目难度不合法或不支持");
+        AssertUtils.isTrue(ProblemLanguage.isContainMessage(machineProblemModel.getLanguage()),
+                BaseStatusMsg.APIEnum.PARAM_ERROR, "题目语言不合法或不支持");
         // 题目信息
         Problem problemInfo = ProblemMapstructConvert.INSTANCE.machineProblemToProblem(machineProblemModel);
+        problemInfo.setLanguage(machineProblemModel.getLanguage());
         problemInfo.setCreator(adminService.getAdminInfoById(adminId).getUsername());
         try {
             problemMapper.insert(problemInfo);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new APIRuntimeException(BaseStatusMsg.EXISTED_PROBLEM);
         }
         // 题目标签
@@ -158,10 +164,10 @@ public class ProblemServiceImpl implements ProblemService {
         AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目尚未创建");
         // 校验：文件名是否复合
         String fileName = file.getOriginalFilename();
-        if (problemType.equalByCode(ProblemType.FUNCTION)) {
-            AssertUtils.isTrue("insert.cpp".equals(fileName), BaseStatusMsg.APIEnum.PARAM_ERROR, "文件名不正确");
-        } else if (problemType.equalByCode(ProblemType.SPJ)) {
-            AssertUtils.isTrue("spj.cpp".equals(fileName), BaseStatusMsg.APIEnum.PARAM_ERROR,"文件名不正确");
+        if (problemType.getCode().equals(ProblemType.FUNCTION.getCode())) {
+            AssertUtils.isTrue(FileConstant.JUDGE_INSERT_NAME.equals(fileName), BaseStatusMsg.APIEnum.PARAM_ERROR, "文件名不正确");
+        } else if (problemType.getCode().equals(ProblemType.SPJ.getCode())) {
+            AssertUtils.isTrue(FileConstant.JUDGE_SPJ_NAME.equals(fileName), BaseStatusMsg.APIEnum.PARAM_ERROR,"文件名不正确");
         } else {
             throw new APIRuntimeException(BaseStatusMsg.APIEnum.PARAM_ERROR, "文件名不正确");
         }

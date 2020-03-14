@@ -4,6 +4,7 @@ import com.czeta.onlinejudge.dao.entity.Problem;
 import com.czeta.onlinejudge.dao.entity.ProblemJudgeType;
 import com.czeta.onlinejudge.model.param.MachineProblemModel;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -17,6 +18,7 @@ import org.mapstruct.factory.Mappers;
 public interface ProblemMapstructConvert {
     ProblemMapstructConvert INSTANCE = Mappers.getMapper(ProblemMapstructConvert.class);
 
+    @Mapping(source = "language", target = "language", ignore = true)
     Problem machineProblemToProblem(MachineProblemModel machineProblemModel);
 
     ProblemJudgeType machineProblemToProblemJudgeType(MachineProblemModel machineProblemModel);

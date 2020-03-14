@@ -8,10 +8,13 @@ package com.czeta.onlinejudge.consts;
  * @Version 1.0
  */
 public interface FileConstant {
-    public static final String PREFIX_USER_HEAD = "user_head_";
-    public static final String PREFIX_GENERATE_USERS = "generate_users_";
+    String JUDGE_INSERT_NAME = "insert.cpp";
+    String JUDGE_SPJ_NAME = "spj.cpp";
 
-    public static final String SUFFIX_EXCEL = ".xlsx";
-    public static final String SUFFIX_EXTENSION_IN = "in";
-    public static final String SUFFIX_EXTENSION_OUT = "out";
+    String PREFIX_USER_HEAD = "user_head_";
+    String PREFIX_GENERATE_USERS = "generate_users_";
+
+    String SUFFIX_EXCEL = ".xlsx";
+    String SUFFIX_EXTENSION_IN = "in";
+    String SUFFIX_EXTENSION_OUT = "out";
 }

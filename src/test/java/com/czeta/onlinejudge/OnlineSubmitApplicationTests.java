@@ -1,6 +1,5 @@
 package com.czeta.onlinejudge;
 
-import com.alibaba.excel.EasyExcel;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
@@ -13,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

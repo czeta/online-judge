@@ -146,7 +146,7 @@ online-judge:
     # 观众
     audience: web
     # 默认过期时间1小时，单位：秒
-    expire-second: 3600
+    expire-second: 36000
     # 是否刷新token
     refresh-token: true
     # 刷新token的时间间隔，默认10分钟，单位：秒
