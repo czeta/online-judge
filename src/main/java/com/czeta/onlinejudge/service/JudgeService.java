@@ -21,6 +21,13 @@ public interface JudgeService {
     List<JudgeType> getJudgeMachineList();
 
     /**
+     * 通过id获取指定的评测机信息
+     * @param id
+     * @return
+     */
+    JudgeType getJudgeMachineById(Integer id);
+
+    /**
      * 添加新的评测机
      * 需要新的评测机接入代码中，不然手动启用评测机，心跳会自动报abnormal，所以这里评测机默认是停止状态
      * @param judgeTypeModel

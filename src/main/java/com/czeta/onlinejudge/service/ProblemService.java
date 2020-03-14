@@ -5,6 +5,8 @@ import com.czeta.onlinejudge.model.param.MachineProblemModel;
 import com.czeta.onlinejudge.model.param.SpiderProblemModel;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * @InterfaceName ProblemService
  * @Description 题目服务
@@ -49,5 +51,38 @@ public interface ProblemService {
      * @throws Exception
      */
     boolean uploadOtherProblemJudgeFile(MultipartFile file, Long problemId, ProblemType problemType) throws Exception;
+
+    // end this
+    /**
+     * 通过题号定位并移除指定的评测文件
+     * @param problemId
+     * @param fileName
+     * @return
+     */
+    boolean removeProblemJudgeFile(Long problemId, String fileName);
+
+    /**
+     * 获取评测文件名列表，分为in、out和insert.cpp，spj.cpp
+     * @param problemId
+     * @param problemType
+     * @return
+     */
+    List<String> getProblemJudgeFileList(Long problemId, ProblemType problemType);
+
+
+    /**
+     * 更新评测机方式评测的题目信息
+     * @param machineProblemModel
+     * @param adminId
+     * @return
+     */
+    boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long adminId);
+
+    /**
+     * 查看评测机方式评测的题目信息
+     * @param problemId
+     * @return
+     */
+    MachineProblemModel getProblemInfoOfMachine(Long problemId);
 
 }

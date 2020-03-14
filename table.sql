@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS user_certification (
   certification_id INT NOT NULL,
   real_name VARCHAR(10),
   sex VARCHAR(10),
-  stu_id INT,
+  stu_id VARCHAR(50),
   school VARCHAR(20),
   faculty VARCHAR(20),
   major VARCHAR(20),

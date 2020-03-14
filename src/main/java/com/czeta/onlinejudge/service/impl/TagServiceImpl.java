@@ -10,11 +10,9 @@ import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.enums.CommonItemStatus;
 import com.czeta.onlinejudge.model.result.ProblemTagModel;
 import com.czeta.onlinejudge.service.TagService;
-import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +63,6 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<ProblemTagModel> getProblemTagByProblemId(Long problemId) {
         AssertUtils.notNull(problemId, BaseStatusMsg.APIEnum.PARAM_ERROR);
-        return problemTagMapper.selectJoinOfProblemTag(problemId);
+        return problemTagMapper.selectProblemTagJoinTag(problemId);
     }
 }

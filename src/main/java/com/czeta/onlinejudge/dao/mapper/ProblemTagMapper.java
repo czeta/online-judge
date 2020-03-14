@@ -19,5 +19,5 @@ import java.util.List;
 public interface ProblemTagMapper extends BaseMapper<ProblemTag> {
 
     @Select("SELECT * FROM problem_tag pt INNER JOIN tag t ON pt.tag_id = t.id WHERE pt.problem_id = #{problemId}")
-    List<ProblemTagModel> selectJoinOfProblemTag(Long problemId);
+    List<ProblemTagModel> selectProblemTagJoinTag(Long problemId);
 }

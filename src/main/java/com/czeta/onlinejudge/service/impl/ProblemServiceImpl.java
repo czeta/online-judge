@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.convert.ProblemMapstructConvert;
@@ -30,7 +31,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -192,5 +195,82 @@ public class ProblemServiceImpl implements ProblemService {
                 }, multipartProperties.getAllowUploadFileExtensions());
         log.info("saveFileName={}", saveFileName);
         return true;
+    }
+
+
+    @Override
+    public boolean removeProblemJudgeFile(Long problemId, String fileName) {
+        String pathName = multipartProperties.getUploadJudgeFileData() + problemId;
+        File targetFile = new File(pathName + "/" + fileName);
+        AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
+        targetFile.delete();
+        return true;
+    }
+
+    @Override
+    public List<String> getProblemJudgeFileList(Long problemId, ProblemType problemType) {
+        File judgeDataDir = new File(multipartProperties.getUploadJudgeFileData() + problemId);
+        AssertUtils.isTrue(judgeDataDir.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在");
+        List<String> fileNameList = new ArrayList<>();
+        if (problemType.getCode().equals(ProblemType.FUNCTION.getCode())) {
+            for (File f : judgeDataDir.listFiles()) {
+                if (f.getName().equals(FileConstant.JUDGE_INSERT_NAME)) {
+                    fileNameList.add(f.getName());
+                }
+            }
+        } else if (problemType.getCode().equals(ProblemType.SPJ.getCode())) {
+            for (File f : judgeDataDir.listFiles()) {
+                if (f.getName().equals(FileConstant.JUDGE_SPJ_NAME)) {
+                    fileNameList.add(f.getName());
+                }
+            }
+        } else {
+            for (File f : judgeDataDir.listFiles()) {
+                if (FilenameUtils.getExtension(f.getName()).equals(FileConstant.SUFFIX_EXTENSION_IN)
+                        || FilenameUtils.getExtension(f.getName()).equals(FileConstant.SUFFIX_EXTENSION_OUT)) {
+                    fileNameList.add(f.getName());
+                }
+            }
+        }
+        return fileNameList;
+    }
+
+    @Override
+    public boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long adminId) {
+        // 校验：题目ID
+        AssertUtils.notNull(machineProblemModel.getId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        // 校验：管理员id是否合法
+        AssertUtils.notNull(adminId, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        // 校验：题目的水平与语言是否是合法的
+        AssertUtils.isTrue(ProblemLevel.isContainMessage(machineProblemModel.getLevel()),
+                BaseStatusMsg.APIEnum.PARAM_ERROR, "题目难度不合法或不支持");
+        AssertUtils.isTrue(ProblemLanguage.isContainMessage(machineProblemModel.getLanguage()),
+                BaseStatusMsg.APIEnum.PARAM_ERROR, "题目语言不合法或不支持");
+        // 更新题目信息
+        Problem problemInfo = ProblemMapstructConvert.INSTANCE.machineProblemToProblem(machineProblemModel);
+        problemInfo.setLanguage(machineProblemModel.getLanguage());
+        problemInfo.setCreator(adminService.getAdminInfoById(adminId).getUsername());
+        problemMapper.updateById(problemInfo);
+        // 更新题目标签
+        problemTagMapper.delete(Wrappers.<ProblemTag>lambdaQuery()
+                .eq(ProblemTag::getProblemId, problemInfo.getId()));
+        ProblemTag problemTag = new ProblemTag();
+        problemTag.setProblemId(problemInfo.getId());
+        for (Integer tagId : machineProblemModel.getTagId()) {
+            problemTag.setTagId(tagId);
+            problemTagMapper.insert(problemTag);
+            problemTag.setId(null);
+        }
+        // 更新题目评测方式
+        ProblemJudgeType problemJudgeType = ProblemMapstructConvert.INSTANCE.machineProblemToProblemJudgeType(machineProblemModel);
+        problemJudgeType.setProblemId(problemInfo.getId());
+        problemJudgeTypeMapper.update(problemJudgeType, Wrappers.<ProblemJudgeType>lambdaQuery()
+                .eq(ProblemJudgeType::getProblemId, problemInfo.getId()));
+        return true;
+    }
+
+    @Override
+    public MachineProblemModel getProblemInfoOfMachine(Long problemId) {
+        return problemMapper.selectProblemJoinJudgeType(problemId);
     }
 }

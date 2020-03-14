@@ -42,6 +42,11 @@ public class JudgeServiceImpl implements JudgeService {
     }
 
     @Override
+    public JudgeType getJudgeMachineById(Integer id) {
+        return judgeTypeMapper.selectById(id);
+    }
+
+    @Override
     public void saveNewJudgeMachine(JudgeTypeModel judgeTypeModel) {
         AssertUtils.notNull(judgeTypeModel.getName(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         AssertUtils.notNull(judgeTypeModel.getUrl(), BaseStatusMsg.APIEnum.PARAM_ERROR);

@@ -23,7 +23,7 @@ public class UserCertificationModel {
     @ApiModelProperty(value = "性别")
     private String sex;
     @ApiModelProperty(value = "学号")
-    private Integer stuId;
+    private String stuId;
     @ApiModelProperty(value = "学校")
     private String school;
     @ApiModelProperty(value = "学院")

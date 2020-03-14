@@ -132,7 +132,7 @@ public class JwtTokenUtil {
      */
     public static boolean isExpired(String token) {
         Date expireDate = getExpireDate(token);
-        log.warn("过期时间：", expireDate);
+        log.warn("过期时间：{}", com.czeta.onlinejudge.utils.utils.DateUtils.getYYYYMMDDHHMMSS(expireDate));
         if (expireDate == null) {
             return true;
         }

@@ -13,6 +13,8 @@ import java.util.List;
  */
 @Data
 public class MachineProblemModel {
+    private Long id;
+
     private String title;
     private String description;
     private String inputDescription;
