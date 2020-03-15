@@ -15,13 +15,14 @@ import lombok.Data;
 public class Contest {
     @TableId(value = "id",type = IdType.AUTO)
     private Long id;
-    private String name;
+    private String title;
     private String description;
     private String startTime;
     private String endTime;
-    private String entryType;
+    private String signUpRule;
+    private String password;
     private String rankModel;
-    private String runningStatus;
+    private Integer realtimeRank;
     private String creator;
     private Short status;
     private String crtTs;

@@ -118,8 +118,6 @@ CREATE TABLE IF NOT EXISTS announcement (
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
 
--- db end this
-
 -- 9.problem（题目信息表）
 CREATE TABLE IF NOT EXISTS problem (
   id INT NOT NULL AUTO_INCREMENT,
@@ -226,24 +224,23 @@ CREATE TABLE IF NOT EXISTS submit (
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
 
--- end this
-
 -- 15.contest（竞赛信息表）
 CREATE TABLE IF NOT EXISTS contest (
   id INT NOT NULL AUTO_INCREMENT,
-  name VARCHAR(50) NOT NULL,
+  title VARCHAR(50) NOT NULL,
   description TEXT NOT NULL,
-  start_time TIMESTAMP NOT NULL,
-  end_time TIMESTAMP NOT NULL,
-  entry_type VARCHAR(10) NOT NULL,
-  rank_model VARCHAR(10) NOT NULL,
-  running_status VARCHAR(10) NOT NULL,
+  start_time VARCHAR(50) NOT NULL,
+  end_time VARCHAR(50) NOT NULL,
+  sign_up_rule VARCHAR(10) NOT NULL, -- 报名规则：(1)公开：不用认证与审核(2)认证：认证+审核(3)密码：成功输入密码即可成功
+  password VARCHAR(500), -- 排名规则为密码时的密码
+  rank_model VARCHAR(10) NOT NULL, -- 排名模式：(1)练习：ac数目降序，wa的次数升序(2)积分：ac数目降序，花费时间升序（罚时错一次罚时20分钟）(3)ACM/ICPC：ac数目降序，花费时间升序（罚时错一次罚时20分钟）
+  realtime_rank INT NOT NULL DEFAULT 1, -- 是否实时排名，默认开启
   creator VARCHAR(20) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
-  CONSTRAINT pk_id UNIQUE KEY(name),
+  CONSTRAINT uq_id UNIQUE KEY(title)
 )
 
 -- 16.contest_user（竞赛用户报名表）
@@ -251,7 +248,7 @@ CREATE TABLE IF NOT EXISTS contest_user (
   id INT NOT NULL AUTO_INCREMENT,
   contest_id INT NOT NULL,
   user_id INT NOT NULL,
-  status TINYINT NOT NULL DEFAULT 0,
+  status TINYINT NOT NULL DEFAULT 0, -- 报名状态：0表示尚未审核、1表示审核通过、-1表示审核不通过
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)

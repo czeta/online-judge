@@ -1,10 +1,14 @@
 package com.czeta.onlinejudge.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.model.param.MachineProblemModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.model.param.SpiderProblemModel;
+import com.czeta.onlinejudge.model.result.SimpleProblemModel;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -38,21 +42,31 @@ public interface ProblemService {
      * 上传题目评测数据：每次上传成对上传文件，包含in文件与out文件，名称必须相同
      * @param files
      * @param problemId
+     * @param adminId
      * @return
      */
-    boolean uploadProblemJudgeFile(MultipartFile[] files, Long problemId) throws Exception;
+    boolean uploadProblemJudgeFile(MultipartFile[] files, Long problemId, Long adminId) throws Exception;
 
     /**
      * 上传题目评测数据：spj文件或insert文件（分别对应spj题型和函数型题型）
      * @param file
      * @param problemId
      * @param problemType
+     * @param adminId
      * @return
      * @throws Exception
      */
-    boolean uploadOtherProblemJudgeFile(MultipartFile file, Long problemId, ProblemType problemType) throws Exception;
+    boolean uploadOtherProblemJudgeFile(MultipartFile file, Long problemId, ProblemType problemType, Long adminId) throws Exception;
 
-    // end this
+    /**
+     * 根据文件名下载评测数据
+     * @param problemId
+     * @param fileName
+     * @param httpServletResponse
+     * @throws Exception
+     */
+    void downloadProblemJudgeFile(Long problemId, String fileName, HttpServletResponse httpServletResponse) throws Exception;
+
     /**
      * 获取评测文件名列表，分为in、out和insert.cpp，spj.cpp
      * @param problemId
@@ -65,9 +79,10 @@ public interface ProblemService {
      * 通过题号定位并移除指定的评测文件
      * @param problemId
      * @param fileName
+     * @param adminId
      * @return
      */
-    boolean removeProblemJudgeFile(Long problemId, String fileName);
+    boolean removeProblemJudgeFile(Long problemId, String fileName, Long adminId);
 
     /**
      * 查看评测机方式评测的题目信息
@@ -79,9 +94,15 @@ public interface ProblemService {
     /**
      * 更新评测机方式评测的题目信息
      * @param machineProblemModel
-     * @param adminId
+     * @param userId
      * @return
      */
-    boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long adminId);
+    boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long problemId, Long userId);
 
+    /**
+     * 获得题目简略列表信息
+     * @param pageModel
+     * @return
+     */
+    IPage<SimpleProblemModel> getSimpleProblemList(PageModel pageModel);
 }

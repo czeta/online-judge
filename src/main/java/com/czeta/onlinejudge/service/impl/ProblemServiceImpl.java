@@ -1,10 +1,13 @@
 package com.czeta.onlinejudge.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.convert.ProblemMapstructConvert;
+import com.czeta.onlinejudge.dao.entity.Message;
 import com.czeta.onlinejudge.dao.entity.Problem;
 import com.czeta.onlinejudge.dao.entity.ProblemJudgeType;
 import com.czeta.onlinejudge.dao.entity.ProblemTag;
@@ -16,13 +19,16 @@ import com.czeta.onlinejudge.enums.ProblemLanguage;
 import com.czeta.onlinejudge.enums.ProblemLevel;
 import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.model.param.MachineProblemModel;
+import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.model.param.SpiderProblemModel;
+import com.czeta.onlinejudge.model.result.SimpleProblemModel;
 import com.czeta.onlinejudge.service.AdminService;
 import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import com.czeta.onlinejudge.utils.utils.DateUtils;
+import com.czeta.onlinejudge.utils.utils.DownloadUtils;
 import com.czeta.onlinejudge.utils.utils.UploadUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -31,8 +37,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName ProblemServiceImpl
@@ -107,7 +115,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public boolean uploadProblemJudgeFile(MultipartFile[] files, Long problemId) throws Exception {
+    public boolean uploadProblemJudgeFile(MultipartFile[] files, Long problemId, Long adminId) throws Exception {
         // 校验：是否只有两个文件
         AssertUtils.isTrue(files.length == 2, BaseStatusMsg.APIEnum.PARAM_ERROR, "文件个数不正确");
         // 校验：两个文件名称是否相同，并且后缀一个是in，一个是out
@@ -159,7 +167,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public boolean uploadOtherProblemJudgeFile(MultipartFile file, Long problemId, ProblemType problemType) throws Exception {
+    public boolean uploadOtherProblemJudgeFile(MultipartFile file, Long problemId, ProblemType problemType, Long adminId) throws Exception {
         // 校验：题目ID是否存在
         Problem problemInfo = problemMapper.selectById(problemId);
         AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目尚未创建");
@@ -195,14 +203,15 @@ public class ProblemServiceImpl implements ProblemService {
         return true;
     }
 
-
     @Override
-    public boolean removeProblemJudgeFile(Long problemId, String fileName) {
-        String pathName = multipartProperties.getUploadJudgeFileData() + problemId;
-        File targetFile = new File(pathName + "/" + fileName);
+    public void downloadProblemJudgeFile(Long problemId, String fileName, HttpServletResponse response) throws Exception {
+        String downloadDir = multipartProperties.getUploadJudgeFileData() + problemId;
+        File targetFile = new File(downloadDir + "/" + fileName);
         AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
-        targetFile.delete();
-        return true;
+        List<String> allowFileExtensions = multipartProperties.getAllowDownloadFileExtensions();
+        DownloadUtils.download(downloadDir, fileName, allowFileExtensions, response, (dir, fileName0, file, fileExtension, contentType, length) -> {
+            return true;
+        });
     }
 
     @Override
@@ -234,7 +243,22 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long adminId) {
+    public boolean removeProblemJudgeFile(Long problemId, String fileName, Long adminId) {
+        String pathName = multipartProperties.getUploadJudgeFileData() + problemId;
+        File targetFile = new File(pathName + "/" + fileName);
+        AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
+        targetFile.delete();
+        return true;
+    }
+
+    @Override
+    public MachineProblemModel getProblemInfoOfMachine(Long problemId) {
+        MachineProblemModel machineProblemModel = problemMapper.selectProblemJoinJudgeType(problemId);
+        return machineProblemModel;
+    }
+
+    @Override
+    public boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long problemId, Long adminId) {
         // 校验：题目ID
         AssertUtils.notNull(machineProblemModel.getId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         // 校验：管理员id是否合法
@@ -270,8 +294,20 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public MachineProblemModel getProblemInfoOfMachine(Long problemId) {
-        MachineProblemModel machineProblemModel = problemMapper.selectProblemJoinJudgeType(problemId);
-        return machineProblemModel;
+    public IPage<SimpleProblemModel> getSimpleProblemList(PageModel pageParam) {
+        Page<Problem> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
+        IPage<Problem> problemIPage = problemMapper.selectPage(page, Wrappers.<Problem>lambdaQuery()
+                .orderByAsc(Problem::getCrtTs));
+        List<SimpleProblemModel> list = new ArrayList<>();
+        for (Problem p : problemIPage.getRecords()) {
+            list.add(ProblemMapstructConvert.INSTANCE.problemToSimpleProblemModel(p));
+        }
+        IPage<SimpleProblemModel> ret = new Page<>();
+        ret.setRecords(list);
+        ret.setTotal(problemIPage.getTotal());
+        ret.setSize(problemIPage.getSize());
+        ret.setCurrent(problemIPage.getCurrent());
+        ret.setPages(problemIPage.getPages());
+        return ret;
     }
 }
