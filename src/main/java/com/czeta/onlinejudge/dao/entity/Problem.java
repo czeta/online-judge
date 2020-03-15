@@ -38,17 +38,4 @@ public class Problem {
     private Short status;
     private String crtTs;
     private String lmTs;
-
-    public void setLanguage(List<String> language) {
-        StringBuffer sb = new StringBuffer();
-        language.stream().forEach(l -> {
-            sb.append(l);
-            sb.append(",");
-        });
-        this.language = sb.substring(0, sb.length() - 1);
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
 }

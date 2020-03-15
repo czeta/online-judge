@@ -10,6 +10,7 @@ import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
+import com.czeta.onlinejudge.model.result.ProblemTagModel;
 import com.czeta.onlinejudge.service.*;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
@@ -433,4 +434,47 @@ public class AdminController {
     public APIResult<Boolean> uploadInsertProblemJudgeFile(@RequestParam("file") MultipartFile file, @RequestParam Long problemId) throws Exception {
         return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.FUNCTION));
     }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/problemManager/files")
+    public APIResult<List<String>> getProblemJudgeFileList(@RequestParam Long problemId) {
+        return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.ICPC));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/problemManager/spj")
+    public APIResult<List<String>> getProblemSpjJudgeFile(@RequestParam Long problemId) {
+        return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.SPJ));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/problemManager/function")
+    public APIResult<List<String>> getProblemFuncJudgeFile(@RequestParam Long problemId) {
+        return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.FUNCTION));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/file/remove")
+    public APIResult<Boolean> removeProblemJudgeFile(@RequestParam Long problemId, @RequestParam String fileName) {
+        return new APIResult<>(problemService.removeProblemJudgeFile(problemId, fileName));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/problemManager/problemInfo")
+    public APIResult<MachineProblemModel> getProblemInfoOfMachine(@RequestParam Long problemId) {
+        return new APIResult<>(problemService.getProblemInfoOfMachine(problemId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/problemManager/problemInfo/tags")
+    public APIResult<List<ProblemTagModel>> getProblemTagByProblemId(@RequestParam Long problemId) {
+        return new APIResult<>(tagService.getProblemTagByProblemId(problemId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/problemInfo/update")
+    public APIResult<Boolean> updateProblemInfoOfMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long userId) {
+        return new APIResult<>(problemService.updateProblemInfoOfMachine(machineProblemModel, userId));
+    }
+
 }

@@ -22,6 +22,7 @@ import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
+import com.czeta.onlinejudge.utils.utils.DateUtils;
 import com.czeta.onlinejudge.utils.utils.UploadUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName ProblemServiceImpl
@@ -76,7 +74,7 @@ public class ProblemServiceImpl implements ProblemService {
         // 校验：题目的水平与语言是否是合法的
         AssertUtils.isTrue(ProblemLevel.isContainMessage(machineProblemModel.getLevel()),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "题目难度不合法或不支持");
-        AssertUtils.isTrue(ProblemLanguage.isContainMessage(machineProblemModel.getLanguage()),
+        AssertUtils.isTrue(ProblemLanguage.isContainMessage(new ArrayList<>(Arrays.asList(machineProblemModel.getLanguage().split(",")))),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "题目语言不合法或不支持");
         // 题目信息
         Problem problemInfo = ProblemMapstructConvert.INSTANCE.machineProblemToProblem(machineProblemModel);
@@ -244,12 +242,13 @@ public class ProblemServiceImpl implements ProblemService {
         // 校验：题目的水平与语言是否是合法的
         AssertUtils.isTrue(ProblemLevel.isContainMessage(machineProblemModel.getLevel()),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "题目难度不合法或不支持");
-        AssertUtils.isTrue(ProblemLanguage.isContainMessage(machineProblemModel.getLanguage()),
+        AssertUtils.isTrue(ProblemLanguage.isContainMessage(new ArrayList<>(Arrays.asList(machineProblemModel.getLanguage().split(",")))),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "题目语言不合法或不支持");
         // 更新题目信息
         Problem problemInfo = ProblemMapstructConvert.INSTANCE.machineProblemToProblem(machineProblemModel);
         problemInfo.setLanguage(machineProblemModel.getLanguage());
         problemInfo.setCreator(adminService.getAdminInfoById(adminId).getUsername());
+        problemInfo.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         problemMapper.updateById(problemInfo);
         // 更新题目标签
         problemTagMapper.delete(Wrappers.<ProblemTag>lambdaQuery()
@@ -264,6 +263,7 @@ public class ProblemServiceImpl implements ProblemService {
         // 更新题目评测方式
         ProblemJudgeType problemJudgeType = ProblemMapstructConvert.INSTANCE.machineProblemToProblemJudgeType(machineProblemModel);
         problemJudgeType.setProblemId(problemInfo.getId());
+        problemJudgeType.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         problemJudgeTypeMapper.update(problemJudgeType, Wrappers.<ProblemJudgeType>lambdaQuery()
                 .eq(ProblemJudgeType::getProblemId, problemInfo.getId()));
         return true;
@@ -271,6 +271,7 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public MachineProblemModel getProblemInfoOfMachine(Long problemId) {
-        return problemMapper.selectProblemJoinJudgeType(problemId);
+        MachineProblemModel machineProblemModel = problemMapper.selectProblemJoinJudgeType(problemId);
+        return machineProblemModel;
     }
 }

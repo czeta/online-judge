@@ -54,6 +54,14 @@ public interface ProblemService {
 
     // end this
     /**
+     * 获取评测文件名列表，分为in、out和insert.cpp，spj.cpp
+     * @param problemId
+     * @param problemType
+     * @return
+     */
+    List<String> getProblemJudgeFileList(Long problemId, ProblemType problemType);
+
+    /**
      * 通过题号定位并移除指定的评测文件
      * @param problemId
      * @param fileName
@@ -62,13 +70,11 @@ public interface ProblemService {
     boolean removeProblemJudgeFile(Long problemId, String fileName);
 
     /**
-     * 获取评测文件名列表，分为in、out和insert.cpp，spj.cpp
+     * 查看评测机方式评测的题目信息
      * @param problemId
-     * @param problemType
      * @return
      */
-    List<String> getProblemJudgeFileList(Long problemId, ProblemType problemType);
-
+    MachineProblemModel getProblemInfoOfMachine(Long problemId);
 
     /**
      * 更新评测机方式评测的题目信息
@@ -77,12 +83,5 @@ public interface ProblemService {
      * @return
      */
     boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long adminId);
-
-    /**
-     * 查看评测机方式评测的题目信息
-     * @param problemId
-     * @return
-     */
-    MachineProblemModel getProblemInfoOfMachine(Long problemId);
 
 }

@@ -18,7 +18,6 @@ import org.mapstruct.factory.Mappers;
 public interface ProblemMapstructConvert {
     ProblemMapstructConvert INSTANCE = Mappers.getMapper(ProblemMapstructConvert.class);
 
-    @Mapping(source = "language", target = "language", ignore = true)
     Problem machineProblemToProblem(MachineProblemModel machineProblemModel);
 
     ProblemJudgeType machineProblemToProblemJudgeType(MachineProblemModel machineProblemModel);

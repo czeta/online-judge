@@ -2,6 +2,8 @@ package com.czeta.onlinejudge.model.param;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,7 +29,7 @@ public class MachineProblemModel {
     private Integer memoryLimit;
     private String ioMode;
     private String level;
-    private List<String> language;
+    private String language;
     private Short status;
 
     private Integer judgeTypeId;

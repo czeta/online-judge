@@ -103,7 +103,7 @@ public class CertificationServiceImpl implements CertificationService {
     @Override
     public List<Certification> getValidCertificationTypes() {
         return certificationMapper.selectList(Wrappers.<Certification>lambdaQuery()
-                .eq(Certification::getStatus, CommonItemStatus.ENABLE));
+                .eq(Certification::getStatus, CommonItemStatus.ENABLE.getCode()));
     }
 
     @Override
