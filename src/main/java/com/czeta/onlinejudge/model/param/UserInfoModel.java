@@ -22,4 +22,6 @@ public class UserInfoModel {
     private String blog;
     @ApiModelProperty(value = "个性签名")
     private String mood;
+    @ApiModelProperty(value = "用户个性化界面语言")
+    private String viewLanguage;
 }

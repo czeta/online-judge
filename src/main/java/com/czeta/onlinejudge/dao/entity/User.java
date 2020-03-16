@@ -45,6 +45,8 @@ public class User {
     @ApiModelProperty(value = "积分排名")
     @TableField("`rank`")
     private Integer rank;
+    @ApiModelProperty(value = "用户个性化界面语言，初始化用户时为null，这部分与后台无关，前端自己操作")
+    private String viewLanguage;
     @ApiModelProperty(value = "角色ID")
     private Integer roleId;
     @ApiModelProperty(value = "用户账户状态，1表示正常，0表示禁用")

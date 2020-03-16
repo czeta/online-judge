@@ -16,17 +16,17 @@ import java.util.List;
  */
 public interface AnnouncementService {
     /**
+     * 根据ID获取公告详情
+     * @param id
+     * @return
+     */
+    Announcement getAnnouncementInfoById(Long id);
+
+    /**
      * 获取首页公告列表
      * @return
      */
     IPage<Announcement> getHomePageAnnouncementList(PageModel pageModel);
-
-    /**
-     * 根据公告id获取公告详情
-     * @param id
-     * @return
-     */
-    Announcement getHomePageAnnouncementById(Long id);
 
     /**
      * 添加新的首页公告信息
@@ -54,4 +54,27 @@ public interface AnnouncementService {
      * @return
      */
     boolean updateFAQContent(String content);
+
+    /**
+     * 添加比赛公告
+     * @param announcementModel
+     * @param contestId
+     * @param adminId
+     */
+    void saveNewContestAnnouncement(AnnouncementModel announcementModel, Long contestId, Long adminId);
+
+    /**
+     * 更新比赛公告
+     * @param announcementModel
+     * @param contestId
+     * @param adminId
+     * @return
+     */
+    boolean updateContestAnnouncement(AnnouncementModel announcementModel, Long contestId, Long adminId);
+
+    /**
+     * 获取比赛公告列表
+     * @return
+     */
+    List<Announcement> getContestAnnouncementList(Long contestId);
 }

@@ -13,7 +13,8 @@ public enum BaseStatusMsg implements IBaseStatusMsg {
     EXISTED_USERNAME(2100, "用户名已存在"),
     EXISTED_NAME(2101, "名称已存在"),
     EXISTED_PROBLEM(2102, "题目已存在"),
-    EXISTED_PROBLEM_JUDGE_TYPE(2103, "该题目已设置评测方式");
+    EXISTED_PROBLEM_JUDGE_TYPE(2103, "该题目已设置评测方式"),
+    EXISTED_CONTEST(2104, "比赛已存在");
 
     private Integer code;
     private String message;

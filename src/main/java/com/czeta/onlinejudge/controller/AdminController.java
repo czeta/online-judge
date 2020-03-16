@@ -11,6 +11,7 @@ import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
 import com.czeta.onlinejudge.model.result.ProblemTagModel;
+import com.czeta.onlinejudge.model.result.SimpleContestModel;
 import com.czeta.onlinejudge.model.result.SimpleProblemModel;
 import com.czeta.onlinejudge.service.*;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
@@ -64,6 +65,9 @@ public class AdminController {
 
     @Autowired
     private ProblemService problemService;
+
+    @Autowired
+    private ContestService contestService;
 
     @Autowired
     private MultipartProperties multipartProperties;
@@ -292,7 +296,7 @@ public class AdminController {
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @GetMapping("/ancManager/ancInfo/{id}")
     public APIResult<Announcement> getHomePageAnnouncement(@PathVariable Long id) {
-        return new APIResult<>(announcementService.getHomePageAnnouncementById(id));
+        return new APIResult<>(announcementService.getAnnouncementInfoById(id));
     }
 
     @ApiOperation(value = "添加新的首页公告", notes = "需要token：超级admin权限")
@@ -492,4 +496,72 @@ public class AdminController {
         return new APIResult<>(problemService.getSimpleProblemList(page));
     }
 
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/contestManager/save")
+    public APIResult saveNewContest(@RequestBody ContestModel contestModel, @RequestAttribute Long userId) {
+        contestService.saveNewContest(contestModel, userId);
+        return new APIResult();
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/contestManager/update")
+    public APIResult<Boolean> updateContestInfo(@RequestBody ContestModel contestModel, @RequestAttribute Long userId) {
+        return new APIResult<>(contestService.updateContestInfo(contestModel, contestModel.getId(), userId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/contestManager/contestList")
+    public APIResult<IPage<SimpleContestModel>> getSimpleContestList(@RequestBody PageModel pageModel) {
+        return new APIResult<>(contestService.getSimpleContestList(pageModel));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/contestManager/contestInfo")
+    public APIResult<Contest> getContestInfo(@RequestParam Long contestId) {
+        return new APIResult<>(contestService.getContestInfo(contestId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/contestManager/problemIdList")
+    public APIResult<List<Long>> getProblemListOfContest(@RequestParam Long contestId) {
+        return new APIResult<>(contestService.getProblemListOfContest(contestId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/contestManager/contestUserList")
+    public APIResult<IPage<ContestUser>> getAppliedContestUserList(@RequestBody PageModel pageModel, @RequestParam Long contestId) {
+        return new APIResult<>(contestService.getAppliedContestUserList(pageModel, contestId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/contestManager/contestUser/update")
+    public APIResult<Boolean> updateAppliedContestUser(@RequestParam Short status, @RequestParam Long id,
+                                                       @RequestParam Long contestId, @RequestAttribute Long userId) {
+        return new APIResult<>(contestService.updateAppliedContestUser(status, id, contestId, userId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/contestManager/announcement/save")
+    public APIResult saveNewContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @RequestAttribute Long userId) {
+        announcementService.saveNewContestAnnouncement(announcementModel, contestId, userId);
+        return new APIResult();
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/contestManager/announcement/update")
+    public APIResult<Boolean> updateContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @RequestAttribute Long userId) {
+        return new APIResult<>(announcementService.updateContestAnnouncement(announcementModel, contestId, userId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/contestManager/announcementList")
+    public APIResult<List<Announcement>> getContestAnnouncementList(@RequestParam Long contestId) {
+        return new APIResult<>(announcementService.getContestAnnouncementList(contestId));
+    }
+
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @GetMapping("/contestManager/announcementInfo")
+    public APIResult<Announcement> getAnnouncementInfoById(@RequestParam Long id) {
+        return new APIResult<>(announcementService.getAnnouncementInfoById(id));
+    }
 }

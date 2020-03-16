@@ -12,6 +12,7 @@ import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.model.param.AnnouncementModel;
 import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.service.AnnouncementService;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import com.czeta.onlinejudge.utils.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName AnnouncementServiceImpl
@@ -40,19 +42,18 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private AdminMapper adminMapper;
 
     @Override
+    public Announcement getAnnouncementInfoById(Long id) {
+        return announcementMapper.selectOne(Wrappers.<Announcement>lambdaQuery()
+                .eq(Announcement::getId, id));
+    }
+
+    @Override
     public IPage<Announcement> getHomePageAnnouncementList(PageModel pageModel) {
         Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
         return announcementMapper.selectPage(page, Wrappers.<Announcement>lambdaQuery()
                 .eq(Announcement::getSourceId, AnnouncementType.HOME_PAGE.getCode())
                 .orderByDesc(Announcement::getStatus)
                 .orderByDesc(Announcement::getLmTs));
-    }
-
-    @Override
-    public Announcement getHomePageAnnouncementById(Long id) {
-        return announcementMapper.selectOne(Wrappers.<Announcement>lambdaQuery()
-                .eq(Announcement::getSourceId, AnnouncementType.HOME_PAGE.getCode())
-                .eq(Announcement::getId, id));
     }
 
     @Override
@@ -97,4 +98,36 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return true;
     }
 
+    @Override
+    public void saveNewContestAnnouncement(AnnouncementModel announcementModel, Long contestId, Long adminId) {
+        AssertUtils.isTrue(announcementModel.getTitle() != null && announcementModel.getContent() != null
+                && contestId != null && adminId != null, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        Announcement announcement = new Announcement();
+        announcement.setTitle(announcementModel.getTitle());
+        announcement.setContent(announcementModel.getContent());
+        announcement.setCreator(adminMapper.selectOne(Wrappers.<Admin>lambdaQuery().eq(Admin::getId, adminId)).getUsername());
+        announcement.setSourceId(contestId);
+        announcementMapper.insert(announcement);
+    }
+
+    @Override
+    public boolean updateContestAnnouncement(AnnouncementModel announcementModel, Long contestId, Long adminId) {
+        AssertUtils.isTrue(announcementModel.getId() != null
+                && contestId != null && adminId != null, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        Announcement announcement = new Announcement();
+        announcement.setId(announcementModel.getId());
+        announcement.setTitle(announcementModel.getTitle());
+        announcement.setContent(announcementModel.getContent());
+        announcement.setStatus(announcementModel.getStatus());
+        announcement.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+        announcementMapper.updateById(announcement);
+        return true;
+    }
+
+    @Override
+    public List<Announcement> getContestAnnouncementList(Long contestId) {
+        AssertUtils.notNull(contestId, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        return announcementMapper.selectList(Wrappers.<Announcement>lambdaQuery()
+                .eq(Announcement::getSourceId, contestId));
+    }
 }
