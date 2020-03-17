@@ -31,6 +31,7 @@ import com.czeta.onlinejudge.utils.utils.DateUtils;
 import com.czeta.onlinejudge.utils.utils.DownloadUtils;
 import com.czeta.onlinejudge.utils.utils.UploadUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -147,7 +148,14 @@ public class ProblemServiceImpl implements ProblemService {
             fileName0 = "1." + fileExtension0;
             fileName1 = "1." + fileExtension1;
         } else {
-            int no = judgeDataDir.listFiles().length / 2 + 1;
+            Set<Integer> set = new HashSet<>();
+            for (File f : judgeDataDir.listFiles()) {
+                String extName = FilenameUtils.getExtension(f.getName());
+                if (extName.equals(FileConstant.SUFFIX_EXTENSION_IN) || extName.equals(FileConstant.SUFFIX_EXTENSION_OUT)) {
+                    set.add(Integer.valueOf(FilenameUtils.getBaseName(f.getName())));
+                }
+            }
+            int no = Collections.max(set) + 1;
             fileName0 = no + "." + fileExtension0;
             fileName1 = no + "." + fileExtension1;
         }

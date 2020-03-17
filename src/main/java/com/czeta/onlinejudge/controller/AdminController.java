@@ -397,6 +397,14 @@ public class AdminController {
         return new APIResult<>(judgeService.updateJudgeInfoById(judgeTypeModel));
     }
 
+    @ApiOperation(value = "添加新的题目标签", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tagName", value = "标签名", dataType = "String", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 2101, message = "名称已存在")
+    })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/tag/save")
     public APIResult saveNewTag(@RequestParam String tagName, @RequestAttribute Long userId) {
@@ -404,98 +412,195 @@ public class AdminController {
         return new APIResult();
     }
 
+    @ApiOperation(value = "获取所有标签", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({})
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/tags")
     public APIResult<List<Tag>> getTagInfoList() {
         return new APIResult<>(tagService.getTagInfoList());
     }
 
+    @ApiOperation(value = "创建爬虫评测的题目", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "spiderProblemModel", value = "爬虫题目model", dataType = "SpiderProblemModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 2101, message = "名称已存在")
+    })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/spider/save")
     public APIResult<Long> saveNewProblemBySpider(@RequestBody SpiderProblemModel spiderProblemModel, @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.saveNewProblemBySpider(spiderProblemModel, userId));
     }
 
+    @ApiOperation(value = "创建评测机评测的题目", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "machineProblemModel", value = "评测机评测的题目model", dataType = "MachineProblemModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 2101, message = "名称已存在"),
+            @ApiResponse(code = 2103, message = "该题已设置评测方式")
+    })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/machine/save")
     public APIResult<Long> saveNewProblemByMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.saveNewProblemByMachine(machineProblemModel, userId));
     }
 
+    @ApiOperation(value = "上传题目评测文件：in后缀文件与out后缀文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "files", value = "评测文件，每次上传只能成对上传文件，分别是in后缀文件和out后缀文件，并且文件名必须相同。", dataType = "MultipartFile[]", paramType = "query", required = true),
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = false),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/uploadFile")
     public APIResult<Boolean> uploadProblemJudgeFile(@RequestParam MultipartFile[] files, @RequestParam Long problemId, @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.uploadProblemJudgeFile(files, problemId, userId));
     }
 
+    @ApiOperation(value = "上传题目评测文件：spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "评测文件，属于特判题型的评测文件，只能是spj.cpp命名的文件", dataType = "MultipartFile", paramType = "query", required = true),
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/uploadSpj")
     public APIResult<Boolean> uploadSpjProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.SPJ, userId));
     }
 
+    @ApiOperation(value = "上传题目评测文件：insert.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "file", value = "评测文件，属于函数型题型的评测文件，只能是insert.cpp命名的文件", dataType = "MultipartFile", paramType = "query", required = true),
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/uploadInsert")
     public APIResult<Boolean> uploadInsertProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.FUNCTION, userId));
     }
 
+    @ApiOperation(value = "下载评测文件：in、out、insert.cpp、spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "fileName", value = "评测文件名", dataType = "String", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/downloadFile")
     public void downloadProblemJudgeFile(@RequestParam Long problemId, @RequestParam String fileName, HttpServletResponse response) throws Exception {
         problemService.downloadProblemJudgeFile(problemId, fileName, response);
     }
 
-
+    @ApiOperation(value = "获取评测文件列表：in后缀、out后缀文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/files")
     public APIResult<List<String>> getProblemJudgeFileList(@RequestParam Long problemId) {
         return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.ICPC));
     }
 
+    @ApiOperation(value = "获取评测文件列表：spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/spj")
     public APIResult<List<String>> getProblemSpjJudgeFile(@RequestParam Long problemId) {
         return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.SPJ));
     }
 
+    @ApiOperation(value = "获取评测文件列表：insert.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/function")
     public APIResult<List<String>> getProblemFuncJudgeFile(@RequestParam Long problemId) {
         return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.FUNCTION));
     }
 
+    @ApiOperation(value = "删除指定评测文件：in、out、insert.cpp、spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "fileName", value = "评测文件名", dataType = "String", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/file/remove")
     public APIResult<Boolean> removeProblemJudgeFile(@RequestParam Long problemId, @RequestParam String fileName, @RequestAttribute Long userId) {
         return new APIResult<>(problemService.removeProblemJudgeFile(problemId, fileName, userId));
     }
 
+    @ApiOperation(value = "获取评测机评测的题目信息", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/problemInfo")
     public APIResult<MachineProblemModel> getProblemInfoOfMachine(@RequestParam Long problemId) {
         return new APIResult<>(problemService.getProblemInfoOfMachine(problemId));
     }
 
+    @ApiOperation(value = "获取评测机评测的题目所属标签列表", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/problemInfo/tags")
     public APIResult<List<ProblemTagModel>> getProblemTagByProblemId(@RequestParam Long problemId) {
         return new APIResult<>(tagService.getProblemTagByProblemId(problemId));
     }
 
+
+    @ApiOperation(value = "更新评测机评测的题目信息", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "machineProblemModel", value = "评测机评测的题目信息", dataType = "MachineProblemModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/problemInfo/update")
     public APIResult<Boolean> updateProblemInfoOfMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long userId) {
         return new APIResult<>(problemService.updateProblemInfoOfMachine(machineProblemModel, machineProblemModel.getId(), userId));
     }
 
-
+    @ApiOperation(value = "获取题目信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "分页信息", dataType = "PageModel", paramType = "body", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/problemList")
     public APIResult<IPage<SimpleProblemModel>> getSimpleProblemList(@RequestBody PageModel page) {
         return new APIResult<>(problemService.getSimpleProblemList(page));
     }
 
+    @ApiOperation(value = "创建比赛", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "contestModel", value = "创建比赛的model", dataType = "ContestModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 2102, message = "题目已存在")
+    })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/save")
     public APIResult saveNewContest(@RequestBody ContestModel contestModel, @RequestAttribute Long userId) {
@@ -503,36 +608,72 @@ public class AdminController {
         return new APIResult();
     }
 
+    @ApiOperation(value = "更新比赛信息", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "contestModel", value = "更新比赛的model", dataType = "ContestModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/update")
     public APIResult<Boolean> updateContestInfo(@RequestBody ContestModel contestModel, @RequestAttribute Long userId) {
         return new APIResult<>(contestService.updateContestInfo(contestModel, contestModel.getId(), userId));
     }
 
+
+    @ApiOperation(value = "获取比赛信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "分页信息", dataType = "PageModel", paramType = "body", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/contestManager/contestList")
     public APIResult<IPage<SimpleContestModel>> getSimpleContestList(@RequestBody PageModel pageModel) {
         return new APIResult<>(contestService.getSimpleContestList(pageModel));
     }
 
+    @ApiOperation(value = "获取比赛详细信息", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/contestManager/contestInfo")
     public APIResult<Contest> getContestInfo(@RequestParam Long contestId) {
         return new APIResult<>(contestService.getContestInfo(contestId));
     }
 
+    @ApiOperation(value = "获取比赛的题目ID列表", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/contestManager/problemIdList")
     public APIResult<List<Long>> getProblemListOfContest(@RequestParam Long contestId) {
         return new APIResult<>(contestService.getProblemListOfContest(contestId));
     }
 
+    @ApiOperation(value = "获取比赛的申请报名的用户列表", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "分页信息", dataType = "PageModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/contestManager/contestUserList")
     public APIResult<IPage<ContestUser>> getAppliedContestUserList(@RequestBody PageModel pageModel, @RequestParam Long contestId) {
         return new APIResult<>(contestService.getAppliedContestUserList(pageModel, contestId));
     }
 
+    @ApiOperation(value = "审核申请报名比赛的用户", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "status", value = "审核状态：0表示尚未审核、1表示审核通过、-1表示审核不通过", dataType = "Short", paramType = "query", required = true),
+            @ApiImplicitParam(name = "id", value = "申请报名比赛的用户model的ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/contestUser/update")
     public APIResult<Boolean> updateAppliedContestUser(@RequestParam Short status, @RequestParam Long id,
@@ -540,6 +681,13 @@ public class AdminController {
         return new APIResult<>(contestService.updateAppliedContestUser(status, id, contestId, userId));
     }
 
+    @ApiOperation(value = "新增比赛公告", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "announcementModel", value = "公告model", dataType = "AnnouncementModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/announcement/save")
     public APIResult saveNewContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @RequestAttribute Long userId) {
@@ -547,18 +695,35 @@ public class AdminController {
         return new APIResult();
     }
 
+    @ApiOperation(value = "更新比赛指定公告", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "announcementModel", value = "公告model", dataType = "AnnouncementModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "管理员id，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType = "body", required = false)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/announcement/update")
     public APIResult<Boolean> updateContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @RequestAttribute Long userId) {
         return new APIResult<>(announcementService.updateContestAnnouncement(announcementModel, contestId, userId));
     }
 
+    @ApiOperation(value = "获取比赛的公告列表", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/contestManager/announcementList")
     public APIResult<List<Announcement>> getContestAnnouncementList(@RequestParam Long contestId) {
         return new APIResult<>(announcementService.getContestAnnouncementList(contestId));
     }
 
+    @ApiOperation(value = "获取比赛公告详细信息", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "公告ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/contestManager/announcementInfo")
     public APIResult<Announcement> getAnnouncementInfoById(@RequestParam Long id) {

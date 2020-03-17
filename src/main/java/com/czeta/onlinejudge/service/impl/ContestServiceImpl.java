@@ -18,11 +18,13 @@ import com.czeta.onlinejudge.model.result.SimpleContestModel;
 import com.czeta.onlinejudge.service.ContestService;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
+import com.czeta.onlinejudge.utils.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,6 +77,7 @@ public class ContestServiceImpl implements ContestService {
         AssertUtils.isTrue(ContestRankModel.isContain(contestModel.getRankModel()),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "排名模式不存在");
         Contest contestInfo = ContestMapstructConvert.INSTANCE.contestModelToContest(contestModel);
+        contestInfo.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         contestMapper.updateById(contestInfo);
         return true;
     }
@@ -126,6 +129,7 @@ public class ContestServiceImpl implements ContestService {
         ContestUser contestUser = new ContestUser();
         contestUser.setId(id);
         contestUser.setStatus(status);
+        contestUser.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         contestUserMapper.updateById(contestUser);
         return true;
     }
