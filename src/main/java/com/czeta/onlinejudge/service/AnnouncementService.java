@@ -77,4 +77,12 @@ public interface AnnouncementService {
      * @return
      */
     List<Announcement> getContestAnnouncementList(Long contestId);
+
+    /**
+     * 获取公有界面的首页公告列表
+     * @param pageModel
+     * @return
+     */
+    IPage<Announcement> getPublicHomePageAnnouncementList(PageModel pageModel);
+
 }

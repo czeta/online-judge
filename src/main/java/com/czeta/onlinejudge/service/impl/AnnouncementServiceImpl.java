@@ -9,6 +9,7 @@ import com.czeta.onlinejudge.dao.mapper.AdminMapper;
 import com.czeta.onlinejudge.dao.mapper.AnnouncementMapper;
 import com.czeta.onlinejudge.enums.AnnouncementType;
 import com.czeta.onlinejudge.enums.BaseStatusMsg;
+import com.czeta.onlinejudge.enums.CommonItemStatus;
 import com.czeta.onlinejudge.model.param.AnnouncementModel;
 import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.service.AnnouncementService;
@@ -129,5 +130,14 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         AssertUtils.notNull(contestId, BaseStatusMsg.APIEnum.PARAM_ERROR);
         return announcementMapper.selectList(Wrappers.<Announcement>lambdaQuery()
                 .eq(Announcement::getSourceId, contestId));
+    }
+
+    @Override
+    public IPage<Announcement> getPublicHomePageAnnouncementList(PageModel pageModel) {
+        Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
+        return announcementMapper.selectPage(page, Wrappers.<Announcement>lambdaQuery()
+                .eq(Announcement::getSourceId, AnnouncementType.HOME_PAGE.getCode())
+                .eq(Announcement::getStatus, CommonItemStatus.ENABLE.getCode())
+                .orderByDesc(Announcement::getLmTs));
     }
 }
