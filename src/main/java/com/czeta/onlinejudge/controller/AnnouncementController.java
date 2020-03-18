@@ -31,7 +31,7 @@ public class AnnouncementController {
             @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
-    @GetMapping("/ancInfoList")
+    @PostMapping("/ancInfoList")
     public APIResult<IPage<Announcement>> getHomePageAnnouncementList(@RequestBody PageModel pageModel) {
         return new APIResult<>(announcementService.getPublicHomePageAnnouncementList(pageModel));
     }

@@ -29,12 +29,12 @@ public class ProblemController {
     @Autowired
     private ProblemService problemService;
 
-    @GetMapping("/problemList")
+    @PostMapping("/problemList")
     public APIResult<IPage<PublicSimpleProblemModel>> getPublicProblemList(@RequestBody PageModel pageModel) {
         return new APIResult<>(problemService.getPublicProblemList(pageModel));
     }
 
-    @GetMapping("/conditionalProblemList")
+    @PostMapping("/conditionalProblemList")
     public APIResult<IPage<PublicSimpleProblemModel>> getPublicProblemList(@RequestBody ProblemConditionPageModel problemConditionPageModel) {
         return new APIResult<>(problemService.getPublicProblemListByCondition(problemConditionPageModel));
     }

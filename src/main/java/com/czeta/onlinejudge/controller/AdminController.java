@@ -78,7 +78,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/userManager/userInfoList")
+    @PostMapping("/userManager/userInfoList")
     public APIResult<IPage<User>> getUserInfoList(@RequestBody PageModel pageModel) {
         return new APIResult<>(userService.getUserInfoList(pageModel));
     }
@@ -89,7 +89,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/userManager/searchResult")
+    @PostMapping("/userManager/searchResult")
     public APIResult<IPage<User>> getUserSearchResult(@RequestBody PageModel<String> pageModel) {
         return new APIResult<>(userService.getUserInfosByUsernameKey(pageModel));
     }
@@ -167,7 +167,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/userManager/appliedCertificationList")
+    @PostMapping("/userManager/appliedCertificationList")
     public APIResult<IPage<AppliedCertificationModel>> getAppliedCertificationList(@RequestBody PageModel pageModel) {
         return new APIResult<>(certificationService.getAppliedCertificationList(pageModel));
     }
@@ -225,7 +225,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/adminManager/adminInfoList")
+    @PostMapping("/adminManager/adminInfoList")
     public APIResult<IPage<Admin>> getAdminInfoList(@RequestBody PageModel pageModel) {
         return new APIResult<>(adminService.getAdminInfoList(pageModel));
     }
@@ -237,7 +237,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/adminManager/searchResult")
+    @PostMapping("/adminManager/searchResult")
     public APIResult<IPage<Admin>> getAdminSearchResult(@RequestBody PageModel<String> pageModel) {
         return new APIResult<>(adminService.getAdminInfoListByUsernameKey(pageModel));
     }
@@ -283,7 +283,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/ancManager/ancInfoList")
+    @PostMapping("/ancManager/ancInfoList")
     public APIResult<IPage<Announcement>> getHomePageAnnouncementList(@RequestBody PageModel pageModel) {
         return new APIResult<>(announcementService.getHomePageAnnouncementList(pageModel));
     }
@@ -588,7 +588,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @GetMapping("/problemManager/problemList")
+    @PostMapping("/problemManager/problemList")
     public APIResult<IPage<SimpleProblemModel>> getSimpleProblemList(@RequestBody PageModel page) {
         return new APIResult<>(problemService.getSimpleProblemList(page));
     }
@@ -627,7 +627,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @GetMapping("/contestManager/contestList")
+    @PostMapping("/contestManager/contestList")
     public APIResult<IPage<SimpleContestModel>> getSimpleContestList(@RequestBody PageModel pageModel) {
         return new APIResult<>(contestService.getSimpleContestList(pageModel));
     }
@@ -661,7 +661,7 @@ public class AdminController {
     })
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @GetMapping("/contestManager/contestUserList")
+    @PostMapping("/contestManager/contestUserList")
     public APIResult<IPage<ContestUser>> getAppliedContestUserList(@RequestBody PageModel pageModel, @RequestParam Long contestId) {
         return new APIResult<>(contestService.getAppliedContestUserList(pageModel, contestId));
     }

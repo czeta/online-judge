@@ -453,6 +453,12 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public void submitProblem(SubmitModel submitModel, Long userId) {
+        // 用户表
 
+        // 用户解决题目表
+
+        // 题目信息表
+
+        // 提交评测表
     }
 }

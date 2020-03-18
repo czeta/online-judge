@@ -28,12 +28,12 @@ public class StatusController {
     @Autowired
     private SubmitService submitService;
 
-    @GetMapping("/statusList")
+    @PostMapping("/statusList")
     public APIResult<IPage<PublicSubmitModel>> getPublicSubmitModelList(@RequestBody PageModel pageModel) {
         return new APIResult<>(submitService.getPublicSubmitModelList(pageModel));
     }
 
-    @GetMapping("/conditionalStatusList")
+    @PostMapping("/conditionalStatusList")
     public APIResult<IPage<PublicSubmitModel>> getPublicSubmitModelList(@RequestBody SubmitConditionPageModel submitConditionPageModel) {
         return new APIResult<>(submitService.getPublicSubmitModelListByCondition(submitConditionPageModel));
     }

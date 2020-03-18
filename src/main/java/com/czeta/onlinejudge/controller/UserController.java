@@ -123,7 +123,7 @@ public class UserController {
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
-    @GetMapping("/messages")
+    @PostMapping("/messages")
     public APIResult<IPage<Message>> getMessages(@RequestBody PageModel page, @RequestAttribute Long userId) {
         return new APIResult<>(userService.getMessagesByUserId(page, userId));
     }
