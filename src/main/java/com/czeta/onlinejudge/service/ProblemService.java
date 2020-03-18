@@ -2,9 +2,9 @@ package com.czeta.onlinejudge.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.enums.ProblemType;
-import com.czeta.onlinejudge.model.param.MachineProblemModel;
-import com.czeta.onlinejudge.model.param.PageModel;
-import com.czeta.onlinejudge.model.param.SpiderProblemModel;
+import com.czeta.onlinejudge.model.param.*;
+import com.czeta.onlinejudge.model.result.DetailProblemModel;
+import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.SimpleProblemModel;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -105,4 +105,30 @@ public interface ProblemService {
      * @return
      */
     IPage<SimpleProblemModel> getSimpleProblemList(PageModel pageModel);
+
+    /**
+     * 获取公有界面的题目列表信息
+     * @param pageModel
+     * @return
+     */
+    IPage<PublicSimpleProblemModel> getPublicProblemList(PageModel pageModel);
+
+    /**
+     * 通过条件筛选题目
+     * @param problemConditionPageModel
+     * @return
+     */
+    IPage<PublicSimpleProblemModel> getPublicProblemListByCondition(ProblemConditionPageModel problemConditionPageModel);
+
+    /**
+     * 通过题号获取题目详细信息
+     */
+    DetailProblemModel getDetailProblemInfoById(Long probleId);
+
+    /**
+     * 提交题目
+     * @param submitModel
+     * @param userId
+     */
+    void submitProblem(SubmitModel submitModel, Long userId);
 }

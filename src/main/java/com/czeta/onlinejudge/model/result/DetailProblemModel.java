@@ -1,22 +1,21 @@
-package com.czeta.onlinejudge.dao.entity;
+package com.czeta.onlinejudge.model.result;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.czeta.onlinejudge.dao.entity.Submit;
+import com.czeta.onlinejudge.dao.entity.Tag;
 import lombok.Data;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
- * @ClassName Problem
+ * @ClassName DetailProblemModel
  * @Description
  * @Author chenlongjie
- * @Date 2020/3/1 13:13
+ * @Date 2020/3/18 14:32
  * @Version 1.0
  */
 @Data
-public class Problem {
-    @TableId(value = "id",type = IdType.AUTO)
+public class DetailProblemModel {
     private Long id;
     private String title;
     private String description;
@@ -31,12 +30,20 @@ public class Problem {
     private String ioMode;
     private String level;
     private String language;
+    private String creator;
+
     private Integer submitCount;
     private Integer acCount;
     private Integer submitNum;
     private Integer acNum;
-    private String creator;
-    private Short status;
-    private String crtTs;
-    private String lmTs;
+
+    private Map<String, Integer> statistic;
+
+    private String judgeTypeName;
+    private Integer problemType;
+    private Integer spj;
+
+    private List<ProblemTagModel> tagList;
+
+
 }

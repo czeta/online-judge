@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS problem (
   language VARCHAR(100) NOT NULL, -- 题目支持语言(多种语言之间用逗号间隔)
   submit_count INT NOT NULL DEFAULT 0,
   ac_count INT NOT NULL DEFAULT 0,
+  submit_num INT NOT NULL DEFAULT 0,
   ac_num INT NOT NULL DEFAULT 0,
   creator VARCHAR(20) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1, -- 状态：1表示正常并可视，0表示正常但不可视（这部分是比赛题目才有的），-1表示题目禁用
@@ -218,6 +219,7 @@ CREATE TABLE IF NOT EXISTS submit (
   language VARCHAR(10) NOT NULL,
   submit_status VARCHAR(20) NOT NULL,
   source_id INT NOT NULL,  -- 来源ID，0表示无，大于0表示比赛ID
+  creator_id INT NOT NULL,
   creator VARCHAR(20) NOT NULL,
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

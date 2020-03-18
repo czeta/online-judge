@@ -2,36 +2,26 @@ package com.czeta.onlinejudge.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.convert.ProblemMapstructConvert;
-import com.czeta.onlinejudge.dao.entity.Message;
-import com.czeta.onlinejudge.dao.entity.Problem;
-import com.czeta.onlinejudge.dao.entity.ProblemJudgeType;
-import com.czeta.onlinejudge.dao.entity.ProblemTag;
-import com.czeta.onlinejudge.dao.mapper.ProblemJudgeTypeMapper;
-import com.czeta.onlinejudge.dao.mapper.ProblemMapper;
-import com.czeta.onlinejudge.dao.mapper.ProblemTagMapper;
-import com.czeta.onlinejudge.enums.BaseStatusMsg;
-import com.czeta.onlinejudge.enums.ProblemLanguage;
-import com.czeta.onlinejudge.enums.ProblemLevel;
-import com.czeta.onlinejudge.enums.ProblemType;
-import com.czeta.onlinejudge.model.param.MachineProblemModel;
-import com.czeta.onlinejudge.model.param.PageModel;
-import com.czeta.onlinejudge.model.param.SpiderProblemModel;
+import com.czeta.onlinejudge.dao.entity.*;
+import com.czeta.onlinejudge.dao.mapper.*;
+import com.czeta.onlinejudge.enums.*;
+import com.czeta.onlinejudge.model.param.*;
+import com.czeta.onlinejudge.model.result.DetailProblemModel;
+import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.SimpleProblemModel;
 import com.czeta.onlinejudge.service.AdminService;
 import com.czeta.onlinejudge.service.ProblemService;
+import com.czeta.onlinejudge.service.TagService;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
-import com.czeta.onlinejudge.utils.utils.AssertUtils;
-import com.czeta.onlinejudge.utils.utils.DateUtils;
-import com.czeta.onlinejudge.utils.utils.DownloadUtils;
-import com.czeta.onlinejudge.utils.utils.UploadUtils;
+import com.czeta.onlinejudge.utils.utils.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,6 +59,15 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Autowired
     private MultipartProperties multipartProperties;
+
+    @Autowired
+    private TagService tagService;
+
+    @Autowired
+    private JudgeTypeMapper judgeTypeMapper;
+
+    @Autowired
+    private SubmitMapper submitMapper;
 
     @Override
     public long saveNewProblemBySpider(SpiderProblemModel spiderProblemModel, Long adminId) {
@@ -310,12 +309,150 @@ public class ProblemServiceImpl implements ProblemService {
         for (Problem p : problemIPage.getRecords()) {
             list.add(ProblemMapstructConvert.INSTANCE.problemToSimpleProblemModel(p));
         }
-        IPage<SimpleProblemModel> ret = new Page<>();
-        ret.setRecords(list);
-        ret.setTotal(problemIPage.getTotal());
-        ret.setSize(problemIPage.getSize());
-        ret.setCurrent(problemIPage.getCurrent());
-        ret.setPages(problemIPage.getPages());
-        return ret;
+        return PageUtils.setOpr(problemIPage, new Page<SimpleProblemModel>(), list);
+    }
+
+    @Override
+    public IPage<PublicSimpleProblemModel> getPublicProblemList(PageModel pageParam) {
+        Page<Problem> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
+        IPage<Problem> problemIPage = problemMapper.selectPage(page, Wrappers.<Problem>lambdaQuery()
+                .eq(Problem::getStatus, ProblemStatus.NORMAL_VISIBLE.getCode())
+                .orderByAsc(Problem::getCrtTs));
+        List<PublicSimpleProblemModel> list = new ArrayList<>();
+        for (Problem p : problemIPage.getRecords()) {
+            PublicSimpleProblemModel problemModel = ProblemMapstructConvert.INSTANCE.problemToPublicSimpleProblemModel(p);
+            problemModel.setAcRate(NumberUtils.parsePercent(p.getAcCount(), p.getSubmitCount()));
+            list.add(problemModel);
+        }
+        return PageUtils.setOpr(problemIPage, new Page<PublicSimpleProblemModel>(), list);
+    }
+
+    @Override
+    public IPage<PublicSimpleProblemModel> getPublicProblemListByCondition(ProblemConditionPageModel problemConditionPageModel) {
+        AssertUtils.notNull(problemConditionPageModel.getPageModel(), BaseStatusMsg.APIEnum.PARAM_ERROR, "无分页参数");
+        List<Long> problemIds;
+        if (problemConditionPageModel.getTagId() != null) {
+            problemIds = tagService.getProblemIdListByTagId(problemConditionPageModel.getTagId());
+        } else {
+            problemIds = problemMapper.selectList(Wrappers.<Problem>lambdaQuery()
+                    .eq(Problem::getStatus, ProblemStatus.NORMAL_VISIBLE.getCode()))
+                    .stream()
+                    .map(p -> p.getId())
+                    .collect(Collectors.toList());
+        }
+        if (CollectionUtils.isEmpty(problemIds)) {
+            return new Page<>();
+        }
+        List<String> levels = Arrays.asList(problemConditionPageModel.getLevel());
+        if (problemConditionPageModel.getLevel() == null) {
+            levels = ProblemLevel.getEnumMessageList();
+        }
+        String titleKey = problemConditionPageModel.getTitleKey();
+        if (titleKey == null) {
+            titleKey = "";
+        }
+        Page<Problem> page = new Page<>(problemConditionPageModel.getPageModel().getOffset(), problemConditionPageModel.getPageModel().getLimit());
+        IPage<Problem> problemIPage = problemMapper.selectPage(page, Wrappers.<Problem>lambdaQuery()
+                .eq(Problem::getStatus, ProblemStatus.NORMAL_VISIBLE.getCode())
+                .in(Problem::getId, problemIds)
+                .in(Problem::getLevel, levels)
+                .like(Problem::getTitle, "%" + titleKey + "%"));
+        List<PublicSimpleProblemModel> list = new ArrayList<>();
+        for (Problem p : problemIPage.getRecords()) {
+            PublicSimpleProblemModel problemModel = ProblemMapstructConvert.INSTANCE.problemToPublicSimpleProblemModel(p);
+            problemModel.setAcRate(NumberUtils.parsePercent(p.getAcCount(), p.getSubmitCount()));
+            list.add(problemModel);
+        }
+        return PageUtils.setOpr(problemIPage, new Page<PublicSimpleProblemModel>(), list);
+    }
+
+    // abandoned
+    public IPage<PublicSimpleProblemModel> getPublicProblemListByCondition0(ProblemConditionPageModel problemConditionPageModel) {
+        AssertUtils.notNull(problemConditionPageModel.getPageModel(), BaseStatusMsg.APIEnum.PARAM_ERROR, "无分页参数");
+        List<Long> problemIds;
+        if (problemConditionPageModel.getTagId() != null) {
+            problemIds = tagService.getProblemIdListByTagId(problemConditionPageModel.getTagId());
+        } else {
+            problemIds = problemMapper.selectList(Wrappers.<Problem>lambdaQuery()
+                    .eq(Problem::getStatus, ProblemStatus.NORMAL_VISIBLE.getCode()))
+                    .stream()
+                    .map(p -> p.getId())
+                    .collect(Collectors.toList());
+        }
+        if (CollectionUtils.isEmpty(problemIds)) {
+            return new Page<>();
+        }
+        log.info("afterTagIdFilter problemIds={}", problemIds);
+        if (problemConditionPageModel.getLevel() != null) {
+            problemIds = problemMapper.selectList(Wrappers.<Problem>lambdaQuery()
+                    .eq(Problem::getStatus, ProblemStatus.NORMAL_VISIBLE.getCode())
+                    .in(Problem::getId, problemIds)
+                    .eq(Problem::getLevel, problemConditionPageModel.getLevel()))
+                    .stream()
+                    .map(p -> p.getId())
+                    .collect(Collectors.toList());
+        }
+        if (CollectionUtils.isEmpty(problemIds)) {
+            return new Page<>();
+        }
+        log.info("afterLevelFilter problemIds={}", problemIds);
+        IPage<Problem> problemIPage = new Page<>();
+        Page<Problem> page = new Page<>(problemConditionPageModel.getPageModel().getOffset(), problemConditionPageModel.getPageModel().getLimit());
+        if (problemConditionPageModel.getTitleKey() != null) {
+            problemIPage = problemMapper.selectPage(page, Wrappers.<Problem>lambdaQuery()
+                    .eq(Problem::getStatus, ProblemStatus.NORMAL_VISIBLE.getCode())
+                    .in(Problem::getId, problemIds)
+                    .like(Problem::getTitle, "%" + problemConditionPageModel.getTitleKey() + "%"));
+        } else {
+            problemIPage = problemMapper.selectPage(page, Wrappers.<Problem>lambdaQuery()
+                    .eq(Problem::getStatus, ProblemStatus.NORMAL_VISIBLE.getCode())
+                    .in(Problem::getId, problemIds));
+        }
+        log.info("afterTitleKeyFilter problemIPage={}", JSONObject.toJSONString(problemIPage));
+        List<PublicSimpleProblemModel> list = new ArrayList<>();
+        for (Problem p : problemIPage.getRecords()) {
+            PublicSimpleProblemModel problemModel = ProblemMapstructConvert.INSTANCE.problemToPublicSimpleProblemModel(p);
+            problemModel.setAcRate(NumberUtils.parsePercent(p.getAcCount(), p.getSubmitCount()));
+            list.add(problemModel);
+        }
+        return PageUtils.setOpr(problemIPage, new Page<PublicSimpleProblemModel>(), list);
+    }
+
+    @Override
+    public DetailProblemModel getDetailProblemInfoById(Long problemId) {
+        Problem problem = problemMapper.selectById(problemId);
+        AssertUtils.notNull(problem, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
+        AssertUtils.isTrue(!problem.getStatus().equals(ProblemStatus.ABNORMAL.getCode()), BaseStatusMsg.ABNORMAL_PROBLEM);
+        AssertUtils.isTrue(!problem.getStatus().equals(ProblemStatus.NORMAL_INVISIBLE.getCode()),
+                BaseStatusMsg.NORMAL_INVISIBLE_PROBLEM);
+        DetailProblemModel detailProblemModel = ProblemMapstructConvert.INSTANCE.problemToDetailProblemModel(problem);
+        // 提交统计数据
+        Map<String, Integer> statistic = SubmitStatus.getStatisticMap();
+        List<Submit> submitList = submitMapper.selectList(Wrappers.<Submit>lambdaQuery()
+                .eq(Submit::getProblemId, problemId));
+        for (Submit s : submitList) {
+            if (!statistic.containsKey(s.getSubmitStatus())) {
+                log.error("db submitStatus error={}", s.getSubmitStatus());
+                continue;
+            }
+            statistic.put(s.getSubmitStatus(), statistic.get(s.getSubmitStatus()) + 1);
+        }
+        detailProblemModel.setStatistic(statistic);
+        // 评测方式数据
+        ProblemJudgeType problemJudgeType = problemJudgeTypeMapper.selectOne(Wrappers.<ProblemJudgeType>lambdaQuery()
+                .eq(ProblemJudgeType::getProblemId, problemId));
+        detailProblemModel.setProblemType(problemJudgeType.getProblemType());
+        detailProblemModel.setSpj(problemJudgeType.getSpj());
+        JudgeType judgeType = judgeTypeMapper.selectById(problemJudgeType.getJudgeTypeId());
+        detailProblemModel.setJudgeTypeName(judgeType.getName());
+        // 题目标签数据
+        detailProblemModel.setTagList(tagService.getProblemTagByProblemId(problemId));
+        return detailProblemModel;
+    }
+
+
+    @Override
+    public void submitProblem(SubmitModel submitModel, Long userId) {
+
     }
 }

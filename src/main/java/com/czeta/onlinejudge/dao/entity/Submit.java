@@ -22,6 +22,7 @@ public class Submit {
     private String language;
     private String submitStatus;
     private Long sourceId;
+    private Long creatorId;
     private String creator;
     private Short status;
     private String crtTs;

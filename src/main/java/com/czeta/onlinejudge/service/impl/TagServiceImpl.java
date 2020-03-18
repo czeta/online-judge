@@ -2,6 +2,7 @@ package com.czeta.onlinejudge.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.czeta.onlinejudge.dao.entity.Admin;
+import com.czeta.onlinejudge.dao.entity.ProblemTag;
 import com.czeta.onlinejudge.dao.entity.Tag;
 import com.czeta.onlinejudge.dao.mapper.AdminMapper;
 import com.czeta.onlinejudge.dao.mapper.ProblemTagMapper;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName TagServiceImpl
@@ -64,5 +66,15 @@ public class TagServiceImpl implements TagService {
     public List<ProblemTagModel> getProblemTagByProblemId(Long problemId) {
         AssertUtils.notNull(problemId, BaseStatusMsg.APIEnum.PARAM_ERROR);
         return problemTagMapper.selectProblemTagJoinTag(problemId);
+    }
+
+    @Override
+    public List<Long> getProblemIdListByTagId(Integer tagId) {
+        AssertUtils.notNull(tagId, BaseStatusMsg.APIEnum.PARAM_ERROR);
+        return problemTagMapper.selectList(Wrappers.<ProblemTag>lambdaQuery()
+                .eq(ProblemTag::getTagId, tagId))
+                .stream()
+                .map(t -> t.getProblemId())
+                .collect(Collectors.toList());
     }
 }

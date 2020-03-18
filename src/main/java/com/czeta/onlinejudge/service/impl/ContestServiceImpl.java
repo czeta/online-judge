@@ -14,11 +14,13 @@ import com.czeta.onlinejudge.enums.ContestRankModel;
 import com.czeta.onlinejudge.enums.ContestSignUpRule;
 import com.czeta.onlinejudge.model.param.ContestModel;
 import com.czeta.onlinejudge.model.param.PageModel;
+import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.SimpleContestModel;
 import com.czeta.onlinejudge.service.ContestService;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import com.czeta.onlinejudge.utils.utils.DateUtils;
+import com.czeta.onlinejudge.utils.utils.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,13 +93,7 @@ public class ContestServiceImpl implements ContestService {
         for (Contest c : contestIPage.getRecords()) {
             list.add(ContestMapstructConvert.INSTANCE.contestToSimpleContestModel(c));
         }
-        IPage<SimpleContestModel> ret = new Page<>();
-        ret.setRecords(list);
-        ret.setTotal(contestIPage.getTotal());
-        ret.setSize(contestIPage.getSize());
-        ret.setCurrent(contestIPage.getCurrent());
-        ret.setPages(contestIPage.getPages());
-        return ret;
+        return PageUtils.setOpr(contestIPage, new Page<SimpleContestModel>(), list);
     }
 
     @Override

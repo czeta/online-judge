@@ -2,6 +2,9 @@ package com.czeta.onlinejudge.enums;
 
 import com.czeta.onlinejudge.utils.enums.IEnumItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @EnumName ProblemLevel
  * @Description 题目难度枚举
@@ -46,5 +49,13 @@ public enum ProblemLevel implements IEnumItem {
             if (p.getMessage().equals(message)) return true;
         }
         return false;
+    }
+
+    public static List<String> getEnumMessageList() {
+        List<String> list = new ArrayList<>();
+        for (ProblemLevel p : ProblemLevel.values()) {
+            list.add(p.getMessage());
+        }
+        return list;
     }
 }

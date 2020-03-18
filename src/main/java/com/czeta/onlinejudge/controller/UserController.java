@@ -67,6 +67,8 @@ public class UserController {
         return new APIResult();
     }
 
+
+
     @ApiOperation(value = "根据userId获取用户主页信息", notes = "这一个复用controller：传id查看别人主页，不传任何参数则查看自己主页")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "用户id，查看别人的主页所需要传的参数", dataType = "Long", paramType= "query", required = false),

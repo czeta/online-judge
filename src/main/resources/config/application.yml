@@ -122,7 +122,7 @@ online-judge:
       - urls: /,/index
         permission: anon
         # 排除公共访问页面
-      - urls: /api/user/register,/api/anc/**
+      - urls: /api/user/register,/api/anc/**,/api/problem/**
         permission: anon
         # 排除登陆登出相关
       - urls: /api/login,/api/logout

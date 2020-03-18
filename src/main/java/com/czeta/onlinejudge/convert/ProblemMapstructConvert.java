@@ -3,6 +3,8 @@ package com.czeta.onlinejudge.convert;
 import com.czeta.onlinejudge.dao.entity.Problem;
 import com.czeta.onlinejudge.dao.entity.ProblemJudgeType;
 import com.czeta.onlinejudge.model.param.MachineProblemModel;
+import com.czeta.onlinejudge.model.result.DetailProblemModel;
+import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.SimpleProblemModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,4 +26,8 @@ public interface ProblemMapstructConvert {
     ProblemJudgeType machineProblemToProblemJudgeType(MachineProblemModel machineProblemModel);
 
     SimpleProblemModel problemToSimpleProblemModel(Problem problem);
+
+    PublicSimpleProblemModel problemToPublicSimpleProblemModel(Problem problem);
+
+    DetailProblemModel problemToDetailProblemModel(Problem problem);
 }

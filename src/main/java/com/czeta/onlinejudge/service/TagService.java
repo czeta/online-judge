@@ -18,4 +18,6 @@ public interface TagService {
     List<Tag> getTagInfoList();
 
     List<ProblemTagModel> getProblemTagByProblemId(Long problemId);
+
+    List<Long> getProblemIdListByTagId(Integer tagId);
 }

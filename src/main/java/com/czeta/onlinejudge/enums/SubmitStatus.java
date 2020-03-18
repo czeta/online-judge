@@ -1,5 +1,10 @@
 package com.czeta.onlinejudge.enums;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @EnumName SubmitStatus
  * @Description
@@ -44,5 +49,21 @@ public enum SubmitStatus {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public static List<String> getEnumNameList() {
+        List<String> list = new ArrayList<>();
+        for (SubmitStatus p : SubmitStatus.values()) {
+            list.add(p.name());
+        }
+        return list;
+    }
+
+    public static Map<String, Integer> getStatisticMap() {
+        Map<String, Integer> map = new HashMap<>();
+        for (SubmitStatus s: SubmitStatus.values()) {
+            map.put(s.getName(), 0);
+        }
+        return map;
     }
 }
