@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.model.param.ProblemConditionPageModel;
 import com.czeta.onlinejudge.model.param.SubmitModel;
@@ -10,6 +11,7 @@ import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.utils.response.APIResult;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +46,7 @@ public class ProblemController {
         return new APIResult<>(problemService.getDetailProblemInfoById(problemId));
     }
 
+    @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/submit")
     public APIResult submitProblem(@RequestBody SubmitModel submitModel, @RequestAttribute Long userId) {
         problemService.submitProblem(submitModel, userId);

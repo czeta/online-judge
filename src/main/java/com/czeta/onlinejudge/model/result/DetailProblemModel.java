@@ -23,7 +23,8 @@ public class DetailProblemModel {
     private String outputDescription;
     private String inputSamples;
     private String outputSamples;
-    private Submit hint;
+    private String hint;
+    private Long sourceId;
     private String sourceName;
     private Integer timeLimit;
     private Integer memoryLimit;

@@ -1,15 +1,15 @@
 package com.czeta.onlinejudge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.PageModel;
-import com.czeta.onlinejudge.model.param.ProblemConditionPageModel;
 import com.czeta.onlinejudge.model.param.SubmitConditionPageModel;
-import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSubmitModel;
 import com.czeta.onlinejudge.service.SubmitService;
 import com.czeta.onlinejudge.utils.response.APIResult;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +38,7 @@ public class StatusController {
         return new APIResult<>(submitService.getPublicSubmitModelListByCondition(submitConditionPageModel));
     }
 
+    @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/code")
     public APIResult<String> getSubmitCodeByProblemId(@RequestParam Long submitId, @RequestParam Long problemId, @RequestAttribute Long userId) {
         return new APIResult<>(submitService.getSubmitCodeByProblemId(submitId, problemId, userId));

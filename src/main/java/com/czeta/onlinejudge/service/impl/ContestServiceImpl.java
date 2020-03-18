@@ -105,7 +105,7 @@ public class ContestServiceImpl implements ContestService {
     public List<Long> getProblemListOfContest(Long contestId) {
         Contest contestInfo = getContestInfo(contestId);
         return problemMapper.selectList(Wrappers.<Problem>lambdaQuery()
-                .eq(Problem::getSourceName, contestInfo.getTitle())
+                .eq(Problem::getSourceId, contestInfo.getId())
                 .orderByAsc(Problem::getCrtTs))
                 .stream()
                 .map(Problem::getId)

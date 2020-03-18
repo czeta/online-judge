@@ -35,6 +35,8 @@ public class MachineProblemModel {
     private String outputSamples;
     @ApiModelProperty(value = "提示")
     private String hint;
+    @ApiModelProperty(value = "来源ID：如果是比赛下的题目，那么这里置为比赛ID；如果不是则为0")
+    private Long sourceId;
     @ApiModelProperty(value = "来源名称：如果是比赛下的题目，那么这里置为比赛标题；如果不是则可任意值，任意值必须以@开头")
     private String sourceName;
     @ApiModelProperty(value = "时间限制，数字表示，默认以ms为单位")

@@ -2,6 +2,7 @@ package com.czeta.onlinejudge.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.czeta.onlinejudge.dao.entity.User;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -13,4 +14,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserMapper extends BaseMapper<User> {
+
+    @Update("UPDATE user SET submit_count = submit_count + 1 WHERE id = #{userId}")
+    int updateSubmitCountIncrementOne(Long userId);
 }

@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.convert.ProblemMapstructConvert;
+import com.czeta.onlinejudge.convert.SubmitMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.mapper.*;
 import com.czeta.onlinejudge.enums.*;
@@ -18,6 +19,7 @@ import com.czeta.onlinejudge.model.result.SimpleProblemModel;
 import com.czeta.onlinejudge.service.AdminService;
 import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.service.TagService;
+import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.*;
@@ -69,9 +71,19 @@ public class ProblemServiceImpl implements ProblemService {
     @Autowired
     private SubmitMapper submitMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private SolvedProblemMapper solvedProblemMapper;
+
+    @Autowired
+    private UserService userService;
+
     @Override
     public long saveNewProblemBySpider(SpiderProblemModel spiderProblemModel, Long adminId) {
-        // 调用爬虫服务
+        /**<== 调用爬虫服务爬取目标题目 begin ==>**/
+        /**<== 调用爬虫服务爬取目标题目 end ==>**/
         return 1;
     }
 
@@ -453,12 +465,41 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public void submitProblem(SubmitModel submitModel, Long userId) {
+        /**<== 修改或添加相关表数据 begin ==>**/
         // 用户表
-
+        userMapper.updateSubmitCountIncrementOne(userId);
         // 用户解决题目表
-
+        SolvedProblem solvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
+                .eq(SolvedProblem::getUserId, userId)
+                .eq(SolvedProblem::getProblemId, submitModel.getProblemId()));
+        if (solvedProblem == null) {
+            // 首次提交该题，插入数据
+            SolvedProblem toSolvedProblem = new SolvedProblem();
+            toSolvedProblem.setProblemId(submitModel.getProblemId());
+            toSolvedProblem.setUserId(userId);
+            toSolvedProblem.setSubmitStatus(SubmitStatus.PENDING.getName());
+            solvedProblemMapper.insert(toSolvedProblem);
+            // 自增题目submit_num加一
+            problemMapper.updateSubmitNumIncrementOne(submitModel.getProblemId());
+        } else if (!solvedProblem.getSubmitStatus().equals(SubmitStatus.ACCEPTED.getName())) {
+            // 非accepted状态需要更新最新状态
+            solvedProblem.setSubmitStatus(SubmitStatus.PENDING.getName());
+            solvedProblemMapper.updateById(solvedProblem);
+        }
         // 题目信息表
-
+        problemMapper.updateSubmitCountIncrementOne(submitModel.getProblemId());
         // 提交评测表
+        Problem problemInfo = problemMapper.selectById(submitModel.getProblemId());
+        Submit submit = SubmitMapstructConvert.INSTANCE.submitModelToSubmit(submitModel);
+        submit.setSubmitStatus(SubmitStatus.PENDING.getName());
+        submit.setSourceId(problemInfo.getSourceId());
+        submit.setCreatorId(userId);
+        submit.setCreator(userService.getUserInfoById(userId).getUsername());
+        submitMapper.insert(submit);
+        /**<== 修改或添加相关表数据 end ==>**/
+
+        /**<== 封装kafka消息格式，并发送消息评测 begin ==>**/
+
+        /**<== 封装kafka消息格式，并发送消息评测 end ==>**/
     }
 }

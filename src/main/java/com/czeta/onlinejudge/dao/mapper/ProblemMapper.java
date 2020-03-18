@@ -5,6 +5,7 @@ import com.czeta.onlinejudge.dao.entity.Problem;
 import com.czeta.onlinejudge.model.param.MachineProblemModel;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -20,4 +21,10 @@ public interface ProblemMapper extends BaseMapper<Problem> {
 
     @Select("SELECT * FROM problem p INNER JOIN problem_judge_type pjt ON p.id=pjt.problem_id")
     MachineProblemModel selectProblemJoinJudgeType(Long problemId);
+
+    @Update("UPDATE problem SET submit_num = submit_num + 1 WHERE id = #{problemId}")
+    int updateSubmitNumIncrementOne(Long problemId);
+
+    @Update("UPDATE problem SET submit_count = submit_count + 1 WHERE id = #{problemId}")
+    int updateSubmitCountIncrementOne(Long problemId);
 }

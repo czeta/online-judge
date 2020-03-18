@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.convert;
 
 import com.czeta.onlinejudge.dao.entity.Submit;
+import com.czeta.onlinejudge.model.param.SubmitModel;
 import com.czeta.onlinejudge.model.result.PublicSubmitModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -17,4 +18,6 @@ public interface SubmitMapstructConvert {
     SubmitMapstructConvert INSTANCE = Mappers.getMapper(SubmitMapstructConvert.class);
 
     PublicSubmitModel submitToPublicSubmitModel(Submit submit);
+
+    Submit submitModelToSubmit(SubmitModel submit);
 }
