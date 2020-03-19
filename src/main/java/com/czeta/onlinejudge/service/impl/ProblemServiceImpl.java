@@ -465,31 +465,35 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public void submitProblem(SubmitModel submitModel, Long userId) {
+        Problem problemInfo = problemMapper.selectById(submitModel.getProblemId());
+        AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
+        AssertUtils.isTrue(ProblemLanguage.isContainMessage(Arrays.asList(submitModel.getLanguage())),
+                BaseStatusMsg.APIEnum.PARAM_ERROR, "代码语言不合法或不支持");
         /**<== 修改或添加相关表数据 begin ==>**/
-        // 用户表
+        // 用户表：自增submitCount
         userMapper.updateSubmitCountIncrementOne(userId);
         // 用户解决题目表
         SolvedProblem solvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
                 .eq(SolvedProblem::getUserId, userId)
                 .eq(SolvedProblem::getProblemId, submitModel.getProblemId()));
         if (solvedProblem == null) {
-            // 首次提交该题，插入数据
+            // 首次提交该题：插入数据
             SolvedProblem toSolvedProblem = new SolvedProblem();
             toSolvedProblem.setProblemId(submitModel.getProblemId());
             toSolvedProblem.setUserId(userId);
             toSolvedProblem.setSubmitStatus(SubmitStatus.PENDING.getName());
             solvedProblemMapper.insert(toSolvedProblem);
-            // 自增题目submit_num加一
+            // 题目信息表更新：自增submit_num
             problemMapper.updateSubmitNumIncrementOne(submitModel.getProblemId());
         } else if (!solvedProblem.getSubmitStatus().equals(SubmitStatus.ACCEPTED.getName())) {
-            // 非accepted状态需要更新最新状态
+            // 非accepted状态需要：更新最新状态
             solvedProblem.setSubmitStatus(SubmitStatus.PENDING.getName());
+            solvedProblem.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
             solvedProblemMapper.updateById(solvedProblem);
         }
-        // 题目信息表
+        // 题目信息表：自增submit_count
         problemMapper.updateSubmitCountIncrementOne(submitModel.getProblemId());
-        // 提交评测表
-        Problem problemInfo = problemMapper.selectById(submitModel.getProblemId());
+        // 提交评测表：插入数据
         Submit submit = SubmitMapstructConvert.INSTANCE.submitModelToSubmit(submitModel);
         submit.setSubmitStatus(SubmitStatus.PENDING.getName());
         submit.setSourceId(problemInfo.getSourceId());

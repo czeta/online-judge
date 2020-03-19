@@ -95,7 +95,7 @@ public class SubmitServiceImpl implements SubmitService {
     }
 
     @Override
-    public String getSubmitCodeByProblemId(Long submitId, Long problemId, Long userId) {
+    public String getSubmitCode(Long submitId, Long problemId, Long userId) {
         // 校验是否是自己提交的代码
         Submit submit = submitMapper.selectOne(Wrappers.<Submit>lambdaQuery()
                 .eq(Submit::getId, submitId)

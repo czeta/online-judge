@@ -122,10 +122,10 @@ online-judge:
       - urls: /,/index
         permission: anon
         # 排除公共访问页面
-      - urls: /api/user/register,/api/anc/**
+      - urls: /api/anc/**,/api/problem/problemList,/api/problem/conditionalProblemList,/api/problem/problemInfo/**,/api/status/statusList,/api/status/conditionalStatusList
         permission: anon
-        # 排除登陆登出相关
-      - urls: /api/login,/api/logout
+        # 排除登陆登出注册相关
+      - urls: /api/login,/api/logout,/api/user/register
         permission: anon
         # 排除静态资源
       - urls: /static/**,/templates/**

@@ -17,5 +17,5 @@ public interface SubmitService {
 
     IPage<PublicSubmitModel> getPublicSubmitModelListByCondition(SubmitConditionPageModel submitConditionPageModel);
 
-    String getSubmitCodeByProblemId(Long submitId, Long problemId, Long userId);
+    String getSubmitCode(Long submitId, Long problemId, Long userId);
 }

@@ -129,8 +129,8 @@ CREATE TABLE IF NOT EXISTS problem (
   input_samples VARCHAR(300) NOT NULL,
   output_samples VARCHAR(300) NOT NULL,
   hint VARCHAR(500),
-  source_id INT NOT NULL,
-  source_name VARCHAR(50) NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分随意填。无论如何超链接只查询比赛列表
+  source_id INT NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分为0。
+  source_name VARCHAR(50) NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分必须以@开头。
   time_limit INT NOT NULL,  -- 单位固定ms
   memory_limit INT NOT NULL, -- 单位固定mb
   io_mode VARCHAR(20) NOT NULL, -- io模型，目前只支持standard io

@@ -7,7 +7,7 @@ import com.czeta.onlinejudge.model.param.SubmitConditionPageModel;
 import com.czeta.onlinejudge.model.result.PublicSubmitModel;
 import com.czeta.onlinejudge.service.SubmitService;
 import com.czeta.onlinejudge.utils.response.APIResult;
-import io.swagger.annotations.Api;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,19 +28,38 @@ public class StatusController {
     @Autowired
     private SubmitService submitService;
 
+    @ApiOperation(value = "分页获得公共提交评测列表", notes = "不需要token")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
+    })
+    @ApiResponses({})
     @PostMapping("/statusList")
     public APIResult<IPage<PublicSubmitModel>> getPublicSubmitModelList(@RequestBody PageModel pageModel) {
         return new APIResult<>(submitService.getPublicSubmitModelList(pageModel));
     }
 
+    @ApiOperation(value = "根据筛选参数分页获得公共提交评测列表", notes = "不需要token")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "submitConditionPageModel", value = "分页参数与筛选参数model", dataType = "SubmitConditionPageModel", paramType = "body", required = true)
+    })
+    @ApiResponses({})
     @PostMapping("/conditionalStatusList")
     public APIResult<IPage<PublicSubmitModel>> getPublicSubmitModelList(@RequestBody SubmitConditionPageModel submitConditionPageModel) {
         return new APIResult<>(submitService.getPublicSubmitModelListByCondition(submitConditionPageModel));
     }
 
+    @ApiOperation(value = "获取指定提交评测信息的代码", notes = "需要token：普通用户权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "submitId", value = "提交ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "problemId", value = "问题ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "userId", value = "用户id，解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 2003, message = "无该题代码阅读权限")
+    })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/code")
-    public APIResult<String> getSubmitCodeByProblemId(@RequestParam Long submitId, @RequestParam Long problemId, @RequestAttribute Long userId) {
-        return new APIResult<>(submitService.getSubmitCodeByProblemId(submitId, problemId, userId));
+    public APIResult<String> getSubmitCode(@RequestParam Long submitId, @RequestParam Long problemId, @RequestAttribute Long userId) {
+        return new APIResult<>(submitService.getSubmitCode(submitId, problemId, userId));
     }
 }

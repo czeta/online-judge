@@ -27,6 +27,7 @@ public interface ProblemService {
      * @param spiderProblemModel
      * @param adminId
      * @return
+     * todo 爬虫爬取题目模块
      */
     long saveNewProblemBySpider(SpiderProblemModel spiderProblemModel, Long adminId);
 
@@ -129,6 +130,7 @@ public interface ProblemService {
      * 提交题目
      * @param submitModel
      * @param userId
+     * todo kafka消息模块
      */
     void submitProblem(SubmitModel submitModel, Long userId);
 }
