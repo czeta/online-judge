@@ -2,6 +2,7 @@ package com.czeta.onlinejudge.enums;
 
 import com.czeta.onlinejudge.utils.enums.IEnumItem;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,5 +52,13 @@ public enum ContestRankModel  implements IEnumItem {
             set.add(p.getMessage());
         }
         return set.contains(msg);
+    }
+
+    public static List<String> getEnumMessageList() {
+        List<String> list = new ArrayList<>();
+        for (ContestRankModel p : ContestRankModel.values()) {
+            list.add(p.getMessage());
+        }
+        return list;
     }
 }

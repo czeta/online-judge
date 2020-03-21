@@ -431,12 +431,17 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public DetailProblemModel getDetailProblemInfoById(Long problemId) {
+    public DetailProblemModel getDetailProblemInfoById(Long problemId, Boolean visible) {
         Problem problem = problemMapper.selectById(problemId);
         AssertUtils.notNull(problem, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
         AssertUtils.isTrue(!problem.getStatus().equals(ProblemStatus.ABNORMAL.getCode()), BaseStatusMsg.ABNORMAL_PROBLEM);
-        AssertUtils.isTrue(!problem.getStatus().equals(ProblemStatus.NORMAL_INVISIBLE.getCode()),
-                BaseStatusMsg.NORMAL_INVISIBLE_PROBLEM);
+        if (visible) {
+            AssertUtils.isTrue(!problem.getStatus().equals(ProblemStatus.NORMAL_INVISIBLE.getCode()),
+                    BaseStatusMsg.NORMAL_INVISIBLE_PROBLEM);
+        } else {
+            AssertUtils.isTrue(!problem.getStatus().equals(ProblemStatus.NORMAL_VISIBLE.getCode()),
+                    BaseStatusMsg.NORMAL_VISIBLE_PROBLEM);
+        }
         DetailProblemModel detailProblemModel = ProblemMapstructConvert.INSTANCE.problemToDetailProblemModel(problem);
         // 提交统计数据
         Map<String, Integer> statistic = SubmitStatus.getStatisticMap();

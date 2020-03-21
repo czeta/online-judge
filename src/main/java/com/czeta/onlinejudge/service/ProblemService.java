@@ -124,7 +124,7 @@ public interface ProblemService {
     /**
      * 通过题号获取题目详细信息
      */
-    DetailProblemModel getDetailProblemInfoById(Long probleId);
+    DetailProblemModel getDetailProblemInfoById(Long problemId, Boolean visible);
 
     /**
      * 提交题目

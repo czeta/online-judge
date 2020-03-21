@@ -13,9 +13,26 @@ import com.czeta.onlinejudge.model.result.PublicSubmitModel;
  * @Version 1.0
  */
 public interface SubmitService {
+    /**
+     * 分页获取公有界面提交评测列表
+     * @param pageModel
+     * @return
+     */
     IPage<PublicSubmitModel> getPublicSubmitModelList(PageModel pageModel);
 
+    /**
+     * 通过筛选参数分页获取公有界面提交评测列表
+     * @param submitConditionPageModel
+     * @return
+     */
     IPage<PublicSubmitModel> getPublicSubmitModelListByCondition(SubmitConditionPageModel submitConditionPageModel);
 
+    /**
+     * 获取提交评测的代码
+     * @param submitId
+     * @param problemId
+     * @param userId
+     * @return
+     */
     String getSubmitCode(Long submitId, Long problemId, Long userId);
 }

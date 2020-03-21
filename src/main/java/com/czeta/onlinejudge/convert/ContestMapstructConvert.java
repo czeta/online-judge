@@ -2,6 +2,8 @@ package com.czeta.onlinejudge.convert;
 
 import com.czeta.onlinejudge.dao.entity.Contest;
 import com.czeta.onlinejudge.model.param.ContestModel;
+import com.czeta.onlinejudge.model.result.DetailContestModel;
+import com.czeta.onlinejudge.model.result.PublicSimpleContestModel;
 import com.czeta.onlinejudge.model.result.SimpleContestModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -20,4 +22,8 @@ public interface ContestMapstructConvert {
     Contest contestModelToContest(ContestModel contestModel);
 
     SimpleContestModel contestToSimpleContestModel(Contest contest);
+
+    PublicSimpleContestModel contestToPublicSimpleContestModel(Contest contest);
+
+    DetailContestModel contestToDetailContestModel(Contest contest);
 }

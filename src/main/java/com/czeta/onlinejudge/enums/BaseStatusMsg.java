@@ -17,7 +17,8 @@ public enum BaseStatusMsg implements IBaseStatusMsg {
     EXISTED_CONTEST(2104, "比赛已存在"),
 
     ABNORMAL_PROBLEM(2200, "题目异常，已下线"),
-    NORMAL_INVISIBLE_PROBLEM(2201, "无权查看该题：属于比赛题");
+    NORMAL_INVISIBLE_PROBLEM(2201, "无权查看该题：属于比赛题"),
+    NORMAL_VISIBLE_PROBLEM(2202, "题目状态有误");
 
     private Integer code;
     private String message;

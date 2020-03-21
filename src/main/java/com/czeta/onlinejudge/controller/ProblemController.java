@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.enums.ProblemStatus;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.model.param.ProblemConditionPageModel;
@@ -61,7 +62,7 @@ public class ProblemController {
     })
     @GetMapping("/problemInfo/{problemId}")
     public APIResult<DetailProblemModel> getDetailProblemInfo(@PathVariable Long problemId) {
-        return new APIResult<>(problemService.getDetailProblemInfoById(problemId));
+        return new APIResult<>(problemService.getDetailProblemInfoById(problemId, true));
     }
 
     @ApiOperation(value = "用户提交题目", notes = "需要token：普通用户权限")
