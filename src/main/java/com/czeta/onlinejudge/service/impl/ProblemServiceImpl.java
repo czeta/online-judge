@@ -511,4 +511,17 @@ public class ProblemServiceImpl implements ProblemService {
 
         /**<== 封装kafka消息格式，并发送消息评测 end ==>**/
     }
+
+    private void refreshSubmit(Long submitId, Long problemId, Long userId, SubmitStatus submitStatus) {
+        // 修改相关数据：。。。
+    }
+
+    public void mockJudgeData(Long submitId, Long problemId, Long userId, SubmitStatus submitStatus) {
+        // 随机概率mock两种情况
+        boolean WA = false;
+        if ((int) (Math.random() * 2) == 1) {
+            WA = true;
+        }
+        refreshSubmit(submitId, problemId, userId, WA ? SubmitStatus.WRONG_ANSWER : SubmitStatus.ACCEPTED);
+    }
 }

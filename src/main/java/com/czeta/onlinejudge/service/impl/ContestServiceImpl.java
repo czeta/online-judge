@@ -3,16 +3,14 @@ package com.czeta.onlinejudge.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.czeta.onlinejudge.cache.ContestRankRedisService;
 import com.czeta.onlinejudge.convert.ContestMapstructConvert;
 import com.czeta.onlinejudge.convert.ProblemMapstructConvert;
 import com.czeta.onlinejudge.convert.SubmitMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.mapper.*;
 import com.czeta.onlinejudge.enums.*;
-import com.czeta.onlinejudge.model.param.ContestConditionPageModel;
-import com.czeta.onlinejudge.model.param.ContestModel;
-import com.czeta.onlinejudge.model.param.PageModel;
-import com.czeta.onlinejudge.model.param.SubmitConditionPageModel;
+import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.*;
 import com.czeta.onlinejudge.service.AnnouncementService;
 import com.czeta.onlinejudge.service.ContestService;
@@ -22,13 +20,10 @@ import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import com.czeta.onlinejudge.utils.utils.DateUtils;
 import com.czeta.onlinejudge.utils.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,6 +59,9 @@ public class ContestServiceImpl implements ContestService {
 
     @Autowired
     private SubmitMapper submitMapper;
+
+    @Autowired
+    private ContestRankRedisService contestRankRedisService;
 
     @Override
     public void saveNewContest(ContestModel contestModel, Long adminId) {
@@ -295,5 +293,29 @@ public class ContestServiceImpl implements ContestService {
             list.add(publicSubmitModel);
         }
         return PageUtils.setOpr(submitIPage, new Page<PublicSubmitModel>(), list);
+    }
+
+    @Override
+    public void submitProblemOfContest(SubmitModel submitModel, Long contestId, Long userId) {
+        // 正常提交问题的过程
+        problemService.submitProblem(submitModel, userId);
+
+        /**<= 提交问题涉及到榜单实时计算的过程(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) begin =>**/
+        // 该比赛的第一次提交，且redis中无数据：初始化该比赛缓存:
+        // 这里与下面注释一致，将这部分推迟到评测结果出来后再执行
+
+        // 用于mock数据的前提
+        int count = submitMapper.selectCount(Wrappers.<Submit>lambdaQuery()
+                .eq(Submit::getSourceId, contestId));
+        if (count <= 1 && !contestRankRedisService.exists(contestId)) {
+            contestRankRedisService.initContestRankRedis(contestId, submitModel.getProblemId(), userId);
+            return;
+        }
+        // 非第一次提交，取出缓存并实时计算再存入：
+        // 值得注意的是如果这里操作redis key，另外一个微服务也操作，就涉及到并发丢失修改的问题了，需要用到分布式锁，为了减少不必要的工作量，这里将实时计算推迟到评测题目有结果后。
+
+        // 这里可以mock一些测试数据，来用来榜单展示功能测试用
+        contestRankRedisService.mockRankData(contestId, submitModel.getProblemId(), userId);
+        /**<= 提交问题涉及到榜单实时计算的过程(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) end =>**/
     }
 }

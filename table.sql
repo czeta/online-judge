@@ -258,4 +258,4 @@ CREATE TABLE IF NOT EXISTS contest_user (
   CONSTRAINT pk_id PRIMARY KEY(id)
 )
 
--- 17.竞赛排名：还未考虑好是实时计算还是落地成表。
+-- 17.竞赛排名：实时计算(redis)+落地成表(封榜持久化)。

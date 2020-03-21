@@ -2,6 +2,7 @@ package com.czeta.onlinejudge.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.enums.ProblemType;
+import com.czeta.onlinejudge.enums.SubmitStatus;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.DetailProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
@@ -133,4 +134,13 @@ public interface ProblemService {
      * todo kafka消息模块
      */
     void submitProblem(SubmitModel submitModel, Long userId);
+
+    /**
+     * mock题目的判定结果数据
+     * @param submitId
+     * @param problemId
+     * @param userId
+     * @param submitStatus
+     */
+    void mockJudgeData(Long submitId, Long problemId, Long userId, SubmitStatus submitStatus);
 }

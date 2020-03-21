@@ -5,6 +5,7 @@ import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.shiro.jwt.JwtProperties;
+import com.czeta.onlinejudge.utils.utils.DateUtils;
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -43,8 +45,9 @@ class OnlineSubmitApplicationTests {
 
     @Test
     void user() {
-
+        System.out.println(DateUtils.getSecondDiffOfTwoDateString("2020-03-21 19:00:30", DateUtils.getYYYYMMDDHHMMSS(new Date())));
     }
+
     private List<UserRegisterModel> data() {
         List<UserRegisterModel> list = new ArrayList<>();
         for (int i = 0; i < 10; i++) {

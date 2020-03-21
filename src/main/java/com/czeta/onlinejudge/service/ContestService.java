@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.dao.entity.Announcement;
 import com.czeta.onlinejudge.dao.entity.Contest;
 import com.czeta.onlinejudge.dao.entity.ContestUser;
-import com.czeta.onlinejudge.model.param.ContestConditionPageModel;
-import com.czeta.onlinejudge.model.param.ContestModel;
-import com.czeta.onlinejudge.model.param.PageModel;
-import com.czeta.onlinejudge.model.param.SubmitConditionPageModel;
+import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.*;
 
 import java.util.List;
@@ -72,6 +69,7 @@ public interface ContestService {
      */
     boolean updateAppliedContestUser(Short status, Long id, Long contestId, Long adminId);
 
+
     /**
      * 获取公有界面的比赛列表信息
      * @param pageModel
@@ -135,5 +133,11 @@ public interface ContestService {
      */
     IPage<PublicSubmitModel> getSubmitModelListByConditionOfContest(SubmitConditionPageModel submitConditionPageModel, Long contestId, Long userId);
 
-    
+    /**
+     * 提交比赛下的题目
+     * @param submitModel
+     * @param contestId
+     * @param userId
+     */
+    void submitProblemOfContest(SubmitModel submitModel, Long contestId, Long userId);
 }

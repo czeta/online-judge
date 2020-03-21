@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 
 /**
@@ -43,5 +45,43 @@ public class DateUtils {
             return Long.MAX_VALUE;
         }
         return date1.getTime() / 1000;
+    }
+
+    public static String getHHMMSSDiffOfTwoDateString(String dateStr0, String dateStr1) {
+        Date startDate, endDate;
+        try {
+            startDate = new SimpleDateFormat(formatStr_yyyyMMddHHmmss).parse(dateStr0);
+            endDate = new SimpleDateFormat(formatStr_yyyyMMddHHmmss).parse(dateStr1);
+        } catch (ParseException ex) {
+            log.error("Parse Time Error：{}", ex.getMessage());
+            return null;
+        }
+
+        long different = endDate.getTime() - startDate.getTime();
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+
+        long elapsedHours = different / hoursInMilli;
+        different = different % hoursInMilli;
+        long elapsedMinutes = different / minutesInMilli;
+        different = different % minutesInMilli;
+        long elapsedSeconds = different / secondsInMilli;
+
+        return elapsedHours + ":" + elapsedMinutes + ":" + elapsedSeconds;
+    }
+
+    public static Long getSecondDiffOfTwoDateString(String dateStr0, String dateStr1) {
+        Date startDate, endDate;
+        try {
+            startDate = new SimpleDateFormat(formatStr_yyyyMMddHHmmss).parse(dateStr0);
+            endDate = new SimpleDateFormat(formatStr_yyyyMMddHHmmss).parse(dateStr1);
+        } catch (ParseException ex) {
+            log.error("Parse Time Error：{}", ex.getMessage());
+            return null;
+        }
+        log.info("{}", endDate.getTime() / 1000);
+        log.info("{}", startDate.getTime() / 1000);
+        return endDate.getTime() / 1000 - startDate.getTime() / 1000;
     }
 }
