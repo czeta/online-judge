@@ -101,10 +101,6 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
         Map<Long, SubmitModel> submitMap = rankItemModel.getSubmitMap();
         Contest contestInfo = contestService.getContestInfo(contestId);
         SubmitModel submitModel = submitMap.get(problemId);
-        if (submitModel == null) {
-            initContestRankModel(cacheContestRankModel, problemId, userId);
-        }
-        submitModel = submitMap.get(problemId);
         if (ac) { // 正确答案
             if (solvedProblem == null) { // 尚未解决
                 submitModel.setAccept(true);
@@ -145,6 +141,16 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
     }
 
     @Override
+    public Map<Long, RankItemModel> getRankItemMapByContestIdFromCache(Long contestId) {
+        if (!exists(contestId)) {
+            return null;
+        }
+        String str = String.valueOf(contestId);
+        CacheContestRankModel object = (CacheContestRankModel) redisTemplate.opsForValue().get(String.format(ContestRankRedisKeyConstant.CONTEST_RANK, str));
+        return object.getRankItemMap();
+    }
+
+    @Override
     public boolean exists(Long contestId) {
         AssertUtils.notNull(contestId, BaseStatusMsg.APIEnum.PARAM_ERROR, "缓存key的contestId为空，不合法");
         String str = String.valueOf(contestId);
@@ -152,43 +158,28 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
         return object != null;
     }
 
-    @Override
-    public void mockRankData(Long contestId, Long problemId, Long userId) {
-        // 随机概率mock两种情况
-        boolean ac = false;
-        if ((int) (Math.random() * 2) == 1) {
-            ac = true;
-        }
-        refreshContestRankRedis(contestId, problemId, userId, ac);
-    }
-
     private void initContestRankModel(CacheContestRankModel cacheContestRankModel, Long problemId, Long userId) {
         Map<Long, RankItemModel> rankItemModelMap = cacheContestRankModel.getRankItemMap();
         RankItemModel rankItemModel = rankItemModelMap.get(userId);
-        // map中没有该学生：该学生第一次提交评测
+        // map中没有该学生：该学生第一次提交评测，初始化提交统计信息与题目具体提交信息
         if (rankItemModel == null) {
             RankItemModel newRankItemModel = new RankItemModel();
             User userInfo = userService.getUserInfoById(userId);
             newRankItemModel.setUserId(userId);
             newRankItemModel.setUsername(userInfo.getUsername());
-            newRankItemModel.setSubmitCount(1);
+            newRankItemModel.setSubmitCount(1); // 提交数初始化为1
             newRankItemModel.setAcNum(0);
             newRankItemModel.setTotalTime(0l);
 
-            SubmitModel submitModel = new SubmitModel(problemId, false, false, null, 0);
             Map<Long, SubmitModel> submitMap = new LinkedHashMap<>();
-            submitMap.put(problemId, submitModel);
+            List<Long> problemIds = contestService.getProblemListOfContest(cacheContestRankModel.getContestId());
+            for (Long id : problemIds) {
+                SubmitModel submitModel = new SubmitModel(id, false, false, null, 0);
+                submitMap.put(id, submitModel);
+            }
             newRankItemModel.setSubmitMap(submitMap);
 
             rankItemModelMap.put(userId, newRankItemModel);
-            return;
-        }
-        Map<Long, SubmitModel> submitModelMap = rankItemModel.getSubmitMap();
-        SubmitModel submitModel = submitModelMap.get(problemId);
-        // 该学生的map中没有该问题提交：该学生是第一次提交该问题的评测
-        if (submitModel == null) {
-            SubmitModel newSubmitModel = new SubmitModel(problemId, false, false, null, 0);
-            submitModelMap.put(problemId, newSubmitModel);
         }
     }
 

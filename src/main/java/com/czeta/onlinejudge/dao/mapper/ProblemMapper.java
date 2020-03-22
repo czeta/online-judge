@@ -27,4 +27,10 @@ public interface ProblemMapper extends BaseMapper<Problem> {
 
     @Update("UPDATE problem SET submit_count = submit_count + 1 WHERE id = #{problemId}")
     int updateSubmitCountIncrementOne(Long problemId);
+
+    @Update("UPDATE problem SET ac_num = ac_num + 1 WHERE id = #{problemId}")
+    int updateAcNumIncrementOne(Long problemId);
+
+    @Update("UPDATE problem SET ac_count = ac_count + 1 WHERE id = #{problemId}")
+    int updateAcCountIncrementOne(Long problemId);
 }

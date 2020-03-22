@@ -1,9 +1,6 @@
 package com.czeta.onlinejudge.enums;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @EnumName SubmitStatus
@@ -65,5 +62,13 @@ public enum SubmitStatus {
             map.put(s.getName(), 0);
         }
         return map;
+    }
+
+    public static boolean isContain(String name) {
+        Set<String> set = new HashSet<>();
+        for (SubmitStatus p : SubmitStatus.values()) {
+            set.add(p.getName());
+        }
+        return set.contains(name);
     }
 }

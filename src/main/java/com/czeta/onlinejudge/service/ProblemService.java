@@ -128,19 +128,17 @@ public interface ProblemService {
     DetailProblemModel getDetailProblemInfoById(Long problemId, Boolean visible);
 
     /**
-     * 提交题目
+     * 提交题目，并返回提交评测ID
      * @param submitModel
      * @param userId
      * todo kafka消息模块
      */
-    void submitProblem(SubmitModel submitModel, Long userId);
+    long submitProblem(SubmitModel submitModel, Long userId);
 
     /**
-     * mock题目的判定结果数据
-     * @param submitId
-     * @param problemId
+     * 更新提交评测相关结果
+     * @param submitResult
      * @param userId
-     * @param submitStatus
      */
-    void mockJudgeData(Long submitId, Long problemId, Long userId, SubmitStatus submitStatus);
+    void refreshSubmitProblem(SubmitResultModel submitResult, Long userId);
 }

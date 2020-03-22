@@ -1,5 +1,10 @@
 package com.czeta.onlinejudge.cache;
 
+import com.czeta.onlinejudge.cache.model.RankItemModel;
+
+import java.util.List;
+import java.util.Map;
+
 /**
  * @InterfaceName ContestRankRedisService
  * @Description
@@ -25,14 +30,17 @@ public interface ContestRankRedisService {
     void refreshContestRankRedis(Long contestId, Long problemId, Long userId, Boolean ac);
 
     /**
+     * 通过比赛id，从缓存中获取排名map
+     * @param contestId
+     * @return
+     */
+    Map<Long, RankItemModel> getRankItemMapByContestIdFromCache(Long contestId);
+
+    /**
      * 判断缓存是否存在比赛榜单数据
      * @param contestId
      * @return
      */
     boolean exists(Long contestId);
 
-    /**
-     * mock数据来测试榜单展示
-     */
-    void mockRankData(Long contestId, Long problemId, Long userId);
 }

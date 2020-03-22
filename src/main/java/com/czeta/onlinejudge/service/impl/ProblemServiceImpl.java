@@ -469,7 +469,7 @@ public class ProblemServiceImpl implements ProblemService {
 
 
     @Override
-    public void submitProblem(SubmitModel submitModel, Long userId) {
+    public long submitProblem(SubmitModel submitModel, Long userId) {
         Problem problemInfo = problemMapper.selectById(submitModel.getProblemId());
         AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
         AssertUtils.isTrue(ProblemLanguage.isContainMessage(Arrays.asList(submitModel.getLanguage())),
@@ -509,19 +509,57 @@ public class ProblemServiceImpl implements ProblemService {
 
         /**<== 封装kafka消息格式，并发送消息评测 begin ==>**/
 
+        // mock评测数据（针对非比赛问题）
+        if (problemInfo.getSourceId() == 0) {
+            boolean ac = false;
+            if ((int) (Math.random() * 2) == 1) {
+                ac = true;
+            }
+            SubmitResultModel submitResultModel = new SubmitResultModel();
+            submitResultModel.setSubmitId(submit.getId());
+            submitResultModel.setSubmitStatus(ac ? SubmitStatus.ACCEPTED.getName() : SubmitStatus.WRONG_ANSWER.getName());
+            submitResultModel.setMemory("2000kb");
+            submitResultModel.setTime("2000ms");
+            refreshSubmitProblem(submitResultModel, userId);
+        }
+
+        return submit.getId();
         /**<== 封装kafka消息格式，并发送消息评测 end ==>**/
     }
 
-    private void refreshSubmit(Long submitId, Long problemId, Long userId, SubmitStatus submitStatus) {
-        // 修改相关数据：。。。
+    public void refreshSubmitProblem(SubmitResultModel submitResult, Long userId) {
+        // 校验参数：
+        Problem problemInfo = problemMapper.selectById(submitResult.getProblemId());
+        AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
+        AssertUtils.isTrue(SubmitStatus.isContain(submitResult.getSubmitStatus()), BaseStatusMsg.APIEnum.PARAM_ERROR, "评测结果不合法");
+        // 用户表
+        SolvedProblem solvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
+                .eq(SolvedProblem::getUserId, userId)
+                .eq(SolvedProblem::getProblemId, submitResult.getProblemId())
+                .eq(SolvedProblem::getSubmitStatus, SubmitStatus.ACCEPTED.getName()));
+        if (solvedProblem == null && SubmitStatus.ACCEPTED.getName().equals(submitResult.getSubmitStatus())) {
+            userMapper.updateAcNumIncrementOne(userId);
+        }
+        // 用户解决问题表
+        if (solvedProblem == null) {
+            solvedProblem.setSubmitStatus(submitResult.getSubmitStatus());
+            solvedProblem.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+            solvedProblemMapper.updateById(solvedProblem);
+        }
+        // 题目信息表
+        if (SubmitStatus.ACCEPTED.getName().equals(submitResult.getSubmitStatus())) {
+            problemMapper.updateAcCountIncrementOne(submitResult.getProblemId());
+            if (solvedProblem == null) {
+                problemMapper.updateAcNumIncrementOne(submitResult.getProblemId());
+            }
+        }
+        // 提交评测表
+        Submit submit = submitMapper.selectById(submitResult.getSubmitId());
+        AssertUtils.notNull(submit, BaseStatusMsg.APIEnum.PARAM_ERROR, "提交评测信息不存在");
+        submit.setTime(submitResult.getTime());
+        submit.setMemory(submitResult.getMemory());
+        submit.setSubmitStatus(submitResult.getSubmitStatus());
+        submitMapper.updateById(submit);
     }
 
-    public void mockJudgeData(Long submitId, Long problemId, Long userId, SubmitStatus submitStatus) {
-        // 随机概率mock两种情况
-        boolean WA = false;
-        if ((int) (Math.random() * 2) == 1) {
-            WA = true;
-        }
-        refreshSubmit(submitId, problemId, userId, WA ? SubmitStatus.WRONG_ANSWER : SubmitStatus.ACCEPTED);
-    }
 }

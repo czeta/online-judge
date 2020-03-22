@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.cache.model.RankItemModel;
 import com.czeta.onlinejudge.dao.entity.Announcement;
 import com.czeta.onlinejudge.dao.entity.Contest;
 import com.czeta.onlinejudge.dao.entity.ContestUser;
@@ -140,4 +141,22 @@ public interface ContestService {
      * @param userId
      */
     void submitProblemOfContest(SubmitModel submitModel, Long contestId, Long userId);
+
+    /**
+     * 分页获取实时排名信息
+     * @param pageModel
+     * @param contestId
+     * @param userId
+     * @return
+     */
+    IPage<RankItemModel> getRankItemListByContestId(PageModel pageModel, Long contestId, Long userId);
+
+    /**
+     * 比赛报名
+     * @param contestId
+     * @param password
+     * @param userId
+     * @return
+     */
+    Boolean saveNewSignUpContest(Long contestId, String password, Long userId);
 }
