@@ -3,6 +3,7 @@ package com.czeta.onlinejudge.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.czeta.onlinejudge.cache.ContestRankRedisService;
@@ -24,6 +25,7 @@ import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
 import com.czeta.onlinejudge.utils.utils.DateUtils;
+import com.czeta.onlinejudge.utils.utils.NumberUtils;
 import com.czeta.onlinejudge.utils.utils.PageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,9 @@ public class ContestServiceImpl implements ContestService {
     @Autowired
     private ContestRankMapper contestRankMapper;
 
+    @Autowired
+    private UserCertificationMapper userCertificationMapper;
+
     @Override
     public void saveNewContest(ContestModel contestModel, Long adminId) {
         AssertUtils.isTrue(ContestSignUpRule.isContain(contestModel.getSignUpRule()),
@@ -129,6 +134,8 @@ public class ContestServiceImpl implements ContestService {
     @Override
     public List<Long> getProblemListOfContest(Long contestId) {
         Contest contestInfo = getContestInfo(contestId);
+        log.info("contestInfo={}", contestInfo);
+        log.info("contestId={}", contestId);
         return problemMapper.selectList(Wrappers.<Problem>lambdaQuery()
                 .eq(Problem::getSourceId, contestInfo.getId())
                 .orderByAsc(Problem::getCrtTs))
@@ -203,16 +210,19 @@ public class ContestServiceImpl implements ContestService {
                     .map(p -> p.getId())
                     .collect(Collectors.toList());;
         }
+        if (CollectionUtils.isEmpty(contestIds)) {
+            return new Page<>();
+        }
         String titleKey = contestConditionPageModel.getTitleKey();
         if (titleKey == null) {
             titleKey = "";
         }
         List<String> signUpRule = Arrays.asList(contestConditionPageModel.getSignUpRule());
-        if (signUpRule == null) {
+        if (contestConditionPageModel.getSignUpRule() == null) {
             signUpRule = ContestSignUpRule.getEnumMessageList();
         }
         List<String> rankModel = Arrays.asList(contestConditionPageModel.getRankModel());
-        if (rankModel == null) {
+        if (contestConditionPageModel.getRankModel() == null) {
             rankModel = ContestRankModel.getEnumMessageList();
         }
         Page<Contest> page = new Page<>(contestConditionPageModel.getPageModel().getOffset(), contestConditionPageModel.getPageModel().getLimit());
@@ -248,13 +258,18 @@ public class ContestServiceImpl implements ContestService {
 
     @Override
     public Boolean saveNewSignUpContest(Long contestId, String password, Long userId) {
+        // 校验：是否已经过了报名时间（比赛开始后）
+        Contest contestInfo = getContestInfo(contestId);
+        Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
+        Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
+        Long endTime = DateUtils.getUnixTimeOfSecond(contestInfo.getEndTime());
+        AssertUtils.isTrue(currentTime < startTime, BaseStatusMsg.INVALID_SIGN_UP);
         // 校验：是否已经报名
         ContestUser contestUser = contestUserMapper.selectOne(Wrappers.<ContestUser>lambdaQuery()
                 .eq(ContestUser::getContestId, contestId)
                 .eq(ContestUser::getUserId, userId));
         AssertUtils.isNull(contestUser, BaseStatusMsg.EXISTED_SIGN_UP_CONTEST);
         // 校验：比赛是否存在
-        Contest contestInfo = getContestInfo(contestId);
         AssertUtils.notNull(contestInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛不存在");
         contestUser = new ContestUser();
         contestUser.setUserId(userId);
@@ -268,6 +283,10 @@ public class ContestServiceImpl implements ContestService {
                 throw new APIRuntimeException(BaseStatusMsg.APIEnum.PARAM_ERROR, "密码错误");
             }
         } else if (contestInfo.getSignUpRule().equals(ContestSignUpRule.CERTIFICATION.getMessage())) {
+            UserCertification info = userCertificationMapper.selectOne(Wrappers.<UserCertification>lambdaQuery()
+                    .eq(UserCertification::getUserId, userId)
+                    .eq(UserCertification::getStatus, CommonReviewItemStatus.PASS.getCode()));
+            AssertUtils.notNull(info, BaseStatusMsg.APIEnum.PARAM_ERROR, "尚未认证实名信息");
             contestUser.setStatus(CommonReviewItemStatus.TO_REVIEW.getCode());
         }
         contestUserMapper.insert(contestUser);
@@ -288,6 +307,7 @@ public class ContestServiceImpl implements ContestService {
         for (Problem p : problemList) {
             PublicSimpleProblemModel problemModel = ProblemMapstructConvert.INSTANCE.problemToPublicSimpleProblemModel(p);
             problemModel.setLevel(null);
+            problemModel.setAcRate(NumberUtils.parsePercent(p.getAcCount(), p.getSubmitCount()));
             publicSimpleProblemModels.add(problemModel);
         }
         return publicSimpleProblemModels;
@@ -367,6 +387,7 @@ public class ContestServiceImpl implements ContestService {
             int count = submitMapper.selectCount(Wrappers.<Submit>lambdaQuery()
                     .eq(Submit::getSourceId, contestId));
             if (count <= 1 && !contestRankRedisService.exists(contestId)) {
+                log.info("count={}", count);
                 contestRankRedisService.initContestRankRedis(contestId, submitModel.getProblemId(), userId);
                 // 插入持久化榜单数据
                 Map<Long, RankItemModel> mapModel = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
@@ -377,7 +398,6 @@ public class ContestServiceImpl implements ContestService {
                 contestRank.setContestId(contestId);
                 contestRank.setRankJson(JSONObject.toJSONString(cacheContestRankModel));
                 contestRankMapper.insert(contestRank);
-                return;
             }
         }
         // 非第一次提交，取出缓存并实时计算再存入：
@@ -389,6 +409,7 @@ public class ContestServiceImpl implements ContestService {
         if ((int) (Math.random() * 2) == 1) {
             ac = true;
         }
+        log.info("ac={}", ac);
         if (currentTime >= startTime && currentTime <= endTime) {
             contestRankRedisService.refreshContestRankRedis(contestId, submitModel.getProblemId(), userId, ac);
             // 更新持久化数据
@@ -402,6 +423,7 @@ public class ContestServiceImpl implements ContestService {
         }
 
         SubmitResultModel submitResultModel = new SubmitResultModel();
+        submitResultModel.setProblemId(submitModel.getProblemId());
         submitResultModel.setSubmitId(submitId);
         submitResultModel.setSubmitStatus(ac ? SubmitStatus.ACCEPTED.getName() : SubmitStatus.WRONG_ANSWER.getName());
         submitResultModel.setMemory("2000kb");

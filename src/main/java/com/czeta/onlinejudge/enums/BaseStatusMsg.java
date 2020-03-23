@@ -19,7 +19,9 @@ public enum BaseStatusMsg implements IBaseStatusMsg {
 
     ABNORMAL_PROBLEM(2200, "题目异常，已下线"),
     NORMAL_INVISIBLE_PROBLEM(2201, "无权查看该题：属于比赛题"),
-    NORMAL_VISIBLE_PROBLEM(2202, "题目状态有误");
+    NORMAL_VISIBLE_PROBLEM(2202, "题目状态有误"),
+
+    INVALID_SIGN_UP(2300, "报名已截止");
 
     private Integer code;
     private String message;

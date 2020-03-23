@@ -22,6 +22,6 @@ public class PublicSimpleProblemModel {
     private String level;
     @ApiModelProperty(value = "提交数量")
     private Integer submitCount;
-    @ApiModelProperty(value = "AC数量")
+    @ApiModelProperty(value = "AC通过率")
     private String acRate;
 }

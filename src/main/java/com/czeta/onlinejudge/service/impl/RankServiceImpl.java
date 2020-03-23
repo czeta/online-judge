@@ -56,7 +56,9 @@ public class RankServiceImpl implements RankService {
         Page<User> page = new Page<>(pageModel.getOffset(), pageModel.getLimit());
         IPage<User> userIPage = userMapper.selectPage(page, Wrappers.<User>lambdaQuery()
                 .eq(User::getStatus, CommonItemStatus.ENABLE.getCode())
-                .orderByAsc(User::getRank));
+                .orderByAsc(User::getRank)
+                .orderByDesc(User::getAcNum)
+                .orderByAsc(User::getSubmitCount));
         List<PublicRankModel> list = new ArrayList<>();
         for (User user : userIPage.getRecords()) {
             PublicRankModel publicRankModel = RankMapstructConvert.INSTANCE.UserInfoToPublicRankModel(user);

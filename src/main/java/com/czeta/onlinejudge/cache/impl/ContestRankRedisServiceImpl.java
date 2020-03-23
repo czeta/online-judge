@@ -60,10 +60,10 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
     @Override
     public void initContestRankRedis(Long contestId, Long problemId, Long userId) {
         CacheContestRankModel cacheContestRankModel = new CacheContestRankModel();
-        cacheContestRankModel.setContestId(problemId);
+        cacheContestRankModel.setContestId(contestId);
         cacheContestRankModel.setRankItemMap(new LinkedHashMap<>());
 
-        initContestRankModel(cacheContestRankModel, problemId, userId);
+        initContestRankModel(cacheContestRankModel, userId);
 
         // 缓存有效期设置为比赛结束后一分钟
         Contest contestInfo = contestService.getContestInfo(contestId);
@@ -82,13 +82,8 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
         log.info("rankInfo={}", JSONObject.toJSONString(cacheContestRankModel));
         Map<Long, RankItemModel> rankItemMap = cacheContestRankModel.getRankItemMap();
         RankItemModel rankItemModel = rankItemMap.get(userId);
-        boolean init = false;
-        if (rankItemModel == null) {
-            initContestRankModel(cacheContestRankModel, problemId, userId);
-            init = true;
-        }
         rankItemModel = rankItemMap.get(userId);
-        rankItemModel.setSubmitCount(init ? rankItemModel.getSubmitCount() : rankItemModel.getSubmitCount() + 1);
+        rankItemModel.setSubmitCount(rankItemModel.getSubmitCount() + 1);
         // 需要查询该问题是否是用户已经解决过了，而重复提交
         SolvedProblem solvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
                 .eq(SolvedProblem::getUserId, userId)
@@ -158,7 +153,7 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
         return object != null;
     }
 
-    private void initContestRankModel(CacheContestRankModel cacheContestRankModel, Long problemId, Long userId) {
+    private void initContestRankModel(CacheContestRankModel cacheContestRankModel, Long userId) {
         Map<Long, RankItemModel> rankItemModelMap = cacheContestRankModel.getRankItemMap();
         RankItemModel rankItemModel = rankItemModelMap.get(userId);
         // map中没有该学生：该学生第一次提交评测，初始化提交统计信息与题目具体提交信息
@@ -167,7 +162,7 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
             User userInfo = userService.getUserInfoById(userId);
             newRankItemModel.setUserId(userId);
             newRankItemModel.setUsername(userInfo.getUsername());
-            newRankItemModel.setSubmitCount(1); // 提交数初始化为1
+            newRankItemModel.setSubmitCount(0);
             newRankItemModel.setAcNum(0);
             newRankItemModel.setTotalTime(0l);
 

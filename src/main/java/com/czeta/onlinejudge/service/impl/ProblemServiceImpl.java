@@ -542,9 +542,12 @@ public class ProblemServiceImpl implements ProblemService {
         }
         // 用户解决问题表
         if (solvedProblem == null) {
-            solvedProblem.setSubmitStatus(submitResult.getSubmitStatus());
-            solvedProblem.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-            solvedProblemMapper.updateById(solvedProblem);
+            SolvedProblem newSolvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
+                            .eq(SolvedProblem::getUserId, userId)
+                            .eq(SolvedProblem::getProblemId, submitResult.getProblemId()));
+            newSolvedProblem.setSubmitStatus(submitResult.getSubmitStatus());
+            newSolvedProblem.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+            solvedProblemMapper.updateById(newSolvedProblem);
         }
         // 题目信息表
         if (SubmitStatus.ACCEPTED.getName().equals(submitResult.getSubmitStatus())) {
