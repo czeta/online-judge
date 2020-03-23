@@ -247,6 +247,34 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
+    public Boolean saveNewSignUpContest(Long contestId, String password, Long userId) {
+        // 校验：是否已经报名
+        ContestUser contestUser = contestUserMapper.selectOne(Wrappers.<ContestUser>lambdaQuery()
+                .eq(ContestUser::getContestId, contestId)
+                .eq(ContestUser::getUserId, userId));
+        AssertUtils.isNull(contestUser, BaseStatusMsg.EXISTED_SIGN_UP_CONTEST);
+        // 校验：比赛是否存在
+        Contest contestInfo = getContestInfo(contestId);
+        AssertUtils.notNull(contestInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛不存在");
+        contestUser = new ContestUser();
+        contestUser.setUserId(userId);
+        contestUser.setContestId(contestId);
+        if (contestInfo.getSignUpRule().equals(ContestSignUpRule.PUBLIC.getMessage())) {
+            contestUser.setStatus(CommonReviewItemStatus.PASS.getCode());
+        } else if (contestInfo.getSignUpRule().equals(ContestSignUpRule.PASSWORD.getMessage())) {
+            if (contestInfo.getPassword().equals(password)) {
+                contestUser.setStatus(CommonReviewItemStatus.PASS.getCode());
+            } else {
+                throw new APIRuntimeException(BaseStatusMsg.APIEnum.PARAM_ERROR, "密码错误");
+            }
+        } else if (contestInfo.getSignUpRule().equals(ContestSignUpRule.CERTIFICATION.getMessage())) {
+            contestUser.setStatus(CommonReviewItemStatus.TO_REVIEW.getCode());
+        }
+        contestUserMapper.insert(contestUser);
+        return true;
+    }
+
+    @Override
     public List<Announcement> getContestAnnouncementList(Long contestId, Long userId) {
         return announcementService.getContestAnnouncementList(contestId);
     }
@@ -331,11 +359,26 @@ public class ContestServiceImpl implements ContestService {
         // 这里与下面注释一致，将这部分推迟到评测结果出来后再执行
 
         // 用于mock数据的前提
-        int count = submitMapper.selectCount(Wrappers.<Submit>lambdaQuery()
-                .eq(Submit::getSourceId, contestId));
-        if (count <= 1 && !contestRankRedisService.exists(contestId)) {
-            contestRankRedisService.initContestRankRedis(contestId, submitModel.getProblemId(), userId);
-            return;
+        Contest contestInfo = getContestInfo(contestId);
+        Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
+        Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
+        Long endTime = DateUtils.getUnixTimeOfSecond(contestInfo.getEndTime());
+        if (currentTime >= startTime && currentTime <= endTime) {
+            int count = submitMapper.selectCount(Wrappers.<Submit>lambdaQuery()
+                    .eq(Submit::getSourceId, contestId));
+            if (count <= 1 && !contestRankRedisService.exists(contestId)) {
+                contestRankRedisService.initContestRankRedis(contestId, submitModel.getProblemId(), userId);
+                // 插入持久化榜单数据
+                Map<Long, RankItemModel> mapModel = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
+                CacheContestRankModel cacheContestRankModel = new CacheContestRankModel();
+                cacheContestRankModel.setContestId(contestId);
+                cacheContestRankModel.setRankItemMap(mapModel);
+                ContestRank contestRank = new ContestRank();
+                contestRank.setContestId(contestId);
+                contestRank.setRankJson(JSONObject.toJSONString(cacheContestRankModel));
+                contestRankMapper.insert(contestRank);
+                return;
+            }
         }
         // 非第一次提交，取出缓存并实时计算再存入：
         // 值得注意的是如果这里操作redis key，另外一个微服务也操作，就涉及到并发丢失修改的问题了，需要用到分布式锁，为了减少不必要的工作量，这里将实时计算推迟到评测题目有结果后。
@@ -346,7 +389,17 @@ public class ContestServiceImpl implements ContestService {
         if ((int) (Math.random() * 2) == 1) {
             ac = true;
         }
-        contestRankRedisService.refreshContestRankRedis(contestId, submitModel.getProblemId(), userId, ac);
+        if (currentTime >= startTime && currentTime <= endTime) {
+            contestRankRedisService.refreshContestRankRedis(contestId, submitModel.getProblemId(), userId, ac);
+            // 更新持久化数据
+            Map<Long, RankItemModel> mapModel = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
+            CacheContestRankModel cacheContestRankModel = new CacheContestRankModel();
+            cacheContestRankModel.setContestId(contestId);
+            cacheContestRankModel.setRankItemMap(mapModel);
+            ContestRank contestRank = new ContestRank();
+            contestRank.setRankJson(JSONObject.toJSONString(cacheContestRankModel));
+            contestRankMapper.update(contestRank, Wrappers.<ContestRank>lambdaQuery().eq(ContestRank::getContestId, contestId));
+        }
 
         SubmitResultModel submitResultModel = new SubmitResultModel();
         submitResultModel.setSubmitId(submitId);
@@ -411,34 +464,6 @@ public class ContestServiceImpl implements ContestService {
             itemModelIPage = convertMapToPage(fromJsonToCacheModel.getRankItemMap(), pageModel);
         }
         return itemModelIPage;
-    }
-
-    @Override
-    public Boolean saveNewSignUpContest(Long contestId, String password, Long userId) {
-        // 校验：是否已经报名
-        ContestUser contestUser = contestUserMapper.selectOne(Wrappers.<ContestUser>lambdaQuery()
-                .eq(ContestUser::getContestId, contestId)
-                .eq(ContestUser::getUserId, userId));
-        AssertUtils.isNull(contestUser, BaseStatusMsg.EXISTED_SIGN_UP_CONTEST);
-        // 校验：比赛是否存在
-        Contest contestInfo = getContestInfo(contestId);
-        AssertUtils.notNull(contestInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛不存在");
-        contestUser = new ContestUser();
-        contestUser.setUserId(userId);
-        contestUser.setContestId(contestId);
-        if (contestInfo.getSignUpRule().equals(ContestSignUpRule.PUBLIC.getMessage())) {
-            contestUser.setStatus(CommonReviewItemStatus.PASS.getCode());
-        } else if (contestInfo.getSignUpRule().equals(ContestSignUpRule.PASSWORD.getMessage())) {
-            if (contestInfo.getPassword().equals(password)) {
-                contestUser.setStatus(CommonReviewItemStatus.PASS.getCode());
-            } else {
-                throw new APIRuntimeException(BaseStatusMsg.APIEnum.PARAM_ERROR, "密码错误");
-            }
-        } else if (contestInfo.getSignUpRule().equals(ContestSignUpRule.CERTIFICATION.getMessage())) {
-            contestUser.setStatus(CommonReviewItemStatus.TO_REVIEW.getCode());
-        }
-        contestUserMapper.insert(contestUser);
-        return true;
     }
 
     private IPage<RankItemModel> convertMapToPage(Map<Long, RankItemModel> map, PageModel pageModel) {

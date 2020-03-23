@@ -94,6 +94,16 @@ public interface ContestService {
     DetailContestModel getDetailContestInfoById(Long contestId, Long userId);
 
     /**
+     * 比赛报名
+     * @param contestId
+     * @param password
+     * @param userId
+     * @return
+     */
+    Boolean saveNewSignUpContest(Long contestId, String password, Long userId);
+
+
+    /**
      * 通过比赛ID获取比赛公告列表
      * @param contestId
      * @param userId
@@ -150,13 +160,4 @@ public interface ContestService {
      * @return
      */
     IPage<RankItemModel> getRankItemListByContestId(PageModel pageModel, Long contestId, Long userId);
-
-    /**
-     * 比赛报名
-     * @param contestId
-     * @param password
-     * @param userId
-     * @return
-     */
-    Boolean saveNewSignUpContest(Long contestId, String password, Long userId);
 }
