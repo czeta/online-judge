@@ -70,10 +70,9 @@ public class UserController {
 
 
 
-    @ApiOperation(value = "根据userId获取用户主页信息", notes = "这一个复用controller：传id查看别人主页，不传任何参数则查看自己主页")
+    @ApiOperation(value = "获取用户主页信息", notes = "需要token：普通用户权限。这一个复用controller：传id查看别人主页，不传任何参数则查看自己主页")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id，查看别人的主页所需要传的参数", dataType = "Long", paramType= "query", required = false),
-            @ApiImplicitParam(name = "userId", value = "用户id，查看自己的主页传的参数，不过这是解析token得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "id", value = "用户id，查看别人的主页所需要传的参数", dataType = "Long", paramType= "query", required = false)
     })
     @ApiResponses({
             @ApiResponse(code = 1004, message = "返回值校验失败：没有该用户数据")
@@ -87,10 +86,9 @@ public class UserController {
         return new APIResult<>(userService.getUserInfoById(id));
     }
 
-    @ApiOperation(value = "根据userId获得用户解决的题号列表", notes = "这一个复用controller：传id查看别人解决的题号列表，不传任何参数则查看自己解决的题号列表")
+    @ApiOperation(value = "获得用户解决的题号列表", notes = "需要token：普通用户权限。这一个复用controller：传id查看别人解决的题号列表，不传任何参数则查看自己解决的题号列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id，查看别人解决的题号列表所需要传的参数", dataType = "Long", paramType= "query", required = false),
-            @ApiImplicitParam(name = "userId", value = "用户id，查看自己解决的题号列表传的参数，不过这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "id", value = "用户id，查看别人解决的题号列表所需要传的参数", dataType = "Long", paramType= "query", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -102,10 +100,9 @@ public class UserController {
         return new APIResult<>(userService.getSolvedProblemsByUserId(id));
     }
 
-    @ApiOperation(value = "根据userId获得用户尝试过但未解决的题号列表", notes = "这一个复用controller：传id查看别人尝试过但未解决的题号列表，不传任何参数则查看自己尝试过但未解决的题号列表")
+    @ApiOperation(value = "获得用户尝试过但未解决的题号列表", notes = "需要token：普通用户权限。这一个复用controller：传id查看别人尝试过但未解决的题号列表，不传任何参数则查看自己尝试过但未解决的题号列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id，查看别人尝试过但未解决的题号列表所需要传的参数", dataType = "Long", paramType= "query", required = false),
-            @ApiImplicitParam(name = "userId", value = "用户id，查看自己尝试过但未解决的题号列表传的参数，不过这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "id", value = "用户id，查看别人尝试过但未解决的题号列表所需要传的参数", dataType = "Long", paramType= "query", required = false)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -117,10 +114,9 @@ public class UserController {
         return new APIResult<>(userService.getNotSolvedProblemsByUserId(id));
     }
 
-    @ApiOperation(value = "根据userId分页获得用户的消息列表", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "分页获取用户消息列表", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType= "body", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，查看消息详情列表，不过这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "page", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType= "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -140,10 +136,9 @@ public class UserController {
         return new APIResult<>(userService.updateMessageStatusById(msgId));
     }
 
-    @ApiOperation(value = "根据userId更新用户基本信息", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "更新用户基本信息", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userInfoModel", value = "用户修改后的信息实体", dataType = "UserInfoModel", paramType= "body", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "userInfoModel", value = "用户修改后的信息实体", dataType = "UserInfoModel", paramType= "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -153,11 +148,10 @@ public class UserController {
         return new APIResult(userService.updateUserInfoByUserId(userInfoModel));
     }
 
-    @ApiOperation(value = "根据userId更新用户邮箱", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "更新用户邮箱", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "oldEmail", value = "用户输入的旧邮箱", dataType = "String", paramType= "query", required = true),
-            @ApiImplicitParam(name = "newEmail", value = "用户输入的新邮箱", dataType = "String", paramType= "query", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "newEmail", value = "用户输入的新邮箱", dataType = "String", paramType= "query", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -166,11 +160,10 @@ public class UserController {
         return new APIResult<>(userService.updateUserEmailByUserId(oldEmail, newEmail, userId));
     }
 
-    @ApiOperation(value = "根据userId更新用户密码", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "更新用户密码", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "oldPassword", value = "用户输入的旧密码", dataType = "String", paramType= "query", required = true),
-            @ApiImplicitParam(name = "newPassword", value = "用户输入的新密码", dataType = "String", paramType= "query", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "newPassword", value = "用户输入的新密码", dataType = "String", paramType= "query", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -189,10 +182,9 @@ public class UserController {
         return new APIResult<>(certificationService.getValidCertificationTypes());
     }
 
-    @ApiOperation(value = "根据userId，申请实名认证", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "申请实名认证", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userCertificationModel", value = "用户申请认证的信息实体", dataType = "UserCertificationModel", paramType= "body", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "userCertificationModel", value = "用户申请认证的信息实体", dataType = "UserCertificationModel", paramType= "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -203,10 +195,9 @@ public class UserController {
         return new APIResult();
     }
 
-    @ApiOperation(value = "根据userId，修改实名认证信息并重新申请", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "修改实名认证信息并重新申请", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userCertificationModel", value = "用户申请认证的信息实体", dataType = "UserCertificationModel", paramType= "body", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "userCertificationModel", value = "用户申请认证的信息实体", dataType = "UserCertificationModel", paramType= "body", required = true)
     })
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
@@ -216,10 +207,8 @@ public class UserController {
         return new APIResult(certificationService.updateUserCertification(userCertificationModel));
     }
 
-    @ApiOperation(value = "根据userId，获得已申请的实名认证信息", notes = "需要token：普通用户权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
-    })
+    @ApiOperation(value = "获得已申请的实名认证信息", notes = "需要token：普通用户权限")
+    @ApiImplicitParams({})
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/userCertification")
@@ -229,8 +218,7 @@ public class UserController {
 
     @ApiOperation(value = "上传头像", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "head", value = "二进制文件", dataType = "MultipartFile", paramType= "query", required = false),
-            @ApiImplicitParam(name = "userId", value = "用户id，这是解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "head", value = "二进制文件", dataType = "MultipartFile", paramType= "query", required = false)
     })
     @ApiResponses({
             @ApiResponse(code = 1001, message = "失败")

@@ -83,6 +83,9 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
         log.info("rankInfo={}", JSONObject.toJSONString(cacheContestRankModel));
         Map<Long, RankItemModel> rankItemMap = cacheContestRankModel.getRankItemMap();
         RankItemModel rankItemModel = rankItemMap.get(userId);
+        if (rankItemModel == null) {
+            initContestRankModel(cacheContestRankModel, userId);
+        }
         rankItemModel = rankItemMap.get(userId);
         rankItemModel.setSubmitCount(rankItemModel.getSubmitCount() + 1);
         // 需要查询该问题是否是用户已经解决过了，而重复提交
@@ -206,8 +209,15 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
         Collections.sort(list, (o1, o2) -> {
             RankItemModel rankItemModel1 = o1.getValue();
             RankItemModel rankItemModel2 = o2.getValue();
-            return (rankItemModel2.getAcNum() - rankItemModel1.getAcNum() != 0) ?
-                    rankItemModel2.getAcNum() - rankItemModel1.getAcNum() : (int) (rankItemModel1.getTotalTime() - rankItemModel2.getTotalTime());
+            if (rankItemModel2.getAcNum() - rankItemModel1.getAcNum() != 0) {
+                return rankItemModel2.getAcNum() - rankItemModel1.getAcNum();
+            } else {
+                if ((int) (rankItemModel1.getTotalTime() - rankItemModel2.getTotalTime()) != 0) {
+                    return (int) (rankItemModel1.getTotalTime() - rankItemModel2.getTotalTime());
+                } else {
+                    return rankItemModel1.getSubmitCount() - rankItemModel2.getSubmitCount();
+                }
+            }
         });
         Map<Long, RankItemModel> ret = new LinkedHashMap<>();
         for (Map.Entry<Long, RankItemModel> entry : list) {

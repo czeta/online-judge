@@ -47,7 +47,9 @@ public class ProblemController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problemConditionPageModel", value = "分页请求参数与筛选条件model", dataType = "ProblemConditionPageModel", paramType = "body", required = true)
     })
-    @ApiResponses({})
+    @ApiResponses({
+            @ApiResponse(code = 2001, message = "无分页参数")
+    })
     @PostMapping("/conditionalProblemList")
     public APIResult<IPage<PublicSimpleProblemModel>> getPublicProblemList(@RequestBody ProblemConditionPageModel problemConditionPageModel) {
         return new APIResult<>(problemService.getPublicProblemListByCondition(problemConditionPageModel));
@@ -58,6 +60,8 @@ public class ProblemController {
             @ApiImplicitParam(name = "problemId", value = "问题ID", dataType = "Long", paramType = "path", required = true)
     })
     @ApiResponses({
+            @ApiResponse(code = 2001, message = "题目不存在"),
+            @ApiResponse(code = 2202, message = "题目状态有误"),
             @ApiResponse(code = 2200, message = "题目异常，已下线"),
             @ApiResponse(code = 2101, message = "无权查看该题：属于比赛题")
     })
@@ -68,10 +72,12 @@ public class ProblemController {
 
     @ApiOperation(value = "用户提交题目", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "submitModel", value = "提交代码model", dataType = "SubmitModel", paramType = "body", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "submitModel", value = "提交代码model", dataType = "SubmitModel", paramType = "body", required = true)
     })
-    @ApiResponses({})
+    @ApiResponses({
+            @ApiResponse(code = 2001, message = "题目不存在"),
+            @ApiResponse(code = 2001, message = "代码语言不合法或不支持")
+    })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/submit")
     public APIResult submitProblem(@RequestBody SubmitModel submitModel, @ApiIgnore @RequestAttribute Long userId) {

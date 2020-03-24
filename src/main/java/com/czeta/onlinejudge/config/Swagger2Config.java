@@ -99,13 +99,13 @@ public class Swagger2Config {
     private List<ResponseMessage> setResponseMessageList() {
         final Integer SUCCESS_CODE = IBaseStatusMsg.APIEnum.SUCCESS.getCode();
         final Integer FAILED_CODE = IBaseStatusMsg.APIEnum.FAILED.getCode();
-        final Integer PARAM_ERROR = IBaseStatusMsg.APIEnum.PARAM_ERROR.getCode();
+        final Integer PARAM_ERROR_CODE = IBaseStatusMsg.APIEnum.PARAM_ERROR.getCode();
         final Integer AUTHORITY_EXCEED_CODE = IBaseStatusMsg.APIEnum.AUTHORITY_EXCEED.getCode();
         final Integer LOGIN_AUTHORITY_EXCEED_CODE = IBaseStatusMsg.APIEnum.LOGIN_AUTHORITY_EXCEED.getCode();
         List<ResponseMessage> responseMessageList = new ArrayList<>();
         responseMessageList.add(new ResponseMessageBuilder().code(SUCCESS_CODE).message("成功").build());
         responseMessageList.add(new ResponseMessageBuilder().code(FAILED_CODE).message("失败：信息根据返回message判断").build());
-        responseMessageList.add(new ResponseMessageBuilder().code(PARAM_ERROR).message("请求参数错误：信息根据返回message判断").build());
+        responseMessageList.add(new ResponseMessageBuilder().code(PARAM_ERROR_CODE).message("请求参数错误：信息根据返回message判断").build());
         responseMessageList.add(new ResponseMessageBuilder().code(AUTHORITY_EXCEED_CODE).message("越权访问：用户没有权限").build());
         responseMessageList.add(new ResponseMessageBuilder().code(LOGIN_AUTHORITY_EXCEED_CODE).message("登录权限受限：请登录").build());
         return responseMessageList;

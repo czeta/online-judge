@@ -43,7 +43,9 @@ public class StatusController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "submitConditionPageModel", value = "分页参数与筛选参数model", dataType = "SubmitConditionPageModel", paramType = "body", required = true)
     })
-    @ApiResponses({})
+    @ApiResponses({
+            @ApiResponse(code = 2001, message = "无分页参数")
+    })
     @PostMapping("/conditionalStatusList")
     public APIResult<IPage<PublicSubmitModel>> getPublicSubmitModelList(@RequestBody SubmitConditionPageModel submitConditionPageModel) {
         return new APIResult<>(submitService.getPublicSubmitModelListByCondition(submitConditionPageModel));
@@ -52,8 +54,7 @@ public class StatusController {
     @ApiOperation(value = "获取指定提交评测信息的代码", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "submitId", value = "提交ID", dataType = "Long", paramType = "query", required = true),
-            @ApiImplicitParam(name = "problemId", value = "问题ID", dataType = "Long", paramType = "query", required = true),
-            @ApiImplicitParam(name = "userId", value = "用户id，解析token自动得出的，故不需要传入此参数", dataType = "Long", paramType= "body", required = false)
+            @ApiImplicitParam(name = "problemId", value = "问题ID", dataType = "Long", paramType = "query", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 2003, message = "无该题代码阅读权限")

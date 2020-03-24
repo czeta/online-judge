@@ -474,6 +474,8 @@ public class ProblemServiceImpl implements ProblemService {
         AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
         AssertUtils.isTrue(ProblemLanguage.isContainMessage(Arrays.asList(submitModel.getLanguage())),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "代码语言不合法或不支持");
+        AssertUtils.isTrue(Arrays.asList(problemInfo.getLanguage().split(",")).contains(submitModel.getLanguage()),
+                BaseStatusMsg.APIEnum.PARAM_ERROR, "代码语言不合法或不支持");
         /**<== 修改或添加相关表数据 begin ==>**/
         // 用户表：自增submitCount
         userMapper.updateSubmitCountIncrementOne(userId);

@@ -5,7 +5,7 @@ import com.czeta.onlinejudge.model.param.PageModel;
 import com.czeta.onlinejudge.model.result.PublicRankModel;
 import com.czeta.onlinejudge.service.RankService;
 import com.czeta.onlinejudge.utils.response.APIResult;
-import io.swagger.annotations.Api;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +25,21 @@ public class RankController {
     @Autowired
     private RankService rankService;
 
+    @ApiOperation(value = "获取AC榜", notes = "不需要token")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
+    })
+    @ApiResponses({})
     @PostMapping("/ac")
     public APIResult<IPage<PublicRankModel>> getPublicRankModelListOfAcRank(@RequestBody PageModel pageModel) {
         return new APIResult<>(rankService.getPublicRankModelListOfAcRank(pageModel));
     }
 
+    @ApiOperation(value = "获取Rating榜", notes = "不需要token")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
+    })
+    @ApiResponses({})
     @PostMapping("/rating")
     public APIResult<IPage<PublicRankModel>> getPublicRankModelListOfRatingRank(@RequestBody PageModel pageModel) {
         return new APIResult<>(rankService.getPublicRankModelListOfRatingRank(pageModel));
