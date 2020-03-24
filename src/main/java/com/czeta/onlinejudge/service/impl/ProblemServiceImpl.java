@@ -470,14 +470,14 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Override
     public long submitProblem(SubmitModel submitModel, Long userId) {
+        // 校验参数：
         Problem problemInfo = problemMapper.selectById(submitModel.getProblemId());
         AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
         AssertUtils.isTrue(ProblemLanguage.isContainMessage(Arrays.asList(submitModel.getLanguage())),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "代码语言不合法或不支持");
         AssertUtils.isTrue(Arrays.asList(problemInfo.getLanguage().split(",")).contains(submitModel.getLanguage()),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "代码语言不合法或不支持");
-        /**<== 修改或添加相关表数据 begin ==>**/
-        // 用户表：自增submitCount
+        // 用户表
         userMapper.updateSubmitCountIncrementOne(userId);
         // 用户解决题目表
         SolvedProblem solvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
@@ -498,20 +498,22 @@ public class ProblemServiceImpl implements ProblemService {
             solvedProblem.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
             solvedProblemMapper.updateById(solvedProblem);
         }
-        // 题目信息表：自增submit_count
+        // 题目信息表
         problemMapper.updateSubmitCountIncrementOne(submitModel.getProblemId());
-        // 提交评测表：插入数据
+        // 提交评测表
         Submit submit = SubmitMapstructConvert.INSTANCE.submitModelToSubmit(submitModel);
         submit.setSubmitStatus(SubmitStatus.PENDING.getName());
         submit.setSourceId(problemInfo.getSourceId());
         submit.setCreatorId(userId);
         submit.setCreator(userService.getUserInfoById(userId).getUsername());
         submitMapper.insert(submit);
-        /**<== 修改或添加相关表数据 end ==>**/
 
         /**<== 封装kafka消息格式，并发送消息评测 begin ==>**/
 
-        // mock评测数据（针对非比赛问题）
+        /**<== 封装kafka消息格式，并发送消息评测 end ==>**/
+
+        /**<== 获取评测最终结果，并更新相关数据（这部分放在评测服务做） begin ==>**/
+        // mock评测结果数据（针对非比赛问题）
         if (problemInfo.getSourceId() == 0) {
             boolean ac = false;
             if ((int) (Math.random() * 2) == 1) {
@@ -524,9 +526,9 @@ public class ProblemServiceImpl implements ProblemService {
             submitResultModel.setTime("2000ms");
             refreshSubmitProblem(submitResultModel, userId);
         }
+        /**<== 获取评测最终结果，并更新相关数据 end ==>**/
 
         return submit.getId();
-        /**<== 封装kafka消息格式，并发送消息评测 end ==>**/
     }
 
     public void refreshSubmitProblem(SubmitResultModel submitResult, Long userId) {

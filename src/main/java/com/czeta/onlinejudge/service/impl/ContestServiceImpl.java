@@ -378,14 +378,10 @@ public class ContestServiceImpl implements ContestService {
 
     @Override
     public void submitProblemOfContest(SubmitModel submitModel, Long contestId, Long userId) {
-        // 正常提交问题的过程
         long submitId = problemService.submitProblem(submitModel, userId);
 
-        /**<= 提交问题涉及到榜单实时计算的过程(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) begin =>**/
-        // 该比赛的第一次提交，且redis中无数据：初始化该比赛缓存:
-        // 这里与下面注释一致，将这部分推迟到评测结果出来后再执行
-
-        // 用于mock数据的前提
+        /**<= 实时计算榜单(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) begin =>**/
+        // （1）该比赛的全局第一次提交，且redis中无数据：初始化该比赛实时榜单缓存，并持久化
         Contest contestInfo = getContestInfo(contestId);
         Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
         Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
@@ -394,9 +390,9 @@ public class ContestServiceImpl implements ContestService {
             int count = submitMapper.selectCount(Wrappers.<Submit>lambdaQuery()
                     .eq(Submit::getSourceId, contestId));
             if (count <= 1 && !contestRankRedisService.exists(contestId)) {
-                log.info("count={}", count);
-                contestRankRedisService.initContestRankRedis(contestId, submitModel.getProblemId(), userId);
-                // 插入持久化榜单数据
+                // 初始化比赛榜单缓存
+                contestRankRedisService.initContestRankRedis(contestId, userId);
+                // 初始化后的比赛榜单也进行持久化
                 Map<Long, RankItemModel> mapModel = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
                 CacheContestRankModel cacheContestRankModel = new CacheContestRankModel();
                 cacheContestRankModel.setContestId(contestId);
@@ -407,19 +403,16 @@ public class ContestServiceImpl implements ContestService {
                 contestRankMapper.insert(contestRank);
             }
         }
-        // 非第一次提交，取出缓存并实时计算再存入：
-        // 值得注意的是如果这里操作redis key，另外一个微服务也操作，就涉及到并发丢失修改的问题了，需要用到分布式锁，为了减少不必要的工作量，这里将实时计算推迟到评测题目有结果后。
-
-        // 这里可以mock一些测试数据，来用来榜单展示功能测试用
-        // 随机概率mock两种情况
-        boolean ac = false;
+        // （2）非比赛的全局第一次提交，取出缓存并实时计算再存入，并持久化
+        boolean ac = false; // mock评测结果数据
         if ((int) (Math.random() * 2) == 1) {
             ac = true;
         }
         log.info("ac={}", ac);
         if (currentTime >= startTime && currentTime <= endTime) {
+            // 更新缓存实时榜单
             contestRankRedisService.refreshContestRankRedis(contestId, submitModel.getProblemId(), userId, ac);
-            // 更新持久化数据
+            // 更新持久化实时榜单数据
             Map<Long, RankItemModel> mapModel = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
             CacheContestRankModel cacheContestRankModel = new CacheContestRankModel();
             cacheContestRankModel.setContestId(contestId);
@@ -428,7 +421,7 @@ public class ContestServiceImpl implements ContestService {
             contestRank.setRankJson(JSONObject.toJSONString(cacheContestRankModel));
             contestRankMapper.update(contestRank, Wrappers.<ContestRank>lambdaQuery().eq(ContestRank::getContestId, contestId));
         }
-
+        // （3）获取评测结果后更新题目的相关信息
         SubmitResultModel submitResultModel = new SubmitResultModel();
         submitResultModel.setProblemId(submitModel.getProblemId());
         submitResultModel.setSubmitId(submitId);
@@ -436,7 +429,7 @@ public class ContestServiceImpl implements ContestService {
         submitResultModel.setMemory("2000kb");
         submitResultModel.setTime("2000ms");
         problemService.refreshSubmitProblem(submitResultModel, userId);
-        /**<= 提交问题涉及到榜单实时计算的过程(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) end =>**/
+        /**<= 实时计算榜单(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) end =>**/
     }
 
     @Override
@@ -459,7 +452,7 @@ public class ContestServiceImpl implements ContestService {
             rankItemModel.setSubmitMap(null);
             rankItemModelList.add(rankItemModel);
         }
-        // 持久化排名数据
+        // 持久化的榜单数据
         ContestRank contestRank = contestRankMapper.selectOne(Wrappers.<ContestRank>lambdaQuery()
                 .eq(ContestRank::getContestId, contestId));
         CacheContestRankModel fromJsonToCacheModel = new CacheContestRankModel();
@@ -471,11 +464,9 @@ public class ContestServiceImpl implements ContestService {
         Long endTime = DateUtils.getUnixTimeOfSecond(contestInfo.getEndTime());
         // 非实时排名
         if (contestInfo.getRealtimeRank().equals(CommonItemStatus.DISABLE.getCode())) {
-            // 比赛进行中：返回报名用户列表
-            if (currentTime >= startTime && currentTime <= endTime) {
+            if (currentTime >= startTime && currentTime <= endTime) { // （1）比赛进行中：返回报名用户列表
                 itemModelIPage = PageUtils.setOpr(contestUserIPage, new Page<RankItemModel>(), rankItemModelList);
-            // 比赛结束后：从持久层中取出排名列表，如果没有该数据就意味着全程没人提交过数据（缓存和持久化均无数据），则返回空
-            } else if (currentTime > endTime) {
+            } else if (currentTime > endTime) { // （2）比赛结束后：从持久层中取出排名列表，如果没有该数据就意味着全程没人提交过数据（缓存和持久化均无数据），则返回空
                 itemModelIPage = convertMapToPage(fromJsonToCacheModel == null ? null : fromJsonToCacheModel.getRankItemMap(), pageModel);
             }
             return itemModelIPage;
@@ -483,15 +474,12 @@ public class ContestServiceImpl implements ContestService {
         // 实时排名
         Map<Long, RankItemModel> cacheRankItemMap = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
         if (currentTime >= startTime && currentTime <= endTime) {
-            // 比赛进行中但缓存没数据：返回报名用户列表
-            if (cacheRankItemMap == null) {
+            if (cacheRankItemMap == null) { // （1）比赛进行中但缓存没数据：返回报名用户列表
                 itemModelIPage = PageUtils.setOpr(contestUserIPage, new Page<RankItemModel>(), rankItemModelList);
-            // 比赛进行中缓存有数据：返回缓存数据
-            } else {
+            } else { // （2）比赛进行中缓存有数据：返回缓存数据
                 itemModelIPage = convertMapToPage(cacheRankItemMap, pageModel);
             }
-        // 比赛结束后：从持久层中取出排名列表，如果没有该数据就意味着全程没人提交过数据（缓存和持久化均无数据），则返回空
-        } else if (currentTime > endTime) {
+        } else if (currentTime > endTime) { // （3）比赛结束后：从持久层中取出排名列表，如果没有该数据就意味着全程没人提交过数据（缓存和持久化均无数据），则返回空
             itemModelIPage = convertMapToPage(fromJsonToCacheModel == null ? null : fromJsonToCacheModel.getRankItemMap(), pageModel);
         }
         return itemModelIPage;

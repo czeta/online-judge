@@ -2,7 +2,6 @@ package com.czeta.onlinejudge.cache;
 
 import com.czeta.onlinejudge.cache.model.RankItemModel;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,13 +15,12 @@ public interface ContestRankRedisService {
     /**
      * 初始化比赛的缓存榜单数据
      * @param contestId
-     * @param problemId
      * @param userId
      */
-    void initContestRankRedis(Long contestId, Long problemId, Long userId);
+    void initContestRankRedis(Long contestId, Long userId);
 
     /**
-     * 刷新实时计算比赛榜单数据，这部分需要放在获取评测结果后，更新其它数据前，执行
+     * 刷新实时计算比赛榜单数据，这部分需要放在获取评测结果后，更新其它数据前执行
      * @param contestId
      * @param problemId
      * @param userId
