@@ -462,8 +462,10 @@ public class ContestServiceImpl implements ContestService {
         // 持久化排名数据
         ContestRank contestRank = contestRankMapper.selectOne(Wrappers.<ContestRank>lambdaQuery()
                 .eq(ContestRank::getContestId, contestId));
-        CacheContestRankModel fromJsonToCacheModel = JSONObject.toJavaObject((JSONObject) JSONObject.parse(contestRank.getRankJson()), CacheContestRankModel.class);
-
+        CacheContestRankModel fromJsonToCacheModel = new CacheContestRankModel();
+        if (contestRank != null) {
+            fromJsonToCacheModel = JSONObject.toJavaObject((JSONObject) JSONObject.parse(contestRank.getRankJson()), CacheContestRankModel.class);
+        }
         Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
         Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
         Long endTime = DateUtils.getUnixTimeOfSecond(contestInfo.getEndTime());
@@ -472,9 +474,9 @@ public class ContestServiceImpl implements ContestService {
             // 比赛进行中：返回报名用户列表
             if (currentTime >= startTime && currentTime <= endTime) {
                 itemModelIPage = PageUtils.setOpr(contestUserIPage, new Page<RankItemModel>(), rankItemModelList);
-            // 比赛结束后：从持久层中取出排名列表
+            // 比赛结束后：从持久层中取出排名列表，如果没有该数据就意味着全程没人提交过数据（缓存和持久化均无数据），则返回空
             } else if (currentTime > endTime) {
-                itemModelIPage = convertMapToPage(fromJsonToCacheModel.getRankItemMap(), pageModel);
+                itemModelIPage = convertMapToPage(fromJsonToCacheModel == null ? null : fromJsonToCacheModel.getRankItemMap(), pageModel);
             }
             return itemModelIPage;
         }
@@ -488,15 +490,15 @@ public class ContestServiceImpl implements ContestService {
             } else {
                 itemModelIPage = convertMapToPage(cacheRankItemMap, pageModel);
             }
-        // 比赛结束后：从持久层中取出排名列表
+        // 比赛结束后：从持久层中取出排名列表，如果没有该数据就意味着全程没人提交过数据（缓存和持久化均无数据），则返回空
         } else if (currentTime > endTime) {
-            itemModelIPage = convertMapToPage(fromJsonToCacheModel.getRankItemMap(), pageModel);
+            itemModelIPage = convertMapToPage(fromJsonToCacheModel == null ? null : fromJsonToCacheModel.getRankItemMap(), pageModel);
         }
         return itemModelIPage;
     }
 
     private IPage<RankItemModel> convertMapToPage(Map<Long, RankItemModel> map, PageModel pageModel) {
-        if (pageModel.getLimit() == 0 || pageModel.getOffset() == 0) return new Page<>();
+        if (pageModel.getLimit() == 0 || pageModel.getOffset() == 0 || map == null) return new Page<>();
         List<RankItemModel> list = new ArrayList<>();
         for (Map.Entry<Long, RankItemModel> entry : map.entrySet()) {
             list.add(entry.getValue());

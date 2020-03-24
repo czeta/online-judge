@@ -25,6 +25,7 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -307,7 +308,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/ancManager/save")
-    public APIResult saveNewHomePageAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestAttribute Long userId) {
+    public APIResult saveNewHomePageAnnouncement(@RequestBody AnnouncementModel announcementModel, @ApiIgnore @RequestAttribute Long userId) {
         announcementService.saveNewHomePageAnnouncement(announcementModel, userId);
         return new APIResult();
     }
@@ -407,7 +408,7 @@ public class AdminController {
     })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/tag/save")
-    public APIResult saveNewTag(@RequestParam String tagName, @RequestAttribute Long userId) {
+    public APIResult saveNewTag(@RequestParam String tagName, @ApiIgnore @RequestAttribute Long userId) {
         tagService.saveNewTag(tagName, userId);
         return new APIResult();
     }
@@ -431,7 +432,7 @@ public class AdminController {
     })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/spider/save")
-    public APIResult<Long> saveNewProblemBySpider(@RequestBody SpiderProblemModel spiderProblemModel, @RequestAttribute Long userId) throws Exception {
+    public APIResult<Long> saveNewProblemBySpider(@RequestBody SpiderProblemModel spiderProblemModel, @ApiIgnore @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.saveNewProblemBySpider(spiderProblemModel, userId));
     }
 
@@ -446,7 +447,7 @@ public class AdminController {
     })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/machine/save")
-    public APIResult<Long> saveNewProblemByMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long userId) throws Exception {
+    public APIResult<Long> saveNewProblemByMachine(@RequestBody MachineProblemModel machineProblemModel, @ApiIgnore @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.saveNewProblemByMachine(machineProblemModel, userId));
     }
 
@@ -459,7 +460,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/uploadFile")
-    public APIResult<Boolean> uploadProblemJudgeFile(@RequestParam MultipartFile[] files, @RequestParam Long problemId, @RequestAttribute Long userId) throws Exception {
+    public APIResult<Boolean> uploadProblemJudgeFile(@RequestParam MultipartFile[] files, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.uploadProblemJudgeFile(files, problemId, userId));
     }
 
@@ -472,7 +473,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/uploadSpj")
-    public APIResult<Boolean> uploadSpjProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @RequestAttribute Long userId) throws Exception {
+    public APIResult<Boolean> uploadSpjProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.SPJ, userId));
     }
 
@@ -485,7 +486,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/uploadInsert")
-    public APIResult<Boolean> uploadInsertProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @RequestAttribute Long userId) throws Exception {
+    public APIResult<Boolean> uploadInsertProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) throws Exception {
         return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.FUNCTION, userId));
     }
 
@@ -543,7 +544,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/file/remove")
-    public APIResult<Boolean> removeProblemJudgeFile(@RequestParam Long problemId, @RequestParam String fileName, @RequestAttribute Long userId) {
+    public APIResult<Boolean> removeProblemJudgeFile(@RequestParam Long problemId, @RequestParam String fileName, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(problemService.removeProblemJudgeFile(problemId, fileName, userId));
     }
 
@@ -578,7 +579,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/problemInfo/update")
-    public APIResult<Boolean> updateProblemInfoOfMachine(@RequestBody MachineProblemModel machineProblemModel, @RequestAttribute Long userId) {
+    public APIResult<Boolean> updateProblemInfoOfMachine(@RequestBody MachineProblemModel machineProblemModel, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(problemService.updateProblemInfoOfMachine(machineProblemModel, machineProblemModel.getId(), userId));
     }
 
@@ -603,7 +604,7 @@ public class AdminController {
     })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/save")
-    public APIResult saveNewContest(@RequestBody ContestModel contestModel, @RequestAttribute Long userId) {
+    public APIResult saveNewContest(@RequestBody ContestModel contestModel, @ApiIgnore @RequestAttribute Long userId) {
         contestService.saveNewContest(contestModel, userId);
         return new APIResult();
     }
@@ -616,7 +617,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/update")
-    public APIResult<Boolean> updateContestInfo(@RequestBody ContestModel contestModel, @RequestAttribute Long userId) {
+    public APIResult<Boolean> updateContestInfo(@RequestBody ContestModel contestModel, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.updateContestInfo(contestModel, contestModel.getId(), userId));
     }
 
@@ -677,7 +678,7 @@ public class AdminController {
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/contestUser/update")
     public APIResult<Boolean> updateAppliedContestUser(@RequestParam Short status, @RequestParam Long id,
-                                                       @RequestParam Long contestId, @RequestAttribute Long userId) {
+                                                       @RequestParam Long contestId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.updateAppliedContestUser(status, id, contestId, userId));
     }
 
@@ -690,7 +691,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/announcement/save")
-    public APIResult saveNewContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @RequestAttribute Long userId) {
+    public APIResult saveNewContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @ApiIgnore @RequestAttribute Long userId) {
         announcementService.saveNewContestAnnouncement(announcementModel, contestId, userId);
         return new APIResult();
     }
@@ -704,7 +705,7 @@ public class AdminController {
     @ApiResponses({})
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/announcement/update")
-    public APIResult<Boolean> updateContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @RequestAttribute Long userId) {
+    public APIResult<Boolean> updateContestAnnouncement(@RequestBody AnnouncementModel announcementModel, @RequestParam Long contestId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(announcementService.updateContestAnnouncement(announcementModel, contestId, userId));
     }
 

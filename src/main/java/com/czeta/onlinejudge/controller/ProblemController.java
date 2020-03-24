@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * @ClassName ProblemController
@@ -73,7 +74,7 @@ public class ProblemController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/submit")
-    public APIResult submitProblem(@RequestBody SubmitModel submitModel, @RequestAttribute Long userId) {
+    public APIResult submitProblem(@RequestBody SubmitModel submitModel, @ApiIgnore @RequestAttribute Long userId) {
         problemService.submitProblem(submitModel, userId);
         return new APIResult();
     }

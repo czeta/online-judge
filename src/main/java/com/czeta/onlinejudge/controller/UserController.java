@@ -24,6 +24,7 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -79,7 +80,7 @@ public class UserController {
     })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/userInfo")
-    public APIResult<User> getUserInfo(@RequestParam(value = "id", required = false) Long id, @RequestAttribute Long userId) {
+    public APIResult<User> getUserInfo(@RequestParam(value = "id", required = false) Long id, @ApiIgnore @RequestAttribute Long userId) {
         if (id == null && userId != null) {
             id = userId;
         }
@@ -94,7 +95,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/solvedProblems")
-    public APIResult<List<Long>> getSolvedProblems(@RequestParam(value = "id", required = false) Long id, @RequestAttribute Long userId) {
+    public APIResult<List<Long>> getSolvedProblems(@RequestParam(value = "id", required = false) Long id, @ApiIgnore @RequestAttribute Long userId) {
         if (id == null && userId != null) {
             id = userId;
         }
@@ -109,7 +110,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/notSolvedProblems")
-    public APIResult<List<Long>> getNotSolvedProblems(@RequestParam(value = "id", required = false) Long id, @RequestAttribute Long userId) {
+    public APIResult<List<Long>> getNotSolvedProblems(@RequestParam(value = "id", required = false) Long id, @ApiIgnore @RequestAttribute Long userId) {
         if (id == null && userId != null) {
             id = userId;
         }
@@ -124,7 +125,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/messages")
-    public APIResult<IPage<Message>> getMessages(@RequestBody PageModel page, @RequestAttribute Long userId) {
+    public APIResult<IPage<Message>> getMessages(@RequestBody PageModel page, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(userService.getMessagesByUserId(page, userId));
     }
 
@@ -147,7 +148,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/userInfo/update")
-    public APIResult<Boolean> updateUserInfo(@RequestBody UserInfoModel userInfoModel, @RequestAttribute Long userId) {
+    public APIResult<Boolean> updateUserInfo(@RequestBody UserInfoModel userInfoModel, @ApiIgnore @RequestAttribute Long userId) {
         userInfoModel.setId(userId);
         return new APIResult(userService.updateUserInfoByUserId(userInfoModel));
     }
@@ -161,7 +162,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/userEmail/update")
-    public APIResult<Boolean> updateUserEmail(@RequestParam String oldEmail, @RequestParam String newEmail, @RequestAttribute Long userId) {
+    public APIResult<Boolean> updateUserEmail(@RequestParam String oldEmail, @RequestParam String newEmail, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(userService.updateUserEmailByUserId(oldEmail, newEmail, userId));
     }
 
@@ -174,7 +175,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/userPwd/update")
-    public APIResult<Boolean> updateUserPassword(@RequestParam String oldPassword, @RequestParam String newPassword, @RequestAttribute Long userId) {
+    public APIResult<Boolean> updateUserPassword(@RequestParam String oldPassword, @RequestParam String newPassword, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(userService.updateUserPasswordByUserId(oldPassword, newPassword, userId));
     }
 
@@ -196,7 +197,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/userCertification/save")
-    public APIResult saveNewCertification(@RequestBody UserCertificationModel userCertificationModel, @RequestAttribute Long userId) {
+    public APIResult saveNewCertification(@RequestBody UserCertificationModel userCertificationModel, @ApiIgnore @RequestAttribute Long userId) {
         userCertificationModel.setUserId(userId);
         certificationService.saveNewCertification(userCertificationModel);
         return new APIResult();
@@ -210,7 +211,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/userCertification/update")
-    public APIResult<Boolean> updateUserCertification(@RequestBody UserCertificationModel userCertificationModel, @RequestAttribute Long userId) {
+    public APIResult<Boolean> updateUserCertification(@RequestBody UserCertificationModel userCertificationModel, @ApiIgnore @RequestAttribute Long userId) {
         userCertificationModel.setUserId(userId);
         return new APIResult(certificationService.updateUserCertification(userCertificationModel));
     }
@@ -222,7 +223,7 @@ public class UserController {
     @ApiResponses({})
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/userCertification")
-    public APIResult<UserCertification> getUserCertification(@RequestAttribute Long userId) {
+    public APIResult<UserCertification> getUserCertification(@ApiIgnore @RequestAttribute Long userId) {
         return new APIResult(certificationService.getUserCertification(userId));
     }
 
@@ -236,7 +237,7 @@ public class UserController {
     })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/uploadHead")
-    public APIResult<Boolean> uploadHead(@RequestParam("head") MultipartFile head, @RequestAttribute Long userId) throws Exception{
+    public APIResult<Boolean> uploadHead(@RequestParam("head") MultipartFile head, @ApiIgnore @RequestAttribute Long userId) throws Exception{
         return new APIResult<>(userService.uploadHeadImage(head, userId));
     }
 

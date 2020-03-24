@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * @ClassName StatusController
@@ -59,7 +60,7 @@ public class StatusController {
     })
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/code")
-    public APIResult<String> getSubmitCode(@RequestParam Long submitId, @RequestParam Long problemId, @RequestAttribute Long userId) {
+    public APIResult<String> getSubmitCode(@RequestParam Long submitId, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(submitService.getSubmitCode(submitId, problemId, userId));
     }
 }
