@@ -121,17 +121,20 @@ online-judge:
         # 临时测试允许访问页面
       - urls: /,/index
         permission: anon
-        # 排除公共访问页面
+        # 排除公共访问页面1
       - urls: /api/anc/**,/api/problem/problemList,/api/problem/conditionalProblemList,/api/problem/problemInfo/**,/api/status/statusList,/api/status/conditionalStatusList
+        permission: anon
+        # 排除公共访问页面2
+      - urls: /api/contest/contestList, /api/contest/conditionalContestList, /api/rank/**
         permission: anon
         # 排除登陆登出注册相关
       - urls: /api/login,/api/logout,/api/user/register
         permission: anon
         # 排除静态资源
-      - urls: /static/**,/templates/**
+      - urls: /static/**,/templates/**,/favicon.ico
         permission: anon
         # 排除Swagger
-      - urls: /docs.html,/docs,/swagger-ui.html,/webjars/springfox-swagger-ui/**,/swagger-resources/**,/v2/api-docs
+      - urls: /docs.html,/docs,/swagger-ui.html,/swagger-resources/**,/v2/api-docs,/v2/api-docs-ext,/doc.html,/webjars/**
         permission: anon
   ######################## Shiro end ##########################
 
@@ -174,7 +177,7 @@ online-judge:
      注意一旦加token字段，那么说明中响应码都是有效的，不加则跟权限有关响应码(2003、2004)的都请无视
      （3）分页请求参数：对于分页请求参数，该对象内的paramData字段对于有的方法是不需要填的，而是由后台token自动解析的，也就是说一旦出现传入参数userId备注不需要填写，那么这里的paramData也不需要填写'
     title: online-judge
-    url: ''
+    url: http://121.36.21.111:8080/
     version: 0.1.0
   #################################### Swagger config end ###################
 

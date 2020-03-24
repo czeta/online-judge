@@ -108,9 +108,17 @@ public class ContestServiceImpl implements ContestService {
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "报名模式不存在");
         AssertUtils.isTrue(ContestRankModel.isContain(contestModel.getRankModel()),
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "排名模式不存在");
-        Contest contestInfo = ContestMapstructConvert.INSTANCE.contestModelToContest(contestModel);
-        contestInfo.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        contestMapper.updateById(contestInfo);
+        Contest contestInfo = getContestInfo(contestId);
+        Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
+        Long updatedStartTime = DateUtils.getUnixTimeOfSecond(contestModel.getStartTime());
+        Long updatedEndTime = DateUtils.getUnixTimeOfSecond(contestModel.getEndTime());
+        Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
+        AssertUtils.isTrue(currentTime < startTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛已开始，不能更新");
+        AssertUtils.isTrue(updatedStartTime < updatedEndTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "结束时间不能设置为开始时间之前");
+        AssertUtils.isTrue(currentTime < updatedStartTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "开始时间不能设置为当前时间之前");
+        Contest contest = ContestMapstructConvert.INSTANCE.contestModelToContest(contestModel);
+        contest.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+        contestMapper.updateById(contest);
         return true;
     }
 
@@ -262,7 +270,6 @@ public class ContestServiceImpl implements ContestService {
         Contest contestInfo = getContestInfo(contestId);
         Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
         Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
-        Long endTime = DateUtils.getUnixTimeOfSecond(contestInfo.getEndTime());
         AssertUtils.isTrue(currentTime < startTime, BaseStatusMsg.INVALID_SIGN_UP);
         // 校验：是否已经报名
         ContestUser contestUser = contestUserMapper.selectOne(Wrappers.<ContestUser>lambdaQuery()

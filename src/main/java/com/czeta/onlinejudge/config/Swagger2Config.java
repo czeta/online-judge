@@ -1,18 +1,15 @@
 package com.czeta.onlinejudge.config;
 
-import com.czeta.onlinejudge.shiro.util.JwtTokenWebUtil;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.*;
-import springfox.documentation.schema.ModelRef;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.Parameter;
-import springfox.documentation.service.ResponseMessage;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -87,8 +84,7 @@ public class Swagger2Config {
                 .build()
                 .globalResponseMessage(RequestMethod.GET, setResponseMessageList())
                 .globalResponseMessage(RequestMethod.POST, setResponseMessageList())
-                .globalOperationParameters(setHeaderToken())
-                ;
+                .securityContexts(Lists.newArrayList(securityContext())).securitySchemes(Lists.<SecurityScheme>newArrayList(apiKey()));
     }
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
@@ -98,23 +94,6 @@ public class Swagger2Config {
                 .contact(new Contact(contactName,contactUrl,contactEmail))
                 .version(version)
                 .build();
-    }
-    private List<Parameter> setHeaderToken() {
-        List<Parameter> pars = new ArrayList<>();
-
-        // token请求头
-        String testTokenValue = "";
-        ParameterBuilder tokenPar = new ParameterBuilder();
-        Parameter tokenParameter = tokenPar
-                .name(JwtTokenWebUtil.getTokenName())
-                .description("Token Request Header")
-                .modelRef(new ModelRef("string"))
-                .parameterType("header")
-                .required(false)
-                .defaultValue(testTokenValue)
-                .build();
-        pars.add(tokenParameter);
-        return pars;
     }
 
     private List<ResponseMessage> setResponseMessageList() {
@@ -130,5 +109,24 @@ public class Swagger2Config {
         responseMessageList.add(new ResponseMessageBuilder().code(AUTHORITY_EXCEED_CODE).message("越权访问：用户没有权限").build());
         responseMessageList.add(new ResponseMessageBuilder().code(LOGIN_AUTHORITY_EXCEED_CODE).message("登录权限受限：请登录").build());
         return responseMessageList;
+    }
+
+
+    private ApiKey apiKey() {
+        return new ApiKey("token", "Authorization", "header");
+    }
+
+    private SecurityContext securityContext() {
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .forPaths(PathSelectors.regex("/.*"))
+                .build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return Lists.newArrayList(new SecurityReference("token", authorizationScopes));
     }
 }

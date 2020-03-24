@@ -7,6 +7,7 @@ import com.czeta.onlinejudge.cache.model.RankItemModel;
 import com.czeta.onlinejudge.cache.model.CacheContestRankModel;
 import com.czeta.onlinejudge.cache.model.SubmitModel;
 import com.czeta.onlinejudge.consts.ContestRankRedisKeyConstant;
+import com.czeta.onlinejudge.consts.ContestRankScoreRule;
 import com.czeta.onlinejudge.dao.entity.Contest;
 import com.czeta.onlinejudge.dao.entity.SolvedProblem;
 import com.czeta.onlinejudge.dao.entity.Submit;
@@ -102,6 +103,14 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
                 // 计算当前时间和比赛开始时间差值，格式：HH:mm:ss
                 submitModel.setAcceptTime(DateUtils.getHHMMSSDiffOfTwoDateString(contestInfo.getStartTime(), DateUtils.getYYYYMMDDHHMMSS(new Date())));
                 // 累加当前时间和比赛开始时间差值，格式：长整型，秒
+                // 加上先前可能有错误的次数而罚的时间
+                if (totalTime == 0) {
+                    int totalErrorCount = 0;
+                    for (Map.Entry<Long, SubmitModel> entry : submitMap.entrySet()) {
+                        totalErrorCount += entry.getValue().getErrorCount();
+                    }
+                    totalTime += (totalErrorCount * ContestRankScoreRule.SECOND_TIME_PENALTY);
+                }
                 totalTime += DateUtils.getSecondDiffOfTwoDateString(contestInfo.getStartTime(), DateUtils.getYYYYMMDDHHMMSS(new Date()));
                 // 判定是否是该题第一个提交的
                 int count = submitMapper.selectCount(Wrappers.<Submit>lambdaQuery()
@@ -111,6 +120,10 @@ public class ContestRankRedisServiceImpl implements ContestRankRedisService {
                 submitModel.setFirstBlood(count == 0);
             }
         } else { // 错误答案
+            // 罚时20分钟
+            if (totalTime != 0) {
+                totalTime += ContestRankScoreRule.SECOND_TIME_PENALTY;
+            }
             submitModel.setErrorCount(submitModel.getErrorCount() + 1);
             if (solvedProblem == null) { // 尚未解决
                 submitModel.setAccept(false);
