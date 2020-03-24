@@ -20,4 +20,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Update("UPDATE user SET ac_num = ac_num + 1 WHERE id = #{userId}")
     int updateAcNumIncrementOne(Long userId);
+
+    @Update("UPDATE user SET rating_num = rating_num + 1 WHERE id = #{userId}")
+    int updateRatingNumIncrementOne(Long userId);
 }

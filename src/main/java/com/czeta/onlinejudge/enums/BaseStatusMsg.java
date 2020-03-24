@@ -21,7 +21,9 @@ public enum BaseStatusMsg implements IBaseStatusMsg {
     NORMAL_INVISIBLE_PROBLEM(2201, "无权查看该题：属于比赛题"),
     NORMAL_VISIBLE_PROBLEM(2202, "题目状态有误"),
 
-    INVALID_SIGN_UP(2300, "报名已截止");
+    INVALID_SIGN_UP(2300, "报名已截止"),
+    ENDED_CONTEST(2301, "比赛已经封榜结束(已经计算过积分)"),
+    NOT_RATING_CONTEST(2302, "该比赛不是积分赛");
 
     private Integer code;
     private String message;

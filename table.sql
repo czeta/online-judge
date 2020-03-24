@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS contest (
   rank_model VARCHAR(10) NOT NULL, -- 排名模式：(1)练习：ac数目降序，wa的次数升序(2)积分：ac数目降序，花费时间升序（罚时错一次罚时20分钟）(3)ACM/ICPC：ac数目降序，花费时间升序（罚时错一次罚时20分钟）
   realtime_rank INT NOT NULL DEFAULT 1, -- 是否实时排名，默认开启
   creator VARCHAR(20) NOT NULL,
-  status TINYINT NOT NULL DEFAULT 1,
+  status TINYINT NOT NULL DEFAULT 1, -- 竞赛状态：-1表示下线，0表示已经结束封榜不能进行任何更改，1表示正常
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),

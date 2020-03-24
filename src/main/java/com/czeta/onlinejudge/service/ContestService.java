@@ -160,4 +160,11 @@ public interface ContestService {
      * @return
      */
     IPage<RankItemModel> getRankItemListByContestId(PageModel pageModel, Long contestId, Long userId);
+
+    /**
+     * 封榜后计算积分赛的积分数据
+     * @param contestId
+     * @param adminId
+     */
+    void calculateRatingDataOfRatingContest(Long contestId, Long adminId);
 }

@@ -589,6 +589,8 @@ public class AdminController {
             @ApiImplicitParam(name = "contestModel", value = "创建比赛的model", dataType = "ContestModel", paramType = "body", required = true)
     })
     @ApiResponses({
+            @ApiResponse(code = 2001, message = "报名模式不存在"),
+            @ApiResponse(code = 2001, message = "排名模式不存在"),
             @ApiResponse(code = 2102, message = "题目已存在")
     })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
@@ -602,12 +604,37 @@ public class AdminController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contestModel", value = "更新比赛的model", dataType = "ContestModel", paramType = "body", required = true)
     })
-    @ApiResponses({})
+    @ApiResponses({
+            @ApiResponse(code = 2001, message = "报名模式不存在"),
+            @ApiResponse(code = 2001, message = "排名模式不存在"),
+            @ApiResponse(code = 2001, message = "比赛已经封榜或弃用，不能更新"),
+            @ApiResponse(code = 2001, message = "比赛已开始，不能更新"),
+            @ApiResponse(code = 2001, message = "开始时间不能设置为当前时间之前"),
+            @ApiResponse(code = 2001, message = "结束时间不能设置为开始时间之前")
+    })
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/update")
     public APIResult<Boolean> updateContestInfo(@RequestBody ContestModel contestModel, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.updateContestInfo(contestModel, contestModel.getId(), userId));
     }
+
+    @ApiOperation(value = "积分赛封榜", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 2001, message = "比赛不存在"),
+            @ApiResponse(code = 2001, message = "比赛尚未结束"),
+            @ApiResponse(code = 2302, message = "该比赛不是积分赛"),
+            @ApiResponse(code = 2301, message = "比赛已经封榜结束(已经计算过积分)")
+    })
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/contestManager/block")
+    public APIResult calculateRatingDataOfRatingContest(@RequestParam Long contestId, @ApiIgnore @RequestAttribute Long userId) {
+        contestService.calculateRatingDataOfRatingContest(contestId, userId);
+        return new APIResult();
+    }
+
 
 
     @ApiOperation(value = "获取比赛信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")

@@ -83,6 +83,9 @@ public class ContestServiceImpl implements ContestService {
     @Autowired
     private UserCertificationMapper userCertificationMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
     public void saveNewContest(ContestModel contestModel, Long adminId) {
         AssertUtils.isTrue(ContestSignUpRule.isContain(contestModel.getSignUpRule()),
@@ -113,6 +116,7 @@ public class ContestServiceImpl implements ContestService {
         Long updatedStartTime = DateUtils.getUnixTimeOfSecond(contestModel.getStartTime());
         Long updatedEndTime = DateUtils.getUnixTimeOfSecond(contestModel.getEndTime());
         Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
+        AssertUtils.isTrue(contestInfo.getStatus().equals(ContestStatus.NORMAL.getCode()), BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛已经封榜或弃用，不能更新");
         AssertUtils.isTrue(currentTime < startTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛已开始，不能更新");
         AssertUtils.isTrue(updatedStartTime < updatedEndTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "结束时间不能设置为开始时间之前");
         AssertUtils.isTrue(currentTime < updatedStartTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "开始时间不能设置为当前时间之前");
@@ -483,6 +487,55 @@ public class ContestServiceImpl implements ContestService {
             itemModelIPage = convertMapToPage(fromJsonToCacheModel == null ? null : fromJsonToCacheModel.getRankItemMap(), pageModel);
         }
         return itemModelIPage;
+    }
+
+    @Override
+    public void calculateRatingDataOfRatingContest(Long contestId, Long adminId) {
+        Contest contestInfo = getContestInfo(contestId);
+        Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
+        Long endTime = DateUtils.getUnixTimeOfSecond(contestInfo.getEndTime());
+        AssertUtils.notNull(contestInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛不存在");
+        // 校验：比赛是否已经结束
+        AssertUtils.isTrue(currentTime > endTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛尚未结束");
+        // 校验：比赛是否是积分赛
+        AssertUtils.isTrue(contestInfo.getRankModel().equals(ContestRankModel.RATING.getCode()), BaseStatusMsg.NOT_RATING_CONTEST);
+        // 校验：比赛是否已经计算过rating score了
+        AssertUtils.isTrue(contestInfo.getStatus().equals(ContestStatus.NORMAL.getCode()), BaseStatusMsg.ENDED_CONTEST);
+
+        // 改变比赛状态：封榜
+        Contest toUpdatedContest = new Contest();
+        toUpdatedContest.setId(contestId);
+        toUpdatedContest.setStatus(ContestStatus.END.getCode());
+        contestMapper.updateById(toUpdatedContest);
+
+        // 更新用户表：rating_num
+        List<Long> userIds = contestUserMapper.selectList(Wrappers.<ContestUser>lambdaQuery()
+                .eq(ContestUser::getContestId, contestId))
+                .stream()
+                .map(s -> s.getUserId())
+                .collect(Collectors.toList());
+        userIds.forEach(id -> userMapper.updateRatingNumIncrementOne(id));
+        // 计算并更新用户表：rating_score
+        // todo：elo算法计算参赛的rating_score并更新用户数据
+
+        // 用户表：更新rank
+        List<User> userList = userMapper.selectList(null);
+        Collections.sort(userList, (o1, o2) -> {
+            if (o2.getRatingScore() - o1.getRatingScore() != 0) {
+                return o2.getRatingScore() - o1.getRatingScore();
+            } else {
+                if (o2.getAcNum() - o1.getAcNum() != 0) {
+                    return o2.getAcNum() - o1.getAcNum();
+                } else {
+                    return o1.getSubmitCount() - o2.getSubmitCount();
+                }
+            }
+        });
+        for (int i = 0; i < userList.size(); ++i) {
+            User userInfo = userList.get(i);
+            userInfo.setRank(i + 1);
+            userMapper.updateById(userInfo);
+        }
     }
 
     private IPage<RankItemModel> convertMapToPage(Map<Long, RankItemModel> map, PageModel pageModel) {

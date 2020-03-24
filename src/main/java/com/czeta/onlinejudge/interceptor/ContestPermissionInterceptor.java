@@ -56,11 +56,14 @@ public class ContestPermissionInterceptor {
     @Pointcut("execution(* com.czeta.onlinejudge.service.AnnouncementService.saveNewContestAnnouncement(..))")
     public void saveContestAnnouncement() {}
 
+    @Pointcut("execution(* com.czeta.onlinejudge.service.ContestService.calculateRatingDataOfRatingContest(..))")
+    public void calculateRatingDataOfRatingContest() {}
+
     /**
      * 对比赛信息管理员操作的功能进行权限拦截：只有创建指定比赛的管理员才有对该比赛的操作权限
      * @param joinPoint
      */
-    @Before("updateContestInfo() || updateContestAnnouncement() || saveContestAnnouncement()")
+    @Before("updateContestInfo() || updateContestAnnouncement() || saveContestAnnouncement() || calculateRatingDataOfRatingContest()")
     public void beforeMethod(JoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String[] parameterNames = methodSignature.getParameterNames();

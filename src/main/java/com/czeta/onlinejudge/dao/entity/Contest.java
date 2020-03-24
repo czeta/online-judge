@@ -37,7 +37,7 @@ public class  Contest {
     private Integer realtimeRank;
     @ApiModelProperty(value = "比赛创建者")
     private String creator;
-    @ApiModelProperty(value = "比赛状态：1代表正常启用，0代表下线弃用")
+    @ApiModelProperty(value = "比赛状态：-1表示下线，0表示已经结束封榜不能进行任何更改，1表示正常")
     private Short status;
     @ApiModelProperty(value = "比赛创建时间")
     private String crtTs;
