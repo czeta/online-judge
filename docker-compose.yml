@@ -2,6 +2,7 @@
 # 每次更新jar包或者其它本地化文件，需要restart容器。
 version: '3'
 services:
+  # 关系型数据库
   mysql:
     image: mysql/mysql-server:5.7
     container_name: mysql
@@ -16,11 +17,11 @@ services:
       - ~/data/mysql/init:/docker-entrypoint-initdb.d/ # 容器初始化执行sql脚本
       - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
     restart: always
+  # 缓存型数据库
   redis:
     image: redis:5.0.4
     container_name: redis
     environment:
-      MYSQL_ROOT_PASSWORD: 123123
       TZ: Asia/Shanghai
     ports:
       - '6379:6379'
@@ -33,6 +34,31 @@ services:
       '/etc/redis.conf'
     ]
     restart: always
+  # zookeeper
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    network_mode: 'host'
+    restart: always
+  # kafka
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # kafka高可用所依赖的zk服务
+      KAFKA_ADVERTISED_HOST_NAME: 121.36.21.111  # kafka服务所在主机IP，用于多broker启动使用，单机版则IP可以为localhost
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://121.36.21.111:9092
+      KAFKA_LISTENERS: PLAINTEXT://121.36.21.111:9092
+      KAFKA_CREATE_TOPICS: "topic-submit:3:2" # kafka启动时自动创建的topic：topic名为topic-submit，3个partition，2个副本，另外需要命令创建三个broker：docker-compose scale kafka=3
+    ports:
+      - "9092:9092"
+    volumes:
+      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
+    network_mode: 'host'
+    restart: always
+  # online-judge api服务
   onlinejudge:
     image: java:8
     container_name: onlinejudge
@@ -51,5 +77,25 @@ services:
       '-Xmx200m',
       '-jar',
       '/data/online-judge.jar'
+    ]
+    restart: always
+  # online-judge core judge服务
+  onlinejudge-core:
+    image: java:8
+    container_name: onlinejudge-core
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - '8888:8888'
+    volumes:
+      - ~/data/onlinejudge-core/workspace/online-judge-core.jar:/data/online-judge-core.jar # jar包所在位置宿主机本地化
+      - /opt/logs/online-judge-core:/opt/logs/online-judge-core # 项目打印日志文件本地化
+      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
+    network_mode: 'host' # 将应用内访问容器localhost转为访问宿主机的localhost
+    command: [
+      'java',
+      '-Xmx200m',
+      '-jar',
+      '/data/online-judge-core.jar'
     ]
     restart: always
