@@ -3,7 +3,7 @@
 ################################ 当前active环境 start ###############################
 spring:
   profiles:
-    active: dev
+    active: @profileActive@
 ################################ 当前active环境 end #################################
 
 ############################# jetty config start #############################
@@ -110,6 +110,19 @@ spring:
         min-idle: 2
       shutdown-timeout: 3s
 ############################### Redis config end ##################################
+
+############################### kafka config start ###############################
+---
+spring:
+  kafka:
+    # 生产者
+    producer:
+      retries: 1 #发送失败后的重复发送次数
+      batch-size: 16384  #一次最多发送数据量
+      buffer-memory: 33554432 #32M批处理缓冲区
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+############################### kafka config end ##################################
 
 ############################### online-judge config begin ##################################
 online-judge:

@@ -134,11 +134,4 @@ public interface ProblemService {
      * todo kafka消息模块
      */
     long submitProblem(SubmitModel submitModel, Long userId);
-
-    /**
-     * 更新提交评测相关结果
-     * @param submitResult
-     * @param userId
-     */
-    void refreshSubmitProblem(SubmitResultModel submitResult, Long userId);
 }

@@ -12,20 +12,6 @@ import java.util.Map;
  * @Version 1.0
  */
 public interface ContestRankRedisService {
-    /**
-     * 初始化比赛的缓存榜单数据
-     * @param contestId
-     * @param userId
-     */
-    void initContestRankRedis(Long contestId, Long userId);
-
-    /**
-     * 刷新实时计算比赛榜单数据，这部分需要放在获取评测结果后，更新其它数据前执行
-     * @param contestId
-     * @param problemId
-     * @param userId
-     */
-    void refreshContestRankRedis(Long contestId, Long problemId, Long userId, Boolean ac);
 
     /**
      * 通过比赛id，从缓存中获取排名map

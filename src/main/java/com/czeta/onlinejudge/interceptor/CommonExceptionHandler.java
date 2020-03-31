@@ -1,4 +1,4 @@
-package com.czeta.onlinejudge.utils.interceptor;
+package com.czeta.onlinejudge.interceptor;
 
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;

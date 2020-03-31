@@ -34,30 +34,6 @@ services:
       '/etc/redis.conf'
     ]
     restart: always
-  # zookeeper
-  zookeeper:
-    image: wurstmeister/zookeeper
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    network_mode: 'host'
-    restart: always
-  # kafka
-  kafka:
-    image: wurstmeister/kafka
-    container_name: kafka
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # kafka高可用所依赖的zk服务
-      KAFKA_ADVERTISED_HOST_NAME: 121.36.21.111  # kafka服务所在主机IP，用于多broker启动使用，单机版则IP可以为localhost
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://121.36.21.111:9092
-      KAFKA_LISTENERS: PLAINTEXT://121.36.21.111:9092
-      KAFKA_CREATE_TOPICS: "topic-submit:3:2" # kafka启动时自动创建的topic：topic名为topic-submit，3个partition，2个副本，另外需要命令创建三个broker：docker-compose scale kafka=3
-    ports:
-      - "9092:9092"
-    volumes:
-      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
-    network_mode: 'host'
-    restart: always
   # online-judge api服务
   onlinejudge:
     image: java:8
@@ -77,25 +53,5 @@ services:
       '-Xmx200m',
       '-jar',
       '/data/online-judge.jar'
-    ]
-    restart: always
-  # online-judge core judge服务
-  onlinejudge-core:
-    image: java:8
-    container_name: onlinejudge-core
-    environment:
-      TZ: Asia/Shanghai
-    ports:
-      - '8888:8888'
-    volumes:
-      - ~/data/onlinejudge-core/workspace/online-judge-core.jar:/data/online-judge-core.jar # jar包所在位置宿主机本地化
-      - /opt/logs/online-judge-core:/opt/logs/online-judge-core # 项目打印日志文件本地化
-      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
-    network_mode: 'host' # 将应用内访问容器localhost转为访问宿主机的localhost
-    command: [
-      'java',
-      '-Xmx200m',
-      '-jar',
-      '/data/online-judge-core.jar'
     ]
     restart: always

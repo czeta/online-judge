@@ -16,6 +16,8 @@ import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.DetailProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.SimpleProblemModel;
+import com.czeta.onlinejudge.mq.SubmitMessage;
+import com.czeta.onlinejudge.mq.producer.SubmitProducer;
 import com.czeta.onlinejudge.service.AdminService;
 import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.service.TagService;
@@ -79,6 +81,9 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private SubmitProducer submitProducer;
 
     @Override
     public long saveNewProblemBySpider(SpiderProblemModel spiderProblemModel, Long adminId) {
@@ -508,65 +513,36 @@ public class ProblemServiceImpl implements ProblemService {
         submit.setCreator(userService.getUserInfoById(userId).getUsername());
         submitMapper.insert(submit);
 
-        /**<== 封装kafka消息格式，并发送消息评测 begin ==>**/
-
-        /**<== 封装kafka消息格式，并发送消息评测 end ==>**/
-
-        /**<== 获取评测最终结果，并更新相关数据（这部分放在评测服务做） begin ==>**/
-        // mock评测结果数据（针对非比赛问题）
-        if (problemInfo.getSourceId() == 0) {
-            boolean ac = false;
-            if ((int) (Math.random() * 2) == 1) {
-                ac = true;
-            }
-            SubmitResultModel submitResultModel = new SubmitResultModel();
-            submitResultModel.setSubmitId(submit.getId());
-            submitResultModel.setSubmitStatus(ac ? SubmitStatus.ACCEPTED.getName() : SubmitStatus.WRONG_ANSWER.getName());
-            submitResultModel.setMemory("2000kb");
-            submitResultModel.setTime("2000ms");
-            refreshSubmitProblem(submitResultModel, userId);
-        }
-        /**<== 获取评测最终结果，并更新相关数据 end ==>**/
+        // 封装kafka消息格式，并发送消息评测
+        sendMessage(submit.getId(), submitModel, problemInfo);
 
         return submit.getId();
     }
 
-    public void refreshSubmitProblem(SubmitResultModel submitResult, Long userId) {
-        // 校验参数：
-        Problem problemInfo = problemMapper.selectById(submitResult.getProblemId());
-        AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目不存在");
-        AssertUtils.isTrue(SubmitStatus.isContain(submitResult.getSubmitStatus()), BaseStatusMsg.APIEnum.PARAM_ERROR, "评测结果不合法");
-        // 用户表
-        SolvedProblem solvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
-                .eq(SolvedProblem::getUserId, userId)
-                .eq(SolvedProblem::getProblemId, submitResult.getProblemId())
-                .eq(SolvedProblem::getSubmitStatus, SubmitStatus.ACCEPTED.getName()));
-        if (solvedProblem == null && SubmitStatus.ACCEPTED.getName().equals(submitResult.getSubmitStatus())) {
-            userMapper.updateAcNumIncrementOne(userId);
-        }
-        // 用户解决问题表
-        if (solvedProblem == null) {
-            SolvedProblem newSolvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
-                            .eq(SolvedProblem::getUserId, userId)
-                            .eq(SolvedProblem::getProblemId, submitResult.getProblemId()));
-            newSolvedProblem.setSubmitStatus(submitResult.getSubmitStatus());
-            newSolvedProblem.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-            solvedProblemMapper.updateById(newSolvedProblem);
-        }
-        // 题目信息表
-        if (SubmitStatus.ACCEPTED.getName().equals(submitResult.getSubmitStatus())) {
-            problemMapper.updateAcCountIncrementOne(submitResult.getProblemId());
-            if (solvedProblem == null) {
-                problemMapper.updateAcNumIncrementOne(submitResult.getProblemId());
-            }
-        }
-        // 提交评测表
-        Submit submit = submitMapper.selectById(submitResult.getSubmitId());
-        AssertUtils.notNull(submit, BaseStatusMsg.APIEnum.PARAM_ERROR, "提交评测信息不存在");
-        submit.setTime(submitResult.getTime());
-        submit.setMemory(submitResult.getMemory());
-        submit.setSubmitStatus(submitResult.getSubmitStatus());
-        submitMapper.updateById(submit);
-    }
+    private void sendMessage(Long submitId, SubmitModel submitModel, Problem problemInfo) {
+        SubmitMessage submitMessage = new SubmitMessage();
+        submitMessage.setSubmitId(submitId);
 
+        submitMessage.setCode(submitModel.getCode());
+        submitMessage.setLanguage(submitModel.getLanguage());
+
+        submitMessage.setProblemId(submitModel.getProblemId());
+        submitMessage.setSourceId(problemInfo.getSourceId());
+        submitMessage.setTimeLimit(problemInfo.getTimeLimit());
+        submitMessage.setMemoryLimit(problemInfo.getMemoryLimit());
+
+        ProblemJudgeType problemJudgeType = problemJudgeTypeMapper.selectOne(Wrappers.<ProblemJudgeType>lambdaQuery()
+                .eq(ProblemJudgeType::getProblemId, problemInfo.getId()));
+        JudgeType judgeType = judgeTypeMapper.selectById(problemJudgeType.getJudgeTypeId());
+        submitMessage.setJudgeStatus(judgeType.getStatus());
+        if (judgeType.getStatus().equals(JudgeServerStatus.NORMAL.getCode())) {
+            submitMessage.setJudgeName(judgeType.getName());
+            submitMessage.setJudgeType(judgeType.getType());
+            submitMessage.setJudgeUrl(judgeType.getUrl());
+            submitMessage.setProblemType(problemJudgeType.getProblemType());
+            submitMessage.setSpj(problemJudgeType.getSpj());
+            submitMessage.setSpiderProblemId(problemJudgeType.getSpiderProblemId());
+        }
+        submitProducer.send(submitMessage);
+    }
 }

@@ -93,8 +93,8 @@ CREATE TABLE IF NOT EXISTS role (
   CONSTRAINT uk_username UNIQUE KEY(name)
 )
 
--- 7.message（消息表）
-CREATE TABLE IF NOT EXISTS message (
+-- 7.submitMessage（消息表）
+CREATE TABLE IF NOT EXISTS submitMessage (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(20) NOT NULL,
   content VARCHAR(500) NOT NULL,

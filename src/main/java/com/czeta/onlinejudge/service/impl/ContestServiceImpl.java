@@ -145,11 +145,8 @@ public class ContestServiceImpl implements ContestService {
 
     @Override
     public List<Long> getProblemListOfContest(Long contestId) {
-        Contest contestInfo = getContestInfo(contestId);
-        log.info("contestInfo={}", contestInfo);
-        log.info("contestId={}", contestId);
         return problemMapper.selectList(Wrappers.<Problem>lambdaQuery()
-                .eq(Problem::getSourceId, contestInfo.getId())
+                .eq(Problem::getSourceId, contestId)
                 .orderByAsc(Problem::getCrtTs))
                 .stream()
                 .map(Problem::getId)
@@ -382,58 +379,7 @@ public class ContestServiceImpl implements ContestService {
 
     @Override
     public void submitProblemOfContest(SubmitModel submitModel, Long contestId, Long userId) {
-        long submitId = problemService.submitProblem(submitModel, userId);
-
-        /**<= 实时计算榜单(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) begin =>**/
-        // （1）该比赛的全局第一次提交，且redis中无数据：初始化该比赛实时榜单缓存，并持久化
-        Contest contestInfo = getContestInfo(contestId);
-        Long currentTime = new Date().getTime() / 1000; // unix时间戳（second）
-        Long startTime = DateUtils.getUnixTimeOfSecond(contestInfo.getStartTime());
-        Long endTime = DateUtils.getUnixTimeOfSecond(contestInfo.getEndTime());
-        if (currentTime >= startTime && currentTime <= endTime) {
-            int count = submitMapper.selectCount(Wrappers.<Submit>lambdaQuery()
-                    .eq(Submit::getSourceId, contestId));
-            if (count <= 1 && !contestRankRedisService.exists(contestId)) {
-                // 初始化比赛榜单缓存
-                contestRankRedisService.initContestRankRedis(contestId, userId);
-                // 初始化后的比赛榜单也进行持久化
-                Map<Long, RankItemModel> mapModel = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
-                CacheContestRankModel cacheContestRankModel = new CacheContestRankModel();
-                cacheContestRankModel.setContestId(contestId);
-                cacheContestRankModel.setRankItemMap(mapModel);
-                ContestRank contestRank = new ContestRank();
-                contestRank.setContestId(contestId);
-                contestRank.setRankJson(JSONObject.toJSONString(cacheContestRankModel));
-                contestRankMapper.insert(contestRank);
-            }
-        }
-        // （2）非比赛的全局第一次提交，取出缓存并实时计算再存入，并持久化
-        boolean ac = false; // mock评测结果数据
-        if ((int) (Math.random() * 2) == 1) {
-            ac = true;
-        }
-        log.info("ac={}", ac);
-        if (currentTime >= startTime && currentTime <= endTime) {
-            // 更新缓存实时榜单
-            contestRankRedisService.refreshContestRankRedis(contestId, submitModel.getProblemId(), userId, ac);
-            // 更新持久化实时榜单数据
-            Map<Long, RankItemModel> mapModel = contestRankRedisService.getRankItemMapByContestIdFromCache(contestId);
-            CacheContestRankModel cacheContestRankModel = new CacheContestRankModel();
-            cacheContestRankModel.setContestId(contestId);
-            cacheContestRankModel.setRankItemMap(mapModel);
-            ContestRank contestRank = new ContestRank();
-            contestRank.setRankJson(JSONObject.toJSONString(cacheContestRankModel));
-            contestRankMapper.update(contestRank, Wrappers.<ContestRank>lambdaQuery().eq(ContestRank::getContestId, contestId));
-        }
-        // （3）获取评测结果后更新题目的相关信息
-        SubmitResultModel submitResultModel = new SubmitResultModel();
-        submitResultModel.setProblemId(submitModel.getProblemId());
-        submitResultModel.setSubmitId(submitId);
-        submitResultModel.setSubmitStatus(ac ? SubmitStatus.ACCEPTED.getName() : SubmitStatus.WRONG_ANSWER.getName());
-        submitResultModel.setMemory("2000kb");
-        submitResultModel.setTime("2000ms");
-        problemService.refreshSubmitProblem(submitResultModel, userId);
-        /**<= 实时计算榜单(这部分会统一放在评测服务中，目的是为了避免修改同一个cache key) end =>**/
+        problemService.submitProblem(submitModel, userId);
     }
 
     @Override
