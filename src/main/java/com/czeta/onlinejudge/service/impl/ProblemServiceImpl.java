@@ -514,15 +514,16 @@ public class ProblemServiceImpl implements ProblemService {
         submitMapper.insert(submit);
 
         // 封装kafka消息格式，并发送消息评测
-        sendMessage(submit.getId(), submitModel, problemInfo);
+        sendMessage(userId, submit.getId(), submitModel, problemInfo);
 
         return submit.getId();
     }
 
-    private void sendMessage(Long submitId, SubmitModel submitModel, Problem problemInfo) {
+    private void sendMessage(Long userId, Long submitId, SubmitModel submitModel, Problem problemInfo) {
         SubmitMessage submitMessage = new SubmitMessage();
         submitMessage.setSubmitId(submitId);
 
+        submitMessage.setUserId(userId);
         submitMessage.setCode(submitModel.getCode());
         submitMessage.setLanguage(submitModel.getLanguage());
 
