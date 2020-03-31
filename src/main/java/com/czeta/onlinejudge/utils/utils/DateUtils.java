@@ -80,8 +80,6 @@ public class DateUtils {
             log.error("Parse Time Error：{}", ex.getMessage());
             return null;
         }
-        log.info("{}", endDate.getTime() / 1000);
-        log.info("{}", startDate.getTime() / 1000);
         return endDate.getTime() / 1000 - startDate.getTime() / 1000;
     }
 }
