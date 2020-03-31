@@ -147,7 +147,7 @@ online-judge:
       - urls: /static/**,/templates/**,/favicon.ico
         permission: anon
         # 排除Swagger
-      - urls: /docs.html,/docs,/swagger-ui.html,/swagger-resources/**,/v2/api-docs,/v2/api-docs-ext,/doc.html,/webjars/**
+      - urls: /docs.html,/docs,/swagger-ui.html,/swagger-resources/**,/v2/api-docs,/v2/api-docs-ext,/doc.html/**,/webjars/**
         permission: anon
   ######################## Shiro end ##########################
 

@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.config;
 
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import java.util.List;
  */
 @Configuration
 @EnableSwagger2
+@EnableKnife4j
 public class Swagger2Config {
     /**
      * 标题

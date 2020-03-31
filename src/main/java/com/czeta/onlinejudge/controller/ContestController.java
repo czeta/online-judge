@@ -10,6 +10,7 @@ import com.czeta.onlinejudge.model.param.SubmitModel;
 import com.czeta.onlinejudge.model.result.*;
 import com.czeta.onlinejudge.service.ContestService;
 import com.czeta.onlinejudge.utils.response.APIResult;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -34,17 +35,18 @@ public class ContestController {
     @Autowired
     private ContestService contestService;
 
-    @ApiOperation(value = "分页获取公有界面比赛列表信息", notes = "不需要token")
+    @ApiOperation(value = "(列表)分页获取公有界面比赛列表信息", notes = "不需要token")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
+    @ApiOperationSupport(order=1)
     @PostMapping("/contestList")
     public APIResult<IPage<PublicSimpleContestModel>> getPublicContestList(@RequestBody PageModel pageModel) {
         return new APIResult<>(contestService.getPublicContestList(pageModel));
     }
 
-    @ApiOperation(value = "按筛选条件分页获取公有界面比赛列表信息", notes = "不需要token")
+    @ApiOperation(value = "(筛选列表)按筛选条件分页获取公有界面比赛列表信息", notes = "不需要token")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contestConditionPageModel", value = "分页请求参数和筛选参数", dataType = "ContestConditionPageModel", paramType = "body", required = true)
     })
@@ -52,25 +54,27 @@ public class ContestController {
             @ApiResponse(code = 2001, message = "无分页参数"),
             @ApiResponse(code = 2001, message = "比赛进行状态不合法")
     })
+    @ApiOperationSupport(order=2)
     @PostMapping("/conditionalContestList")
     public APIResult<IPage<PublicSimpleContestModel>> getPublicContestListByCondition(@RequestBody ContestConditionPageModel contestConditionPageModel) {
         return new APIResult<>(contestService.getPublicContestListByCondition(contestConditionPageModel));
     }
 
-    @ApiOperation(value = "获取比赛详情信息", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(详情)获取比赛详情信息", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true)
     })
     @ApiResponses({
             @ApiResponse(code = 2001, message = "比赛不存在或已下线")
     })
+    @ApiOperationSupport(order=3)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/contestInfo/{contestId}")
     public APIResult<DetailContestModel> getDetailContestInfoById(@PathVariable Long contestId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.getDetailContestInfoById(contestId, userId));
     }
 
-    @ApiOperation(value = "比赛报名", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(报名)比赛报名", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true),
             @ApiImplicitParam(name = "password", value = "密码，在报名规则为“密码”时该字段必须不为null", dataType = "String", paramType = "query", required = true)
@@ -82,59 +86,64 @@ public class ContestController {
             @ApiResponse(code = 2300, message = "报名已经截止"),
             @ApiResponse(code = 2105, message = "已经申请过比赛")
     })
+    @ApiOperationSupport(order=4)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/contestInfo/{contestId}/signUp")
     public APIResult<Boolean> saveNewSignUpContest(@PathVariable Long contestId, @RequestParam(required = false) String password, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.saveNewSignUpContest(contestId, password, userId));
     }
 
-    @ApiOperation(value = "获取比赛公告详情列表", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(公告)获取比赛公告详情列表", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true)
     })
     @ApiResponses({})
+    @ApiOperationSupport(order=5)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/contestInfo/{contestId}/announcements")
     public APIResult<List<Announcement>> getContestAnnouncementList(@PathVariable Long contestId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.getContestAnnouncementList(contestId, userId));
     }
 
-    @ApiOperation(value = "获取指定比赛下的所有题目简略信息列表", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(题目)获取指定比赛下的所有题目简略信息列表", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true)
     })
     @ApiResponses({})
+    @ApiOperationSupport(order=6)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/contestInfo/{contestId}/problemList")
     public APIResult<List<PublicSimpleProblemModel>> getSimpleProblemListByContestId(@PathVariable Long contestId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.getSimpleProblemListByContestId(contestId, userId));
     }
 
-    @ApiOperation(value = "获取指定比赛下的指定题目详情信息", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(题目)获取指定比赛下的指定题目详情信息", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true),
             @ApiImplicitParam(name = "problemId", value = "问题ID", dataType = "Long", paramType = "path", required = true)
     })
     @ApiResponses({})
+    @ApiOperationSupport(order=7)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @GetMapping("/contestInfo/{contestId}/problemInfo/{problemId}")
     public APIResult<DetailProblemModel> getDetailProblemInfoByIdOfContest(@PathVariable Long contestId, @PathVariable Long problemId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.getDetailProblemInfoByIdOfContest(problemId, contestId, userId));
     }
 
-    @ApiOperation(value = "分页获取指定比赛下的评测状态列表", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(评测)分页获取指定比赛下的评测状态列表", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true),
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true),
     })
     @ApiResponses({})
+    @ApiOperationSupport(order=8)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/contestInfo/{contestId}/statusList")
     public APIResult<IPage<PublicSubmitModel>> getSubmitModelListByContestId(@RequestBody PageModel pageModel, @PathVariable Long contestId,  @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.getSubmitModelListByContestId(pageModel, contestId, userId));
     }
 
-    @ApiOperation(value = "按筛选条件分页获取指定比赛下的评测状态列表", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(分页评测)按筛选条件分页获取指定比赛下的评测状态列表", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "submitConditionPageModel", value = "分页参数与筛选参数model", dataType = "SubmitConditionPageModel", paramType = "body", required = true),
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true),
@@ -148,7 +157,7 @@ public class ContestController {
         return new APIResult<>(contestService.getSubmitModelListByConditionOfContest(submitConditionPageModel, contestId, userId));
     }
 
-    @ApiOperation(value = "提交比赛的问题", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(提交)提交比赛的问题", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "submitModel", value = "提交信息model", dataType = "SubmitModel", paramType = "body", required = true),
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true),
@@ -165,12 +174,13 @@ public class ContestController {
         return new APIResult<>();
     }
 
-    @ApiOperation(value = "获取实时排名", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "(排名)获取实时排名", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true),
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "path", required = true)
     })
     @ApiResponses({})
+    @ApiOperationSupport(order=9)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/contestInfo/{contestId}/rank")
     public APIResult getRankItemListByContestId(@RequestBody PageModel pageModel, @PathVariable Long contestId, @ApiIgnore @RequestAttribute Long userId) {
