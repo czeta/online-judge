@@ -18,6 +18,7 @@ public class ProblemJudgeType {
     private Long problemId;
     private Integer judgeTypeId;
     private Integer problemType;
+    private String codeTemplate;
     private Integer spj;
     private Long spiderProblemId;
     private Short status;

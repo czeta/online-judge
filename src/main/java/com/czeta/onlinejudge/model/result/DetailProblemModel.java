@@ -69,6 +69,8 @@ public class DetailProblemModel {
     private String judgeTypeName;
     @ApiModelProperty(value = "题目类型：0表示ACM/ICPC题型、1表示函数型题型")
     private Integer problemType;
+    @ApiModelProperty(value = "代码模板（针对题目为函数型题型）")
+    private String codeTemplate;
     @ApiModelProperty(value = "是否特判（针对题目评测方式ID为评测机评测），1表示特判，0表示不是")
     private Integer spj;
 

@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS problem_judge_type (
   problem_id INT NOT NULL,
   judge_type_id INT NOT NULL,
   problem_type INT, -- 题目类型：0表示ACM/ICPC题型、1表示函数型题型
+  code_template TEXT, -- 代码模板（针对题目为函数型题型）
   spj INT, -- 是否特判（针对judge_type_id为评测机），1表示特判，0表示不是
   spider_problem_id INT, -- 表示目标OJ的ID（针对judge_type_id为爬虫）
   status TINYINT NOT NULL DEFAULT 1,

@@ -464,6 +464,7 @@ public class ProblemServiceImpl implements ProblemService {
         ProblemJudgeType problemJudgeType = problemJudgeTypeMapper.selectOne(Wrappers.<ProblemJudgeType>lambdaQuery()
                 .eq(ProblemJudgeType::getProblemId, problemId));
         detailProblemModel.setProblemType(problemJudgeType.getProblemType());
+        detailProblemModel.setCodeTemplate(problemJudgeType.getCodeTemplate());
         detailProblemModel.setSpj(problemJudgeType.getSpj());
         JudgeType judgeType = judgeTypeMapper.selectById(problemJudgeType.getJudgeTypeId());
         detailProblemModel.setJudgeTypeName(judgeType.getName());
