@@ -23,8 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName CertificationServiceImpl
@@ -107,35 +106,52 @@ public class CertificationServiceImpl implements CertificationService {
     }
 
     @Override
-    public void saveNewCertificationType(String type) {
-        Certification certification = new Certification();
-        certification.setName(type);
-        try {
-            certificationMapper.insert(certification);
-        } catch (Exception e) {
-            throw new APIRuntimeException(BaseStatusMsg.EXISTED_NAME);
+    public void saveAndUpdateCertification(List<String> typeList) {
+        HashMap<String, Integer> typeMap = new HashMap<>();
+        for (String str : typeList) {
+            typeMap.put(str, 0);
+        }
+        List<Certification> certificationList = certificationMapper.selectList(Wrappers.<Certification>lambdaQuery()
+                .eq(Certification::getStatus, CommonItemStatus.ENABLE.getCode()));
+        for (Certification certification : certificationList) {
+            if (!typeMap.containsKey(certification.getName())) { // 弃用
+                certification.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+                certification.setStatus(CommonItemStatus.DISABLE.getCode());
+                certificationMapper.updateById(certification);
+                // 当认证类型发生改变时，实名认证表的审核状态也要发生改变
+                UserCertification userCertification = new UserCertification();
+                userCertification.setStatus(CommonItemStatus.DISABLE.getCode());
+                userCertificationMapper.update(userCertification, Wrappers.<UserCertification>lambdaQuery()
+                        .eq(UserCertification::getCertificationId, certification.getId()));
+            } else { // 标记已存在类型
+                typeMap.put(certification.getName(), 1);
+            }
+        }
+        for (Map.Entry<String, Integer> typeEntry : typeMap.entrySet()) {
+            if (typeEntry.getValue().equals(0)) { // 新创建的类型
+                Certification certification = new Certification();
+                certification.setName(typeEntry.getKey());
+                try {
+                    certificationMapper.insert(certification);
+                } catch (Exception e) {
+                    throw new APIRuntimeException(BaseStatusMsg.EXISTED_NAME);
+                }
+            }
         }
     }
 
     @Override
     public boolean updateCertification(CertificationModel certificationModel) {
         AssertUtils.notNull(certificationModel.getId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
+        AssertUtils.notNull(certificationModel.getName(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         Certification certification = new Certification();
         certification.setId(certificationModel.getId());
         certification.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        if (certificationModel.getName() != null) {  // 更新认证名
-            certification.setName(certificationModel.getName());
+        certification.setName(certificationModel.getName());
+        try {
             certificationMapper.updateById(certification);
-        } else if (certificationModel.getStatus() != null) { // 更新认证类型状态（启用或不弃用）
-            certification.setStatus(certificationModel.getStatus());
-            certificationMapper.updateById(certification);
-            // 当认证类型发生改变时，实名认证表的审核状态也要发生改变
-            UserCertification userCertification = new UserCertification();
-            userCertification.setStatus(certificationModel.getStatus() == 0 ? (short)-1 : (short)1);
-            userCertificationMapper.update(userCertification, Wrappers.<UserCertification>lambdaQuery()
-                    .eq(UserCertification::getCertificationId, certificationModel.getId()));
-        } else {
-            throw new APIRuntimeException(BaseStatusMsg.APIEnum.PARAM_ERROR);
+        } catch (Exception e) {
+            throw new APIRuntimeException(BaseStatusMsg.EXISTED_NAME);
         }
         return true;
     }

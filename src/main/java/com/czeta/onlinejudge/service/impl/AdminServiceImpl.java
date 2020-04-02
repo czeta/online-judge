@@ -48,7 +48,9 @@ public class AdminServiceImpl implements AdminService {
     public IPage<Admin> getAdminInfoList(PageModel pageModel) {
         Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
         IPage<Admin> adminIPage = adminMapper.selectPage(page, Wrappers.<Admin>lambdaQuery()
-                .eq(Admin::getRoleId, RoleType.COMMON_ADMIN.getCode()));
+                .eq(Admin::getRoleId, RoleType.COMMON_ADMIN.getCode())
+                .orderByAsc(Admin::getCrtTs)
+                .orderByDesc(Admin::getStatus));
         adminIPage.setRecords(adminIPage.getRecords()
                 .stream()
                 .map(s -> {
@@ -64,7 +66,9 @@ public class AdminServiceImpl implements AdminService {
         Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
         IPage<Admin> adminIPage = adminMapper.selectPage(page, Wrappers.<Admin>lambdaQuery()
                 .eq(Admin::getRoleId, RoleType.COMMON_ADMIN.getCode())
-                .like(Admin::getUsername, "%" + pageModel.getParamData() + "%"));
+                .like(Admin::getUsername, "%" + pageModel.getParamData() + "%")
+                .orderByAsc(Admin::getCrtTs)
+                .orderByDesc(Admin::getStatus));
         adminIPage.setRecords(adminIPage.getRecords()
                 .stream()
                 .map(s -> {
@@ -109,10 +113,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean disableAdminAccountByUsername(String username) {
+    public boolean updateAdminAccount(String username, Short status) {
         AssertUtils.notNull(username, BaseStatusMsg.APIEnum.PARAM_ERROR);
         Admin admin = new Admin();
-        admin.setStatus((short) 0);
+        admin.setStatus(status);
         admin.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         adminMapper.update(admin, Wrappers.<Admin>lambdaQuery()
                 .eq(Admin::getUsername, username));

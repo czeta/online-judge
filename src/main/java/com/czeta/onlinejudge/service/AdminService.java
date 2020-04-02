@@ -51,10 +51,10 @@ public interface AdminService {
     boolean resetAdminPasswordByUsername(String username);
 
     /**
-     * 禁用管理员账号
+     * 禁用/启用管理员账号
      * @param username
      * @return
      */
-    boolean disableAdminAccountByUsername(String username);
+    boolean updateAdminAccount(String username, Short status);
 
 }

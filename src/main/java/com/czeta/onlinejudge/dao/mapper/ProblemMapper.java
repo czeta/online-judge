@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
 public interface ProblemMapper extends BaseMapper<Problem> {
 
 
-    @Select("SELECT * FROM problem p INNER JOIN problem_judge_type pjt ON p.id=pjt.problem_id")
+    @Select("SELECT * FROM problem p INNER JOIN problem_judge_type pjt ON p.id=pjt.problem_id AND p.id = #{problemId}")
     MachineProblemModel selectProblemJoinJudgeType(Long problemId);
 
     @Update("UPDATE problem SET submit_num = submit_num + 1 WHERE id = #{problemId}")

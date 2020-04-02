@@ -180,7 +180,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public IPage<User> getUserInfoList(PageModel pageModel) {
         Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
-        IPage<User> userIPage = userMapper.selectPage(page,null);
+        IPage<User> userIPage = userMapper.selectPage(page, Wrappers.<User>lambdaQuery()
+                .orderByAsc(User::getCrtTs)
+                .orderByDesc(User::getStatus));
         userIPage.setRecords(userIPage.getRecords()
                 .stream()
                 .map(s -> {
@@ -195,7 +197,9 @@ public class UserServiceImpl implements UserService {
         AssertUtils.notNull(pageModel.getParamData(), BaseStatusMsg.APIEnum.PARAM_ERROR);
         Page page = new Page(pageModel.getOffset(), pageModel.getLimit());
         IPage<User> userIPage = userMapper.selectPage(page, Wrappers.<User>lambdaQuery()
-                .like(User::getUsername, "%" + pageModel.getParamData() + "%"));
+                .like(User::getUsername, "%" + pageModel.getParamData() + "%")
+                .orderByAsc(User::getCrtTs)
+                .orderByDesc(User::getStatus));
         userIPage.setRecords(userIPage.getRecords()
                 .stream()
                 .map(s -> {
@@ -216,10 +220,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean disableUserAccountByUsername(String username) {
+    public boolean updateUserAccount(String username, Short status) {
         AssertUtils.notNull(username, BaseStatusMsg.APIEnum.PARAM_ERROR);
         User user = new User();
-        user.setStatus((short) 0);
+        user.setStatus(status);
         user.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         userMapper.update(user, Wrappers.<User>lambdaQuery()
                 .eq(User::getUsername, username));

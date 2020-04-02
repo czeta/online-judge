@@ -18,6 +18,4 @@ public class CertificationModel {
     Integer id;
     @ApiModelProperty("认证名")
     String name;
-    @ApiModelProperty("认证类型状态：1表示启用、0表示弃用")
-    Short status;
 }

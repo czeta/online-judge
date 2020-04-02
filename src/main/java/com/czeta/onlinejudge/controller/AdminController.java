@@ -125,16 +125,17 @@ public class AdminController {
         return new APIResult<>(userService.resetUserPasswordByUsername(username));
     }
 
-    @ApiOperation(value = "(用户)禁用用户账户", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "(用户)禁用/启用用户账户", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "禁用账户的目标用户名", dataType = "String", paramType = "path", required = true)
+            @ApiImplicitParam(name = "username", value = "禁用/启用账户的目标用户名", dataType = "String", paramType = "path", required = true),
+            @ApiImplicitParam(name = "status", value = "禁用为0，启用为1", dataType = "Short", paramType = "query", required = true)
     })
     @ApiResponses({})
     @ApiOperationSupport(order=5)
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/userManager/account/update/{username}")
-    public APIResult<Boolean> updateUserAccount(@PathVariable String username) {
-        return new APIResult<>(userService.disableUserAccountByUsername(username));
+    public APIResult<Boolean> updateUserAccount(@PathVariable String username, @RequestParam Short status) {
+        return new APIResult<>(userService.updateUserAccount(username, status));
     }
 
 
@@ -206,22 +207,22 @@ public class AdminController {
     }
 
 
-    @ApiOperation(value = "(认证)添加新的实名认证类型", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "(认证)确定最终实名认证类型列表", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "实名认证类型", dataType = "String", paramType = "query", required = true)})
+            @ApiImplicitParam(name = "typeList", value = "实名认证类型列表", dataType = "List<String>", paramType = "body", required = true)})
     @ApiResponses({
             @ApiResponse(code = 2101, message = "已存在的名称")
     })
     @ApiOperationSupport(order=10)
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/certManager/save")
-    public APIResult saveNewCertificationType(@RequestParam String type) {
-        certificationService.saveNewCertificationType(type);
+    public APIResult saveAndUpdateCertification(@RequestBody List<String> typeList) {
+        certificationService.saveAndUpdateCertification(typeList);
         return new APIResult();
     }
 
 
-    @ApiOperation(value = "(认证)更新实名认证类型的状态：启用或弃用", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "(认证)更新实名认证类型名", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "certificationModel", value = "实名认证类型", dataType = "CertificationModel", paramType = "body", required = true)})
     @ApiResponses({})
@@ -287,15 +288,16 @@ public class AdminController {
     }
 
 
-    @ApiOperation(value = "(管理员)禁用普通管理员账号", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "(管理员)禁用/启用普通管理员账号", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "禁用账户的目标管理员用户名", dataType = "String", paramType = "path", required = true)})
+            @ApiImplicitParam(name = "username", value = "禁用/启用账户的目标管理员用户名", dataType = "String", paramType = "path", required = true),
+            @ApiImplicitParam(name = "status", value = "禁用为0，启用为1", dataType = "Short", paramType = "query", required = true)})
     @ApiResponses({})
     @ApiOperationSupport(order=16)
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
     @PostMapping("/adminManager/account/update/{username}")
-    public APIResult<Boolean> updateAdminAccount(@PathVariable String username) {
-        return new APIResult<>(adminService.disableAdminAccountByUsername(username));
+    public APIResult<Boolean> updateAdminAccount(@PathVariable String username, @RequestParam Short status) {
+        return new APIResult<>(adminService.updateAdminAccount(username, status));
     }
 
 

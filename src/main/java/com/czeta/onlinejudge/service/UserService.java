@@ -109,11 +109,11 @@ public interface UserService {
     boolean resetUserPasswordByUsername(String username);
 
     /**
-     * 禁用用户账户
+     * 禁用/启用用户账户
      * @param username
      * @return
      */
-    boolean disableUserAccountByUsername(String username);
+    boolean updateUserAccount(String username, Short status);
 
     /**
      * 更改用户头像

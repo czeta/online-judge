@@ -64,13 +64,13 @@ public interface CertificationService {
     List<Certification> getValidCertificationTypes();
 
     /**
-     * 添加新的实名认证类型
-     * @param type
+     * 确定最终实名认证类型列表
+     * @param typeList
      */
-    void saveNewCertificationType(String type);
+    void saveAndUpdateCertification(List<String> typeList);
 
     /**
-     * 更新实名认证类型信息
+     * 更新实名认证名
      * @param certificationModel
      * @return
      */
