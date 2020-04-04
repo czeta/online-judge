@@ -718,7 +718,7 @@ public class AdminController {
 
     @ApiOperation(value = "(比赛)获取比赛信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "分页信息，paramData为null", dataType = "PageModel", paramType = "body", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页信息，paramData为null", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @ApiOperationSupport(order=47)
@@ -757,7 +757,7 @@ public class AdminController {
 
     @ApiOperation(value = "(比赛用户)获取比赛的申请报名的用户列表", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "分页信息，这里的paramData为null", dataType = "PageModel", paramType = "body", required = true),
+            @ApiImplicitParam(name = "pageModel", value = "分页信息，这里的paramData为null", dataType = "PageModel", paramType = "body", required = true),
             @ApiImplicitParam(name = "contestId", value = "比赛ID", dataType = "Long", paramType = "query", required = true)
     })
     @ApiResponses({})
