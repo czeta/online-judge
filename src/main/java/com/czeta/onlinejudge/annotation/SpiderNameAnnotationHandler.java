@@ -1,12 +1,9 @@
 package com.czeta.onlinejudge.annotation;
 
-import com.alibaba.fastjson.JSONObject;
-import com.czeta.onlinejudge.dao.entity.Announcement;
 import com.czeta.onlinejudge.spider.SpiderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.reflections.Reflections;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

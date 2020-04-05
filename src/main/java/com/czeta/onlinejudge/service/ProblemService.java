@@ -100,6 +100,15 @@ public interface ProblemService {
     boolean updateProblemInfoOfMachine(MachineProblemModel machineProblemModel, Long problemId, Long userId);
 
     /**
+     * 更新题目状态
+     * @param status
+     * @param problemId
+     * @param userId
+     * @return
+     */
+    boolean updateProblemStatus(Short status, Long problemId, Long userId);
+
+    /**
      * 获得题目简略列表信息
      * @param pageModel
      * @return

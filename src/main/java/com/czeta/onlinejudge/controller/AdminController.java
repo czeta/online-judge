@@ -538,6 +538,21 @@ public class AdminController {
     }
 
 
+    @ApiOperation(value = "(题目)更新题目状态信息", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "problemId", value = "更新的题目ID", dataType = "Long", paramType = "query", required = true),
+            @ApiImplicitParam(name = "status", value = "更新的状态：1表示正常并可视，0表示正常但不可视（即只能在比赛界面看到该题，不能在题目模块看到该题），-1表示题目禁用", dataType = "Short", paramType = "query", required = true)
+    })
+    @ApiResponses({})
+    @ApiOperationSupport(order=34)
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/problemStatus/update")
+    public APIResult<Boolean> updateProblemStatus(@RequestParam Long problemId, @RequestParam Short status, @ApiIgnore @RequestAttribute Long userId) {
+        return new APIResult<>(problemService.updateProblemStatus(status, problemId, userId));
+    }
+
+
+
     @ApiOperation(value = "(题目)分页获取题目信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "分页信息，paramData为null", dataType = "PageModel", paramType = "body", required = true)
@@ -661,7 +676,7 @@ public class AdminController {
     @ApiOperation(value = "(题目文件)删除指定评测文件：in、out、insert.cpp、spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true),
-            @ApiImplicitParam(name = "fileName", value = "评测文件名", dataType = "String", paramType = "query", required = true)
+            @ApiImplicitParam(name = "fileName", value = "评测文件名（当要删除in与out时，传入其中一个文件名(xxx.in)即可成对删除）", dataType = "String", paramType = "query", required = true)
     })
     @ApiResponses({})
     @ApiOperationSupport(order=43)

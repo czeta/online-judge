@@ -286,6 +286,17 @@ public class ProblemServiceImpl implements ProblemService {
         File targetFile = new File(pathName + "/" + fileName);
         AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
         targetFile.delete();
+        // 以in或out结尾的文件，需要成对删除
+        if (fileName.endsWith(FileConstant.SUFFIX_EXTENSION_IN)) {
+            fileName = fileName.substring(0, fileName.indexOf(".") + 1) + FileConstant.SUFFIX_EXTENSION_OUT;
+        } else if (fileName.endsWith(FileConstant.SUFFIX_EXTENSION_OUT)) {
+            fileName = fileName.substring(0, fileName.indexOf(".") + 1) + FileConstant.SUFFIX_EXTENSION_IN;
+        } else {
+            return true;
+        }
+        targetFile = new File(pathName + "/" + fileName);
+        AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
+        targetFile.delete();
         return true;
     }
 
@@ -328,6 +339,15 @@ public class ProblemServiceImpl implements ProblemService {
         problemJudgeType.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         problemJudgeTypeMapper.update(problemJudgeType, Wrappers.<ProblemJudgeType>lambdaQuery()
                 .eq(ProblemJudgeType::getProblemId, problemInfo.getId()));
+        return true;
+    }
+
+    @Override
+    public boolean updateProblemStatus(Short status, Long problemId, Long userId) {
+        Problem problemInfo = new Problem();
+        problemInfo.setStatus(status);
+        problemInfo.setId(problemId);
+        problemMapper.updateById(problemInfo);
         return true;
     }
 
