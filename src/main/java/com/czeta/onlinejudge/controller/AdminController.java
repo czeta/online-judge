@@ -550,6 +550,18 @@ public class AdminController {
         return new APIResult<>(problemService.getSimpleProblemList(page));
     }
 
+    @ApiOperation(value = "(题目)根据题目关键字分页获取题目信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "分页请求参数，这里的paramData为搜索题目标题关键字", dataType = "PageModel", paramType = "body", required = true)
+    })
+    @ApiResponses({})
+    @ApiOperationSupport(order=35)
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/searchResult")
+    public APIResult<IPage<SimpleProblemModel>> getProblemSearchResult(@RequestBody PageModel<String> page) {
+        return new APIResult<>(problemService.getSimpleProblemListByTitleKey(page));
+    }
+
 
     @ApiOperation(value = "(题目文件)上传题目评测文件：in后缀文件与out后缀文件", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({

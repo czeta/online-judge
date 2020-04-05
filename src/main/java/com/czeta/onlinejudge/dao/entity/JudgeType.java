@@ -23,7 +23,7 @@ public class JudgeType {
     private Short type;
     @ApiModelProperty(value = "评测名称：爬虫名称或评测机名称")
     private String name;
-    @ApiModelProperty(value = "爬虫目标url或评测机服务所在url")
+    @ApiModelProperty(value = "爬虫目标OJ的url或评测机服务所在url")
     private String url;
     @ApiModelProperty(value = "爬虫和评测机状态：0表示被停用，1表示正常，-1表示异常")
     private Short status;

@@ -2,7 +2,6 @@ package com.czeta.onlinejudge.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.czeta.onlinejudge.enums.ProblemType;
-import com.czeta.onlinejudge.enums.SubmitStatus;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.DetailProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
@@ -28,7 +27,6 @@ public interface ProblemService {
      * @param spiderProblemModel
      * @param adminId
      * @return
-     * todo 爬虫爬取题目模块
      */
     long saveNewProblemBySpider(SpiderProblemModel spiderProblemModel, Long adminId);
 
@@ -109,6 +107,13 @@ public interface ProblemService {
     IPage<SimpleProblemModel> getSimpleProblemList(PageModel pageModel);
 
     /**
+     * 根据题目关键字获取题目简略列表信息
+     * @param pageModel
+     * @return
+     */
+    IPage<SimpleProblemModel> getSimpleProblemListByTitleKey(PageModel<String> pageModel);
+
+    /**
      * 获取公有界面的题目列表信息
      * @param pageModel
      * @return
@@ -131,7 +136,6 @@ public interface ProblemService {
      * 提交题目，并返回提交评测ID
      * @param submitModel
      * @param userId
-     * todo kafka消息模块
      */
     long submitProblem(SubmitModel submitModel, Long userId);
 }

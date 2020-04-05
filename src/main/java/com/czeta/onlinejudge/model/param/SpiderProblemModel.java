@@ -14,13 +14,12 @@ import lombok.Data;
 @ApiModel(description = "爬虫评测的题目model")
 @Data
 public class SpiderProblemModel {
-    @ApiModelProperty(value = "题目标题（如果为空，则使用目标OJ的题目的标题")
+    @ApiModelProperty(value = "题目标题，为空时则使用目标OJ的题目标题")
     private String title;
 
     @ApiModelProperty(value = "评测方式ID")
     private Integer judgeTypeId;
-    @ApiModelProperty(value = "题目类型：0表示ACM/ICPC题型、1表示函数型题型")
-    private Integer problemType;
+
     @ApiModelProperty(value = "目标OJ的题目ID")
     private Integer spiderProblemId;
 }

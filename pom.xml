@@ -27,6 +27,8 @@
         <shiro.version>1.4.1</shiro.version>
         <jwt.version>3.8.3</jwt.version>
         <disruptor.version>3.4.1</disruptor.version>
+        <httpclient.version>4.5.6</httpclient.version>
+        <jsoup.version>1.11.3</jsoup.version>
         <easyexcel.version>2.1.6</easyexcel.version>
         <lombok.version>1.18.10</lombok.version>
         <fastjson.version>1.2.62</fastjson.version>
@@ -157,6 +159,18 @@
             <version>${disruptor.version}</version>
         </dependency>
         <!-- log end -->
+        <!-- spider start -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+        </dependency>
+        <!-- spider end -->
         <!-- tools begin -->
         <dependency>
             <groupId>com.alibaba</groupId>

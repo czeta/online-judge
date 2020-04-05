@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.czeta.onlinejudge.annotation.SpiderNameAnnotationHandler;
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.convert.ProblemMapstructConvert;
@@ -16,12 +17,14 @@ import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.DetailProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.SimpleProblemModel;
+import com.czeta.onlinejudge.model.result.SpiderProblemResultModel;
 import com.czeta.onlinejudge.mq.SubmitMessage;
 import com.czeta.onlinejudge.mq.producer.SubmitProducer;
 import com.czeta.onlinejudge.service.AdminService;
 import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.service.TagService;
 import com.czeta.onlinejudge.service.UserService;
+import com.czeta.onlinejudge.spider.SpiderService;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.*;
@@ -85,10 +88,21 @@ public class ProblemServiceImpl implements ProblemService {
     @Autowired
     private SubmitProducer submitProducer;
 
+    @Autowired
+    private SpiderNameAnnotationHandler spiderHandler;
+
     @Override
     public long saveNewProblemBySpider(SpiderProblemModel spiderProblemModel, Long adminId) {
-        /**<== 调用爬虫服务爬取目标题目 begin ==>**/
-        /**<== 调用爬虫服务爬取目标题目 end ==>**/
+        // 评测校验
+        JudgeType judgeTypeInfo = judgeTypeMapper.selectById(spiderProblemModel.getJudgeTypeId());
+        AssertUtils.notNull(judgeTypeInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "评测类型不存在");
+        AssertUtils.isTrue(judgeTypeInfo.getType().equals(JudgeTypeEnum.JUDGE_SPIDER.getCode()), BaseStatusMsg.APIEnum.PARAM_ERROR, "该评测类型不是爬虫评测");
+        AssertUtils.isTrue(judgeTypeInfo.getStatus().equals(JudgeServerStatus.NORMAL.getCode()), BaseStatusMsg.APIEnum.PARAM_ERROR, "该爬虫服务异常或暂时不可用");
+        String problemId = String.valueOf(spiderProblemModel.getSpiderProblemId());
+        SpiderService spiderService = spiderHandler.spiderServiceMap.get(judgeTypeInfo.getName());
+        SpiderProblemResultModel resultModel = (SpiderProblemResultModel) spiderService.execute(problemId);
+        System.out.println(JSONObject.toJSONString(resultModel));
+        // ...
         return 1;
     }
 
@@ -321,6 +335,19 @@ public class ProblemServiceImpl implements ProblemService {
     public IPage<SimpleProblemModel> getSimpleProblemList(PageModel pageParam) {
         Page<Problem> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
         IPage<Problem> problemIPage = problemMapper.selectPage(page, Wrappers.<Problem>lambdaQuery()
+                .orderByAsc(Problem::getCrtTs));
+        List<SimpleProblemModel> list = new ArrayList<>();
+        for (Problem p : problemIPage.getRecords()) {
+            list.add(ProblemMapstructConvert.INSTANCE.problemToSimpleProblemModel(p));
+        }
+        return PageUtils.setOpr(problemIPage, new Page<SimpleProblemModel>(), list);
+    }
+
+    @Override
+    public IPage<SimpleProblemModel> getSimpleProblemListByTitleKey(PageModel<String> pageParam) {
+        Page<Problem> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
+        IPage<Problem> problemIPage = problemMapper.selectPage(page, Wrappers.<Problem>lambdaQuery()
+                .like(Problem::getTitle, pageParam.getParamData())
                 .orderByAsc(Problem::getCrtTs));
         List<SimpleProblemModel> list = new ArrayList<>();
         for (Problem p : problemIPage.getRecords()) {
