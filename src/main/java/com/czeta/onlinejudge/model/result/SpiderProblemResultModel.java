@@ -11,7 +11,6 @@ import lombok.Data;
  */
 @Data
 public class SpiderProblemResultModel {
-    private Long spiderProblemId;
     private String title;
     private String description;
     private String inputDescription;

@@ -34,7 +34,8 @@ public class SpiderNameAnnotationHandler {
             } catch (InstantiationException e) {
                 log.error("SpiderNameAnnotationHandler InstantiationException Exception={} StackTrace={}", e.getMessage(), ExceptionUtils.getStackTrace(e));
             } catch (IllegalAccessException e) {
-                log.error("SpiderNameAnnotationHandler IllegalAccessException Exception={} StackTrace={}", e.getMessage(), ExceptionUtils.getStackTrace(e)); }
+                log.error("SpiderNameAnnotationHandler IllegalAccessException Exception={} StackTrace={}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+            }
         }
     }
 }

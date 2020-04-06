@@ -55,4 +55,13 @@ public enum ProblemLanguage implements IEnumItem {
         }
         return true;
     }
+
+    public static String getAllProblemLanguage() {
+        StringBuffer sb = new StringBuffer();
+        for (ProblemLanguage problemLanguage : ProblemLanguage.values()) {
+            sb.append(problemLanguage.getMessage());
+            sb.append(",");
+        }
+        return sb.substring(0, sb.length() - 1);
+    }
 }

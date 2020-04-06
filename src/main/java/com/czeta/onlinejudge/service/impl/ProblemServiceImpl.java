@@ -98,12 +98,45 @@ public class ProblemServiceImpl implements ProblemService {
         AssertUtils.notNull(judgeTypeInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "评测类型不存在");
         AssertUtils.isTrue(judgeTypeInfo.getType().equals(JudgeTypeEnum.JUDGE_SPIDER.getCode()), BaseStatusMsg.APIEnum.PARAM_ERROR, "该评测类型不是爬虫评测");
         AssertUtils.isTrue(judgeTypeInfo.getStatus().equals(JudgeServerStatus.NORMAL.getCode()), BaseStatusMsg.APIEnum.PARAM_ERROR, "该爬虫服务异常或暂时不可用");
-        String problemId = String.valueOf(spiderProblemModel.getSpiderProblemId());
         SpiderService spiderService = spiderHandler.spiderServiceMap.get(judgeTypeInfo.getName());
-        SpiderProblemResultModel resultModel = (SpiderProblemResultModel) spiderService.execute(problemId);
-        System.out.println(JSONObject.toJSONString(resultModel));
-        // ...
-        return 1;
+        // 爬取题目
+        SpiderProblemResultModel resultModel = (SpiderProblemResultModel) spiderService.execute(String.valueOf(spiderProblemModel.getSpiderProblemId()));
+        // 持久化
+        // 题目信息
+        Problem problemInfo = ProblemMapstructConvert.INSTANCE.spiderProblemResultModelToProblem(resultModel);
+        problemInfo.setTitle(spiderProblemModel.getTitle() != null ? spiderProblemModel.getTitle() : problemInfo.getTitle());
+        problemInfo.setSourceId(spiderProblemModel.getSourceId());
+        problemInfo.setSourceName(spiderProblemModel.getSourceName());
+        problemInfo.setIoMode("Standard IO");
+        problemInfo.setLevel(spiderProblemModel.getLevel());
+        problemInfo.setStatus(spiderProblemModel.getStatus());
+        problemInfo.setCreator(adminService.getAdminInfoById(adminId).getUsername());
+        try {
+            problemMapper.insert(problemInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new APIRuntimeException(BaseStatusMsg.EXISTED_NAME);
+        }
+        // 题目标签
+        Long problemId = problemInfo.getId();
+        ProblemTag problemTag = new ProblemTag();
+        problemTag.setProblemId(problemId);
+        for (Integer tagId : spiderProblemModel.getTagId()) {
+            problemTag.setTagId(tagId);
+            problemTagMapper.insert(problemTag);
+            problemTag.setId(null);
+        }
+        // 题目评测方式
+        ProblemJudgeType problemJudgeType = new ProblemJudgeType();
+        problemJudgeType.setProblemId(problemId);
+        problemJudgeType.setJudgeTypeId(spiderProblemModel.getJudgeTypeId());
+        problemJudgeType.setSpiderProblemId(spiderProblemModel.getSpiderProblemId());
+        try {
+            problemJudgeTypeMapper.insert(problemJudgeType);
+        } catch (Exception e) {
+            throw new APIRuntimeException(BaseStatusMsg.EXISTED_PROBLEM_JUDGE_TYPE);
+        }
+        return problemId;
     }
 
     @Override
@@ -117,7 +150,6 @@ public class ProblemServiceImpl implements ProblemService {
                 BaseStatusMsg.APIEnum.PARAM_ERROR, "题目语言不合法或不支持");
         // 题目信息
         Problem problemInfo = ProblemMapstructConvert.INSTANCE.machineProblemToProblem(machineProblemModel);
-        problemInfo.setLanguage(machineProblemModel.getLanguage());
         problemInfo.setCreator(adminService.getAdminInfoById(adminId).getUsername());
         try {
             problemMapper.insert(problemInfo);
@@ -301,7 +333,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public MachineProblemModel getProblemInfoOfMachine(Long problemId) {
+    public MachineProblemModel getProblemInfo(Long problemId) {
         MachineProblemModel machineProblemModel = problemMapper.selectProblemJoinJudgeType(problemId);
         return machineProblemModel;
     }

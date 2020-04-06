@@ -468,7 +468,7 @@ public class AdminController {
     }
 
 
-    @ApiOperation(value = "(题目标签)获取评测机评测的题目所属标签列表", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiOperation(value = "(题目标签)获取题目所属标签列表", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
     })
@@ -512,7 +512,7 @@ public class AdminController {
     }
 
 
-    @ApiOperation(value = "(题目)获取评测机评测的题目信息", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiOperation(value = "(题目)获取评测机/爬虫评测的题目信息", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
     })
@@ -520,8 +520,8 @@ public class AdminController {
     @ApiOperationSupport(order=33)
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/problemInfo")
-    public APIResult<MachineProblemModel> getProblemInfoOfMachine(@RequestParam Long problemId) {
-        return new APIResult<>(problemService.getProblemInfoOfMachine(problemId));
+    public APIResult<MachineProblemModel> getProblemInfo(@RequestParam Long problemId) {
+        return new APIResult<>(problemService.getProblemInfo(problemId));
     }
 
 

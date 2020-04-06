@@ -85,11 +85,11 @@ public interface ProblemService {
     boolean removeProblemJudgeFile(Long problemId, String fileName, Long adminId);
 
     /**
-     * 查看评测机方式评测的题目信息
+     * 查看评测机/爬虫方式评测的题目信息
      * @param problemId
      * @return
      */
-    MachineProblemModel getProblemInfoOfMachine(Long problemId);
+    MachineProblemModel getProblemInfo(Long problemId);
 
     /**
      * 更新评测机方式评测的题目信息

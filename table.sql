@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS problem (
   output_description VARCHAR(500) NOT NULL,
   input_samples VARCHAR(300) NOT NULL,
   output_samples VARCHAR(300) NOT NULL,
-  hint VARCHAR(500),
+  hint TEXT,
   source_id INT NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分为0。
   source_name VARCHAR(50) NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分必须以@开头。
   time_limit INT NOT NULL,  -- 单位固定ms

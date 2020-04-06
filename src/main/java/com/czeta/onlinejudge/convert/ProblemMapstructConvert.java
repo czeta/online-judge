@@ -6,6 +6,7 @@ import com.czeta.onlinejudge.model.param.MachineProblemModel;
 import com.czeta.onlinejudge.model.result.DetailProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.model.result.SimpleProblemModel;
+import com.czeta.onlinejudge.model.result.SpiderProblemResultModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -30,4 +31,6 @@ public interface ProblemMapstructConvert {
     PublicSimpleProblemModel problemToPublicSimpleProblemModel(Problem problem);
 
     DetailProblemModel problemToDetailProblemModel(Problem problem);
+
+    Problem spiderProblemResultModelToProblem(SpiderProblemResultModel spiderProblemResultModel);
 }

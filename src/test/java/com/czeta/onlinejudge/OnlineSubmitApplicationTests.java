@@ -2,6 +2,7 @@ package com.czeta.onlinejudge;
 
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
+import com.czeta.onlinejudge.model.param.SpiderProblemModel;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.mq.SubmitMessage;
 import com.czeta.onlinejudge.mq.producer.SubmitProducer;
@@ -64,4 +65,12 @@ class OnlineSubmitApplicationTests {
         }
         return list;
     }
+
+//    @Test
+//    void createSpiderProblem() {
+//        SpiderProblemModel spiderProblemModel = new SpiderProblemModel();
+//        spiderProblemModel.setJudgeTypeId(2);
+//        spiderProblemModel.setSpiderProblemId(1000);
+//        problemService.saveNewProblemBySpider(spiderProblemModel, 2l);
+//    }
 }
