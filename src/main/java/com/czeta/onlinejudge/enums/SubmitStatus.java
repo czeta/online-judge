@@ -17,7 +17,7 @@ public enum SubmitStatus {
     MEMORY_LIMIT_EXCEEDED("MemoryLimitExceeded", "超过内存限制"),
     RUNTIME_ERROR("RuntimeError", "运行时错误"),
     PRESENTATION_ERROR("PresentationError", "格式错误"),
-    COMPILATION_ERROR("CompilationError", "编译错误"),
+    COMPILE_ERROR("CompileError", "编译错误"),
     PENDING("Pending", "正在评测"),
     SYSTEM_ERROR("SystemError", "系统出错");
 

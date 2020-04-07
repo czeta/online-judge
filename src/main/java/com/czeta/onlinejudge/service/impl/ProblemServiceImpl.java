@@ -98,7 +98,7 @@ public class ProblemServiceImpl implements ProblemService {
         AssertUtils.notNull(judgeTypeInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "评测类型不存在");
         AssertUtils.isTrue(judgeTypeInfo.getType().equals(JudgeTypeEnum.JUDGE_SPIDER.getCode()), BaseStatusMsg.APIEnum.PARAM_ERROR, "该评测类型不是爬虫评测");
         AssertUtils.isTrue(judgeTypeInfo.getStatus().equals(JudgeServerStatus.NORMAL.getCode()), BaseStatusMsg.APIEnum.PARAM_ERROR, "该爬虫服务异常或暂时不可用");
-        SpiderService spiderService = spiderHandler.spiderServiceMap.get(judgeTypeInfo.getName());
+        SpiderService spiderService = spiderHandler.getSpiderServiceMap().get(judgeTypeInfo.getName());
         // 爬取题目
         SpiderProblemResultModel resultModel = (SpiderProblemResultModel) spiderService.execute(String.valueOf(spiderProblemModel.getSpiderProblemId()));
         // 持久化

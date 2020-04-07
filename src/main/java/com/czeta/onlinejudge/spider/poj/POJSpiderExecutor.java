@@ -23,9 +23,4 @@ public class POJSpiderExecutor implements SpiderService {
         request.setMethod(SpiderConstant.Method.GET);
         return SpiderUtils.exec(request, new POJProblemSpider());
     }
-
-    public static void main(String[] args) {
-        POJSpiderExecutor spiderExecutor = new POJSpiderExecutor();
-        spiderExecutor.execute("1000");
-    }
 }

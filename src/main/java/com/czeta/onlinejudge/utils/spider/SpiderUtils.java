@@ -76,7 +76,7 @@ public class SpiderUtils {
             }
         } catch (Exception e) {
             log.error("SpiderUtils Exception={} StackTrace={}", e.getMessage(), ExceptionUtils.getStackTrace(e));
-            throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED);
+            throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED, "爬取失败");
         } finally {
             try {
                 // 释放资源

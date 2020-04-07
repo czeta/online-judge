@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 @Slf4j
 public class SubmitProducer {
     private static final String TOPIC_NAME = "topic-submit";
+    private static final String DEV_TOPIC_NAME = "topic-submit-dev";
 
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;

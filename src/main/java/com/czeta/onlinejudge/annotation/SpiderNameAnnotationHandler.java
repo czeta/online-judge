@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.annotation;
 
 import com.czeta.onlinejudge.spider.SpiderService;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.reflections.Reflections;
@@ -18,10 +19,11 @@ import java.util.Set;
  * @Version 1.0
  */
 @Slf4j
+@Data
 @Component
 public class SpiderNameAnnotationHandler {
     // 爬虫名称与爬虫实例的映射，实现横向扩展
-    public Map<String, SpiderService> spiderServiceMap = new HashMap<>();
+    public final Map<String, SpiderService> spiderServiceMap = new HashMap<>();
 
     {
         Reflections reflections = new Reflections("com.czeta.onlinejudge.spider");
