@@ -23,5 +23,5 @@ spring:
 spring:
   kafka:
     # kafka代理地址
-    bootstrap-servers: 39.97.183.91:9092
+    bootstrap-servers: 121.36.27.155:9092
 ############################### kafka config end ###############################
