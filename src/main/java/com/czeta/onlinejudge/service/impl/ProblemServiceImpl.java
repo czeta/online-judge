@@ -217,7 +217,7 @@ public class ProblemServiceImpl implements ProblemService {
                     set.add(Integer.valueOf(FilenameUtils.getBaseName(f.getName())));
                 }
             }
-            int no = Collections.max(set) + 1;
+            int no = set.isEmpty() ? 1 : Collections.max(set) + 1;
             fileName0 = no + "." + fileExtension0;
             fileName1 = no + "." + fileExtension1;
         }
@@ -375,7 +375,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public boolean updateProblemStatus(Short status, Long problemId, Long userId) {
+    public boolean updateProblemStatus(Short status, Long problemId, Long adminId) {
         Problem problemInfo = new Problem();
         problemInfo.setStatus(status);
         problemInfo.setId(problemId);

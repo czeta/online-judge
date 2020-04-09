@@ -39,7 +39,7 @@ public interface ContestService {
      * 查询比赛简略信息列表
      * @return
      */
-    IPage<SimpleContestModel> getSimpleContestList(PageModel pageParam);
+    IPage<SimpleContestModel> getSimpleContestList(PageModel<String> pageParam);
 
     /**
      * 根据比赛ID查询比赛信息

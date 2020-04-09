@@ -743,15 +743,15 @@ public class AdminController {
     }
 
 
-    @ApiOperation(value = "(比赛)获取比赛信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiOperation(value = "(比赛)按条件获取比赛信息列表（简易）", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageModel", value = "分页信息，paramData为null", dataType = "PageModel", paramType = "body", required = true)
+            @ApiImplicitParam(name = "pageModel", value = "分页信息，paramData为比赛名关键字，为空时则返回全部比赛列表", dataType = "PageModel", paramType = "body", required = true)
     })
     @ApiResponses({})
     @ApiOperationSupport(order=47)
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/contestManager/contestList")
-    public APIResult<IPage<SimpleContestModel>> getSimpleContestList(@RequestBody PageModel pageModel) {
+    public APIResult<IPage<SimpleContestModel>> getSimpleContestList(@RequestBody PageModel<String> pageModel) {
         return new APIResult<>(contestService.getSimpleContestList(pageModel));
     }
 

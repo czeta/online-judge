@@ -103,10 +103,10 @@ public interface ProblemService {
      * 更新题目状态
      * @param status
      * @param problemId
-     * @param userId
+     * @param adminId
      * @return
      */
-    boolean updateProblemStatus(Short status, Long problemId, Long userId);
+    boolean updateProblemStatus(Short status, Long problemId, Long adminId);
 
     /**
      * 获得题目简略列表信息

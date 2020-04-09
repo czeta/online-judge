@@ -127,9 +127,11 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
-    public IPage<SimpleContestModel> getSimpleContestList(PageModel pageParam) {
+    public IPage<SimpleContestModel> getSimpleContestList(PageModel<String> pageParam) {
         Page<Contest> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
+        String contestTitleKey = pageParam.getParamData() != null ? pageParam.getParamData() : "";
         IPage<Contest> contestIPage = contestMapper.selectPage(page, Wrappers.<Contest>lambdaQuery()
+                .like(Contest::getTitle, "%" + contestTitleKey + "%")
                 .orderByAsc(Contest::getCrtTs));
         List<SimpleContestModel> list = new ArrayList<>();
         for (Contest c : contestIPage.getRecords()) {
