@@ -225,8 +225,8 @@ online-judge:
     # 资源访问路径匹配：/resource/**
     resource-access-patterns: ${online-judge.multipart.resource-access-path}**
     # 全局允许上传的类型
-    allow-upload-file-extensions: jpg,png,docx,xlsx,pptx,pdf,in,out,cpp
-    allow-download-file-extensions: jpg,png,docx,xlsx,pptx,pdf,in,out,cpp
+    allow-upload-file-extensions: jpg,png,docx,xlsx,pptx,pdf,in,out,cpp,zip
+    allow-download-file-extensions: jpg,png,docx,xlsx,pptx,pdf,in,out,cpp,zip
 
     # 评测文件上传路径配置
     upload-judge-file: ${online-judge.multipart.upload-path}judge_file/

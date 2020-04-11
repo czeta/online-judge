@@ -44,8 +44,9 @@ services:
       - '8080:8080'
     volumes:
       - ~/data/onlinejudge/workspace/online-judge.jar:/data/online-judge.jar # jar包所在位置宿主机本地化
-      - /opt/logs/online-judge:/opt/logs/online-judge # 项目打印日志文件本地化
-      - /opt/upload/online-judge:/opt/upload # 项目文件夹本地化
+      - ~/data/onlinejudge/logs:/opt/logs/online-judge # 项目打印日志文件本地化
+      - ~/data/onlinejudge/upload:/opt/upload # 项目文件夹本地化
+      - ~/data/onlinejudge/test_case:/opt/test_case # 项目评测文件本地化
       - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
     network_mode: 'host' # 将应用内访问容器localhost转为访问宿主机的localhost
     command: [
@@ -55,3 +56,16 @@ services:
       '/data/online-judge.jar'
     ]
     restart: always
+  # 同步评测文件 rsync master服务
+  rsync-master:
+    image: registry.cn-hangzhou.aliyuncs.com/onlinejudge/oj_rsync
+    container_name: rsync-master
+    volumes:
+      - ~/data/onlinejudge/test_case:/test_case:ro
+      - ~/data/rsync_master:/log
+    environment:
+      - RSYNC_MODE=master
+      - RSYNC_USER=ojrsync
+      - RSYNC_PASSWORD=123123
+    ports:
+      - "0.0.0.0:873:873"
