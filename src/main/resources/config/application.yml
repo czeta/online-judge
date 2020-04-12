@@ -229,11 +229,7 @@ online-judge:
     allow-download-file-extensions: jpg,png,docx,xlsx,pptx,pdf,in,out,cpp,zip
 
     # 评测文件上传路径配置
-    upload-judge-file: ${online-judge.multipart.upload-path}judge_file/
-    # 评测文件数据上传路径配置
-    upload-judge-file-data: ${online-judge.multipart.upload-judge-file}data/
-    # 评测文件结果上传路径配置
-    upload-judge-file-judge: ${online-judge.multipart.upload-judge-file}judge/
+    upload-test-case: ${online-judge.multipart.upload-path}test_case/
     ############################ multipart file config end ##############################
 
 ############################### online-judge config begin ##################################

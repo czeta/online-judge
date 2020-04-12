@@ -17,4 +17,5 @@ public interface FileConstant {
     String SUFFIX_EXCEL = ".xlsx";
     String SUFFIX_EXTENSION_IN = "in";
     String SUFFIX_EXTENSION_OUT = "out";
+    String SUFFIX_EXTENSION_ZIP = "zip";
 }

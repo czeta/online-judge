@@ -5,7 +5,6 @@ import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.model.param.AdminRegisterModel;
 import com.czeta.onlinejudge.model.param.PageModel;
 
-import java.util.List;
 
 /**
  * @InterfaceName AdminService

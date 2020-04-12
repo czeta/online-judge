@@ -16,7 +16,9 @@ import java.util.Set;
 public enum ProblemLanguage implements IEnumItem {
     LAN_C(0, "C"),
     LAN_C_PLUS(1, "C++"),
-    LAN_JAVA(2, "Java");
+    LAN_JAVA(2, "Java"),
+    LAN_PYTHON2(3, "Python2"),
+    LAN_PYTHON3(4, "Python3");
 
     private Integer code;
     private String message;

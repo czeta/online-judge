@@ -51,7 +51,7 @@ public class StatusController {
         return new APIResult<>(submitService.getPublicSubmitModelListByCondition(submitConditionPageModel));
     }
 
-    @ApiOperation(value = "获取指定提交评测信息的代码", notes = "需要token：普通用户权限")
+    @ApiOperation(value = "获取指定提交评测信息的代码及评测详情(json格式)", notes = "需要token：普通用户权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "submitId", value = "提交ID", dataType = "Long", paramType = "query", required = true),
             @ApiImplicitParam(name = "problemId", value = "问题ID", dataType = "Long", paramType = "query", required = true)
@@ -60,8 +60,8 @@ public class StatusController {
             @ApiResponse(code = 2003, message = "无该题代码阅读权限")
     })
     @RequiresRoles(RoleType.Names.COMMON_USER)
-    @GetMapping("/code")
-    public APIResult<String> getSubmitCode(@RequestParam Long submitId, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) {
-        return new APIResult<>(submitService.getSubmitCode(submitId, problemId, userId));
+    @GetMapping("/msg")
+    public APIResult<String> getSubmitMsgCode(@RequestParam Long submitId, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) {
+        return new APIResult<>(submitService.getSubmitMsgCode(submitId, problemId, userId));
     }
 }

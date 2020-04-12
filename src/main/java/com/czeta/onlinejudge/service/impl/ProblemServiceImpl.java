@@ -25,18 +25,22 @@ import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.service.TagService;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.spider.SpiderService;
-import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -168,6 +172,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
         // 题目评测方式
         ProblemJudgeType problemJudgeType = ProblemMapstructConvert.INSTANCE.machineProblemToProblemJudgeType(machineProblemModel);
+        problemJudgeType.setSpjVersion(DigestUtils.sha256Hex(machineProblemModel.getSpjLanguage() + machineProblemModel.getSpjCode()));
         problemJudgeType.setProblemId(problemId);
         try {
             problemJudgeTypeMapper.insert(problemJudgeType);
@@ -178,158 +183,166 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public boolean uploadProblemJudgeFile(MultipartFile[] files, Long problemId, Long adminId) throws Exception {
-        // 校验：是否只有两个文件
-        AssertUtils.isTrue(files.length == 2, BaseStatusMsg.APIEnum.PARAM_ERROR, "文件个数不正确");
-        // 校验：两个文件名称是否相同，并且后缀一个是in，一个是out
-        String fileName0 = files[0].getOriginalFilename();
-        String fileName1 = files[1].getOriginalFilename();
-        String fileExtension0 = FilenameUtils.getExtension(fileName0);
-        String fileExtension1 = FilenameUtils.getExtension(fileName1);
-        AssertUtils.isTrue(FilenameUtils.getBaseName(fileName0).equals(FilenameUtils.getBaseName(fileName1)),
-                BaseStatusMsg.APIEnum.PARAM_ERROR, "文件名不一致");
-        Map<String, Integer> ext = new HashMap<String, Integer>() {{
-            put(FileConstant.SUFFIX_EXTENSION_IN, 0);
-            put(FileConstant.SUFFIX_EXTENSION_OUT, 0);
-        }};
-        ext.put(fileExtension0, 1);
-        ext.put(fileExtension1, 1);
-        AssertUtils.isTrue(ext.get(FileConstant.SUFFIX_EXTENSION_IN) == 1 && ext.get(FileConstant.SUFFIX_EXTENSION_OUT) == 1,
-                BaseStatusMsg.APIEnum.PARAM_ERROR, "文件后缀名不正确");
-        // 校验：题目ID是否存在
-        Problem problemInfo = problemMapper.selectById(problemId);
-        AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目尚未创建");
-        // 获取已有文件，并按顺序重命名上传的文件名
-        File judgeDataDir = new File(multipartProperties.getUploadJudgeFileData() + problemId);
-        if (!judgeDataDir.exists()) {
-            boolean flag = judgeDataDir.mkdirs();
-            if (!flag) {
-                log.error("上传文件中创建{}目录失败", judgeDataDir);
-                throw new APIRuntimeException(IBaseStatusMsg.APIEnum.FAILED);
+    public boolean uploadTestCaseZip(MultipartFile file, Boolean spj, Long problemId, Long adminId) throws Exception {
+        String uploadTestCaseDir = multipartProperties.getUploadTestCase() + problemId + "/";
+        // (1)删除旧文件夹
+        FileUtils.deleteDirectory(new File(uploadTestCaseDir));
+        // (2)上传zip
+        UploadUtils.upload(uploadTestCaseDir, file,
+                originalFilename -> file.getOriginalFilename(), Arrays.asList(FileConstant.SUFFIX_EXTENSION_ZIP));
+        // (3)解压缩zip，并将文件\r\n转化为\n再写入；校验文件名规则
+        Map<String, JSONObject> entryFilesMap = new HashMap<>();
+        List<String> entryFilesNameList = new ArrayList<>();
+        File zipFile = new File(uploadTestCaseDir + file.getOriginalFilename());
+        ZipArchiveInputStream zais = null;
+        try {
+            zais = new ZipArchiveInputStream(new FileInputStream(zipFile));
+            ArchiveEntry entryFile = null;
+            while ((entryFile = zais.getNextEntry()) != null) {
+                // 压缩包中的一个文件名
+                String entryFileName = entryFile.getName();
+                entryFilesNameList.add(entryFileName);
+                byte[] content = new byte[(int) entryFile.getSize()];
+                zais.read(content);
+                JSONObject fileInfo = new JSONObject();
+                // 转换为unix文件格式：\\n结尾
+                String contentStr = new String(content).replaceAll("\\r\\n", "\\n");
+                fileInfo.put("content", contentStr);
+                fileInfo.put("size", contentStr.length());
+                if (FilenameUtils.getExtension(entryFileName).equals(FileConstant.SUFFIX_EXTENSION_OUT)) {
+                    fileInfo.put("stripped_output_md5", DigestUtils.md5Hex(contentStr.trim()));
+                }
+                entryFilesMap.put(entryFileName, fileInfo);
             }
-            fileName0 = "1." + fileExtension0;
-            fileName1 = "1." + fileExtension1;
-        } else {
-            Set<Integer> set = new HashSet<>();
-            for (File f : judgeDataDir.listFiles()) {
-                String extName = FilenameUtils.getExtension(f.getName());
-                if (extName.equals(FileConstant.SUFFIX_EXTENSION_IN) || extName.equals(FileConstant.SUFFIX_EXTENSION_OUT)) {
-                    set.add(Integer.valueOf(FilenameUtils.getBaseName(f.getName())));
+            // !spj: 校验文件名是否成对出现，从1开始，并且后缀为in或out; spj: 文件名单个出现，并且文件名从1开始递增，后缀是in
+            boolean result = checkFileName(entryFilesNameList, spj);
+            AssertUtils.isTrue(result, BaseStatusMsg.APIEnum.FAILED,
+                    "文件校验失败：如果是!spj：文件名需要成对出现，并且文件名一致（从1开始递增），后缀分别是in和out；如果是spj：文件名单个出现，并且文件名从1开始递增，后缀是in");
+            for (Map.Entry<String, JSONObject> item : entryFilesMap.entrySet()) {
+                OutputStream os = null;
+                try {
+                    //把解压出来的文件写到指定路径
+                    String fPath = uploadTestCaseDir + item.getKey();
+                    File f = new File(fPath);
+                    os = new BufferedOutputStream(new FileOutputStream(f));
+                    String content = (String) (item.getValue().get("content"));
+                    os.write(content.getBytes("utf-8"));
+                } catch (IOException e) {
+                    log.error("ProblemServiceImpl uploadTestCaseZip decompress Exception={} StackTrace={}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+                    throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED, "上传文件失败");
+                } finally {
+                    if(os != null) {
+                        os.flush();
+                        os.close();
+                    }
                 }
             }
-            int no = set.isEmpty() ? 1 : Collections.max(set) + 1;
-            fileName0 = no + "." + fileExtension0;
-            fileName1 = no + "." + fileExtension1;
+            // (4)生成评测文件元数据info文件：长度，output去除结尾空格后的md5等等test_case的元数据
+            JSONObject infoJson = new JSONObject();
+            infoJson.put("spj", spj);
+            JSONObject infoTestCaseJson = new JSONObject();
+            if (spj) {
+                for (int i = 1; i <= entryFilesNameList.size(); ++i) {
+                    JSONObject infoTestCaseItemJson = new JSONObject();
+                    infoTestCaseItemJson.put("input_name", i + "." + FileConstant.SUFFIX_EXTENSION_IN);
+                    infoTestCaseItemJson.put("input_size", entryFilesMap.get(i + "." + FileConstant.SUFFIX_EXTENSION_IN).get("size"));
+                    infoTestCaseJson.put(String.valueOf(i), infoTestCaseItemJson);
+                }
+            } else {
+                for (int i = 1; i <= entryFilesNameList.size() / 2; ++i) {
+                    JSONObject infoTestCaseItemJson = new JSONObject();
+                    infoTestCaseItemJson.put("input_name", i + "." + FileConstant.SUFFIX_EXTENSION_IN);
+                    infoTestCaseItemJson.put("output_name", i + "." + FileConstant.SUFFIX_EXTENSION_OUT);
+                    infoTestCaseItemJson.put("input_size", entryFilesMap.get(i + "." + FileConstant.SUFFIX_EXTENSION_IN).get("size"));
+                    infoTestCaseItemJson.put("output_size", entryFilesMap.get(i + "." + FileConstant.SUFFIX_EXTENSION_OUT).get("size"));
+                    infoTestCaseItemJson.put("stripped_output_md5", entryFilesMap.get(i + "." + FileConstant.SUFFIX_EXTENSION_OUT).get("stripped_output_md5"));
+                    infoTestCaseJson.put(String.valueOf(i), infoTestCaseItemJson);
+                }
+            }
+            infoJson.put("test_cases", infoTestCaseJson);
+            // (5)将评测文件元数据info文件存入
+            OutputStream os = null;
+            try {
+                os = new BufferedOutputStream(new FileOutputStream(new File(uploadTestCaseDir + "info")));
+                os.write(infoJson.toString().getBytes("utf-8"));
+            } catch (IOException e) {
+                log.error("ProblemServiceImpl uploadTestCaseZip writeInfo Exception={} StackTrace={}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+                throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED, "上传文件失败");
+            } finally {
+                if(os != null) {
+                    os.flush();
+                    os.close();
+                }
+            }
+        } catch (IOException ex) {
+            log.error("ProblemServiceImpl uploadTestCaseZip Exception={} StackTrace={}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
+            throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED, "上传文件失败");
+        } finally {
+            try {
+                if(zais != null) {
+                    zais.close();
+                }
+            } catch (IOException e) {
+                log.error("ProblemServiceImpl uploadTestCaseZip closeZais Exception={} StackTrace={}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+                throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED, "上传文件失败");
+            }
         }
-        // 上传文件
-        final String f0 = fileName0;
-        final String f1 = fileName1;
-        String saveFileName0 = UploadUtils.upload(multipartProperties.getUploadJudgeFileData() + problemId, files[0],
-                originalFilename -> {
-                    return f0;
-                }, multipartProperties.getAllowUploadFileExtensions());
-        String saveFileName1 = UploadUtils.upload(multipartProperties.getUploadJudgeFileData() + problemId, files[1],
-                originalFilename -> {
-                    return f1;
-                }, multipartProperties.getAllowUploadFileExtensions());
-        log.info("saveFileName0={}, saveFileName1={}", saveFileName0, saveFileName1);
+        return true;
+    }
+
+    private boolean checkFileName(List<String> fileNameList, Boolean spj) {
+        if (!spj && fileNameList.size() % 2 != 0) {
+            return false;
+        }
+        if (spj) {
+            int maxPrefix = fileNameList.size();
+            for (int i = 1; i <= maxPrefix; ++i) {
+                if (!fileNameList.contains(String.valueOf(i) + "." + FileConstant.SUFFIX_EXTENSION_IN)) {
+                    return false;
+                }
+            }
+        } else {
+            int maxPrefix = fileNameList.size() / 2;
+            for (int i = 1; i <= maxPrefix; ++i) {
+                if (!fileNameList.contains(String.valueOf(i) + "." + FileConstant.SUFFIX_EXTENSION_IN)
+                        || !fileNameList.contains(String.valueOf(i) + "." + FileConstant.SUFFIX_EXTENSION_OUT)) {
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
     @Override
-    public boolean uploadOtherProblemJudgeFile(MultipartFile file, Long problemId, ProblemType problemType, Long adminId) throws Exception {
-        // 校验：题目ID是否存在
-        Problem problemInfo = problemMapper.selectById(problemId);
-        AssertUtils.notNull(problemInfo, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目尚未创建");
-        // 校验：文件名是否复合
-        String fileName = file.getOriginalFilename();
-        if (problemType.getCode().equals(ProblemType.FUNCTION.getCode())) {
-            AssertUtils.isTrue(FileConstant.JUDGE_INSERT_NAME.equals(fileName), BaseStatusMsg.APIEnum.PARAM_ERROR, "文件名不正确");
-        } else if (problemType.getCode().equals(ProblemType.SPJ.getCode())) {
-            AssertUtils.isTrue(FileConstant.JUDGE_SPJ_NAME.equals(fileName), BaseStatusMsg.APIEnum.PARAM_ERROR,"文件名不正确");
-        } else {
-            throw new APIRuntimeException(BaseStatusMsg.APIEnum.PARAM_ERROR, "文件名不正确");
-        }
-        // 校验：文件夹中是否已经存在该文件
-        File judgeDataDir = new File(multipartProperties.getUploadJudgeFileData() + problemId);
-        if (!judgeDataDir.exists()) {
-            boolean flag = judgeDataDir.mkdirs();
-            if (!flag) {
-                log.error("上传文件中创建{}目录失败", judgeDataDir);
-                throw new APIRuntimeException(IBaseStatusMsg.APIEnum.FAILED);
-            }
-        } else {
-            for (File f : judgeDataDir.listFiles()) {
-                if (fileName.equals(f.getName())) {
-                    throw new APIRuntimeException(BaseStatusMsg.APIEnum.PARAM_ERROR, "文件已存在");
-                }
+    public void downloadTestCaseZip(Long problemId, HttpServletResponse response) throws Exception {
+        String downloadDir = multipartProperties.getUploadTestCase() + problemId;
+        boolean flag = false;
+        File targetDir = new File(downloadDir);
+        for (File targetFile : targetDir.listFiles()) {
+            if (FilenameUtils.getExtension(targetFile.getName()).equals(FileConstant.SUFFIX_EXTENSION_ZIP)) {
+                DownloadUtils.download(downloadDir, targetFile.getName(), Arrays.asList(FileConstant.SUFFIX_EXTENSION_ZIP), response, (dir, fileName0, file, fileExtension, contentType, length) -> {
+                    return true;
+                });
+                flag = true;
+                break;
             }
         }
-        String saveFileName = UploadUtils.upload(multipartProperties.getUploadJudgeFileData() + problemId, file,
-                originalFilename -> {
-                    return fileName;
-                }, multipartProperties.getAllowUploadFileExtensions());
-        log.info("saveFileName={}", saveFileName);
-        return true;
+        AssertUtils.isTrue(flag, BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
     }
 
     @Override
-    public void downloadProblemJudgeFile(Long problemId, String fileName, HttpServletResponse response) throws Exception {
-        String downloadDir = multipartProperties.getUploadJudgeFileData() + problemId;
-        File targetFile = new File(downloadDir + "/" + fileName);
-        AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
-        List<String> allowFileExtensions = multipartProperties.getAllowDownloadFileExtensions();
-        DownloadUtils.download(downloadDir, fileName, allowFileExtensions, response, (dir, fileName0, file, fileExtension, contentType, length) -> {
-            return true;
-        });
-    }
-
-    @Override
-    public List<String> getProblemJudgeFileList(Long problemId, ProblemType problemType) {
-        File judgeDataDir = new File(multipartProperties.getUploadJudgeFileData() + problemId);
-        AssertUtils.isTrue(judgeDataDir.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在");
+    public List<String> getTestCaseFileList(Long problemId) {
+        File testCaseDir = new File(multipartProperties.getUploadTestCase() + problemId);
+        AssertUtils.isTrue(testCaseDir.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在");
         List<String> fileNameList = new ArrayList<>();
-        if (problemType.getCode().equals(ProblemType.FUNCTION.getCode())) {
-            for (File f : judgeDataDir.listFiles()) {
-                if (f.getName().equals(FileConstant.JUDGE_INSERT_NAME)) {
-                    fileNameList.add(f.getName());
-                }
-            }
-        } else if (problemType.getCode().equals(ProblemType.SPJ.getCode())) {
-            for (File f : judgeDataDir.listFiles()) {
-                if (f.getName().equals(FileConstant.JUDGE_SPJ_NAME)) {
-                    fileNameList.add(f.getName());
-                }
-            }
-        } else {
-            for (File f : judgeDataDir.listFiles()) {
-                if (FilenameUtils.getExtension(f.getName()).equals(FileConstant.SUFFIX_EXTENSION_IN)
-                        || FilenameUtils.getExtension(f.getName()).equals(FileConstant.SUFFIX_EXTENSION_OUT)) {
-                    fileNameList.add(f.getName());
-                }
+        for (File f : testCaseDir.listFiles()) {
+            if (FilenameUtils.getExtension(f.getName()).equals(FileConstant.SUFFIX_EXTENSION_IN)
+                    || FilenameUtils.getExtension(f.getName()).equals(FileConstant.SUFFIX_EXTENSION_OUT)) {
+                fileNameList.add(f.getName());
             }
         }
+        Collections.sort(fileNameList);
         return fileNameList;
-    }
-
-    @Override
-    public boolean removeProblemJudgeFile(Long problemId, String fileName, Long adminId) {
-        String pathName = multipartProperties.getUploadJudgeFileData() + problemId;
-        File targetFile = new File(pathName + "/" + fileName);
-        AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
-        targetFile.delete();
-        // 以in或out结尾的文件，需要成对删除
-        if (fileName.endsWith(FileConstant.SUFFIX_EXTENSION_IN)) {
-            fileName = fileName.substring(0, fileName.indexOf(".") + 1) + FileConstant.SUFFIX_EXTENSION_OUT;
-        } else if (fileName.endsWith(FileConstant.SUFFIX_EXTENSION_OUT)) {
-            fileName = fileName.substring(0, fileName.indexOf(".") + 1) + FileConstant.SUFFIX_EXTENSION_IN;
-        } else {
-            return true;
-        }
-        targetFile = new File(pathName + "/" + fileName);
-        AssertUtils.isTrue(targetFile.exists(), BaseStatusMsg.APIEnum.PARAM_ERROR, "题目所在文件夹不存在或该文件不存在");
-        targetFile.delete();
-        return true;
     }
 
     @Override
@@ -367,6 +380,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
         // 更新题目评测方式
         ProblemJudgeType problemJudgeType = ProblemMapstructConvert.INSTANCE.machineProblemToProblemJudgeType(machineProblemModel);
+        problemJudgeType.setSpjVersion(DigestUtils.sha256Hex(machineProblemModel.getSpjLanguage() + machineProblemModel.getSpjCode()));
         problemJudgeType.setProblemId(problemInfo.getId());
         problemJudgeType.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
         problemJudgeTypeMapper.update(problemJudgeType, Wrappers.<ProblemJudgeType>lambdaQuery()
@@ -542,7 +556,6 @@ public class ProblemServiceImpl implements ProblemService {
         // 评测方式数据
         ProblemJudgeType problemJudgeType = problemJudgeTypeMapper.selectOne(Wrappers.<ProblemJudgeType>lambdaQuery()
                 .eq(ProblemJudgeType::getProblemId, problemId));
-        detailProblemModel.setProblemType(problemJudgeType.getProblemType());
         detailProblemModel.setCodeTemplate(problemJudgeType.getCodeTemplate());
         detailProblemModel.setSpj(problemJudgeType.getSpj());
         JudgeType judgeType = judgeTypeMapper.selectById(problemJudgeType.getJudgeTypeId());
@@ -615,15 +628,14 @@ public class ProblemServiceImpl implements ProblemService {
         ProblemJudgeType problemJudgeType = problemJudgeTypeMapper.selectOne(Wrappers.<ProblemJudgeType>lambdaQuery()
                 .eq(ProblemJudgeType::getProblemId, problemInfo.getId()));
         JudgeType judgeType = judgeTypeMapper.selectById(problemJudgeType.getJudgeTypeId());
-        submitMessage.setJudgeStatus(judgeType.getStatus());
-        if (judgeType.getStatus().equals(JudgeServerStatus.NORMAL.getCode())) {
-            submitMessage.setJudgeName(judgeType.getName());
-            submitMessage.setJudgeType(judgeType.getType());
-            submitMessage.setJudgeUrl(judgeType.getUrl());
-            submitMessage.setProblemType(problemJudgeType.getProblemType());
-            submitMessage.setSpj(problemJudgeType.getSpj());
-            submitMessage.setSpiderProblemId(problemJudgeType.getSpiderProblemId());
-        }
+        submitMessage.setJudgeType(judgeType.getType());
+        submitMessage.setJudgeName(judgeType.getName());
+        submitMessage.setJudgeUrl(judgeType.getUrl());
+        submitMessage.setSpj(problemJudgeType.getSpj());
+        submitMessage.setSpjCode(problemJudgeType.getSpjCode());
+        submitMessage.setSpjVersion(problemJudgeType.getSpjVersion());
+        submitMessage.setSpiderProblemId(problemJudgeType.getSpiderProblemId());
+
         submitProducer.send(submitMessage);
     }
 }

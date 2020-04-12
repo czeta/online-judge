@@ -1,5 +1,6 @@
 package com.czeta.onlinejudge.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -95,13 +96,17 @@ public class SubmitServiceImpl implements SubmitService {
     }
 
     @Override
-    public String getSubmitCode(Long submitId, Long problemId, Long userId) {
+    public String getSubmitMsgCode(Long submitId, Long problemId, Long userId) {
         // 校验是否是自己提交的代码
         Submit submit = submitMapper.selectOne(Wrappers.<Submit>lambdaQuery()
                 .eq(Submit::getId, submitId)
                 .eq(Submit::getCreatorId, userId));
+        // 格式为: { msg: [ { caseResult1 }, { caseResult2 } ], code: ? }
+        JSONObject msgCodeJson = new JSONObject();
         if (submit != null) {
-            return submit.getCode();
+            msgCodeJson.put("msg", submit.getMsg());
+            msgCodeJson.put("code", submit.getCode());
+            return msgCodeJson.toJSONString();
         }
         // 校验是否有该题所有代码（其他人提交）阅读权限（已解决该题）
         SolvedProblem solvedProblem = solvedProblemMapper.selectOne(Wrappers.<SolvedProblem>lambdaQuery()
@@ -110,6 +115,8 @@ public class SubmitServiceImpl implements SubmitService {
                 .eq(SolvedProblem::getSubmitStatus, SubmitStatus.ACCEPTED.getName()));
         AssertUtils.notNull(solvedProblem, BaseStatusMsg.APIEnum.AUTHORITY_EXCEED, "无该题代码阅读权限");
         Submit ret = submitMapper.selectOne(Wrappers.<Submit>lambdaQuery().eq(Submit::getId, submitId));
-        return ret.getCode();
+        msgCodeJson.put("msg", ret.getMsg());
+        msgCodeJson.put("code", ret.getCode());
+        return msgCodeJson.toJSONString();
     }
 }

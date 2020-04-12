@@ -17,6 +17,7 @@ public class Submit {
     private Long id;
     private Long problemId;
     private String code;
+    private String msg;
     private String time;
     private String memory;
     private String language;

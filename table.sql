@@ -24,6 +24,12 @@ CREATE TABLE IF NOT EXISTS user (
   CONSTRAINT uk_username UNIQUE KEY(username)
 )
 
+INSERT INTO user VALUES(1, "user1", "123123", "75756786@qq.com", "asdfsadf@github.com", "asdfsadf@blog.com", NULL, "normal",
+default, default, default , default , 1, NULL, 1, default, default, default);
+
+INSERT INTO user VALUES(2, "user2", "123123", "75756786@qq.com", "asdfsadf@github.com", "asdfsadf@blog.com", NULL, "normal",
+default, default, default , default , 2, NULL, 1, default, default, default);
+
 -- 2.user_certification（实名认证表）
 CREATE TABLE IF NOT EXISTS user_certification (
   id INT NOT NULL AUTO_INCREMENT,
@@ -80,6 +86,9 @@ CREATE TABLE IF NOT EXISTS admin (
   CONSTRAINT uk_username UNIQUE KEY(username)
 )
 
+INSERT INTO admin VALUES(1, "admin", "123123", "common admin", 2, default ,default ,default );
+INSERT INTO admin VALUES(2, "superadmin", "123123", "super admin", 2, default ,default ,default );
+
 -- 6.role（角色表）
 CREATE TABLE IF NOT EXISTS role (
   id INT NOT NULL AUTO_INCREMENT,
@@ -92,8 +101,12 @@ CREATE TABLE IF NOT EXISTS role (
   CONSTRAINT uk_username UNIQUE KEY(name)
 )
 
--- 7.submitMessage（消息表）
-CREATE TABLE IF NOT EXISTS submitMessage (
+INSERT INTO role VALUES(1, "CommonUser", "all", default ,default, default );
+INSERT INTO role VALUES(2, "CommonAdmin", "all", default ,default, default );
+INSERT INTO role VALUES(3, "SuperAdmin", "all", default ,default, default );
+
+-- 7.message（消息表）
+CREATE TABLE IF NOT EXISTS message (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(20) NOT NULL,
   content VARCHAR(500) NOT NULL,
@@ -131,8 +144,8 @@ CREATE TABLE IF NOT EXISTS problem (
   source_id INT NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分为0。
   source_name VARCHAR(50) NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分必须以@开头。
   time_limit INT NOT NULL,  -- 单位固定ms
-  memory_limit INT NOT NULL, -- 单位固定mb
-  io_mode VARCHAR(20) NOT NULL, -- io模型，目前只支持standard io
+  memory_limit INT NOT NULL, -- 单位固定MB
+  io_mode VARCHAR(20) NOT NULL, -- io模型，目前只支持Standard IO
   level VARCHAR(10) NOT NULL, -- easy medium hard
   language VARCHAR(100) NOT NULL, -- 题目支持语言(多种语言之间用逗号间隔)
   submit_count INT NOT NULL DEFAULT 0,
@@ -152,9 +165,11 @@ CREATE TABLE IF NOT EXISTS problem_judge_type (
   id INT NOT NULL AUTO_INCREMENT,
   problem_id INT NOT NULL,
   judge_type_id INT NOT NULL,
-  problem_type INT, -- 题目类型：0表示ACM/ICPC题型、1表示函数型题型
-  code_template TEXT, -- 代码模板（针对题目为函数型题型）
-  spj INT, -- 是否特判（针对judge_type_id为评测机），1表示特判，0表示不是
+  code_template TEXT, -- 代码模板(json格式，key为语言，value为模板，base64编码)
+  spj INT, -- 是否特判，1表示特判，0表示不是（针对judge_type_id为评测机）
+  spj_code TEXT, -- 特判的代码(base64编码)
+  spj_language CHAR(10), -- 特判代码语言
+  spj_version CHAR(70), -- 特判version：sha256编码（spjLanguage+spj_code）
   spider_problem_id INT, -- 表示目标OJ的ID（针对judge_type_id为爬虫）
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -175,14 +190,16 @@ CREATE TABLE IF NOT EXISTS judge_type (
   -- 爬虫专有信息（无）
   -- 评测机专有信息，初始化可都不填，由心跳进行补充
   hostname VARCHAR(50),
+  task_number TINYINT,
   cpu_core TINYINT,
   cpu_usage VARCHAR(20),
-  memory_usage VARCHAR(20), 
+  memory_usage VARCHAR(20),
+  visit_token CHAR(70), -- 评测机访问token：sha256编码（评测机部署环境参数）
+  judge_version CHAR(10),
   last_heart_beat TIMESTAMP,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT pk_id PRIMARY KEY(id),
-  CONSTRAINT uq_id UNIQUE KEY(name)
+  CONSTRAINT pk_id PRIMARY KEY(id)
 )
 
 
@@ -214,11 +231,12 @@ CREATE TABLE IF NOT EXISTS problem_tag (
 CREATE TABLE IF NOT EXISTS submit (
   id INT NOT NULL AUTO_INCREMENT,
   problem_id INT NOT NULL,
-  code TEXT NOT NULL,
-  time VARCHAR(20),
-  memory VARCHAR(20),
+  code TEXT NOT NULL, -- base64位编码
+  msg VARCHAR(500), -- 运行结果详情（json格式）
+  time VARCHAR(20), -- 运行时间（由于评测方式有多种，所以没有限制固定单位）
+  memory VARCHAR(20), -- 运行内存（由于评测方式有多种，所以没有限制固定单位）
   language VARCHAR(10) NOT NULL,
-  submit_status VARCHAR(20) NOT NULL,
+  submit_status VARCHAR(20) NOT NULL, -- 运行结果（初始状态为pending，表示正在评测）
   source_id INT NOT NULL,  -- 来源ID，0表示无，大于0表示比赛ID
   creator_id INT NOT NULL,
   creator VARCHAR(20) NOT NULL,

@@ -6,7 +6,6 @@ import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.consts.FileConstant;
 import com.czeta.onlinejudge.dao.entity.*;
 import com.czeta.onlinejudge.dao.entity.Tag;
-import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.AppliedCertificationModel;
@@ -388,21 +387,6 @@ public class AdminController {
         return new APIResult<>(judgeService.getJudgeMachineList());
     }
 
-
-    @ApiOperation(value = "(评测服务)添加新的评测机", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", paramType = "body", required = true)
-    })
-    @ApiResponses({})
-    @ApiOperationSupport(order=24)
-    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @PostMapping("/judgeManager/judgeMachine/save")
-    public APIResult saveNewJudgeMachine(@RequestBody JudgeTypeModel judgeTypeModel) {
-        judgeService.saveNewJudgeMachine(judgeTypeModel);
-        return new APIResult();
-    }
-
-
     @ApiOperation(value = "(评测服务)获得爬虫信息列表", notes = "需要token：超级admin权限，或普通管理员权限（仅在创建题目时选择爬虫）")
     @ApiImplicitParams({})
     @ApiResponses({})
@@ -413,31 +397,27 @@ public class AdminController {
         return new APIResult<>(judgeService.getJudgeSpiderList());
     }
 
-
-    @ApiOperation(value = "(评测服务)添加新的评测爬虫", notes = "需要token：超级admin权限")
+    @ApiOperation(value = "(评测服务)更新评测状态", notes = "需要token：超级admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", paramType = "body", required = true)
+            @ApiImplicitParam(name = "status", value = "评测信息状态，正常(1)、异常(-1)、停用(0)", dataType = "Short", paramType = "query", required = true),
+            @ApiImplicitParam(name = "judgeTypeId", value = "评测信息ID", dataType = "Integer", paramType = "query", required = true)
     })
     @ApiResponses({})
     @ApiOperationSupport(order=26)
     @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @PostMapping("/judgeManager/judgeSpider/save")
-    public APIResult saveNewJudgeSpider(@RequestBody JudgeTypeModel judgeTypeModel) {
-        judgeService.saveNewJudgeSpider(judgeTypeModel);
-        return new APIResult();
+    @PostMapping("/judgeManager/judgeStatus/update")
+    public APIResult<Boolean> updateJudgeStatusById(@RequestParam Short status, @RequestParam Integer judgeTypeId) {
+        return new APIResult<>(judgeService.updateJudgeStatusById(status, judgeTypeId));
     }
 
-
-    @ApiOperation(value = "(评测服务)修改评测类型（爬虫or评测机）", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "judgeTypeModel", value = "评测类型信息model", dataType = "JudgeTypeModel", paramType = "body", required = true)
-    })
+    @ApiOperation(value = "(题目评测服务)获取去重后的NORMAL评测机列表（种类去重）", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({})
     @ApiResponses({})
     @ApiOperationSupport(order=27)
-    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @PostMapping("/judgeManager/judgeInfo/update")
-    public APIResult<Boolean> updateJudgeInfo(@RequestBody JudgeTypeModel judgeTypeModel) {
-        return new APIResult<>(judgeService.updateJudgeInfoById(judgeTypeModel));
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/judgeManager/uniqueJudgeMachineList")
+    public APIResult<List<JudgeType>> getUniqueJudgeMachineList() {
+        return new APIResult<>(judgeService.getUniqueJudgeMachineList());
     }
 
 
@@ -578,63 +558,38 @@ public class AdminController {
     }
 
 
-    @ApiOperation(value = "(题目文件)上传题目评测文件：in后缀文件与out后缀文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiOperation(value = "(题目文件)上传题目评测数据：zip文件格式", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "files", value = "评测文件，每次上传只能成对上传文件，分别是in后缀文件和out后缀文件，并且文件名必须相同。", dataType = "MultipartFile[]", paramType = "query", required = true),
-            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = false)
+            @ApiImplicitParam(name = "file", value = "评测文件，规则：(1)如果不是spj，则文件名需要成对出现，并且文件名一致（从1开始递增），后缀分别是in和out；\\n\" +\n" +
+                    "            \"(2)如果是则文件名单个出现，并且文件名从1开始递增，后缀是in\"", dataType = "MultipartFile", paramType = "query", required = true),
+            @ApiImplicitParam(name = "spj", value = "是否特判", dataType = "Boolean", paramType = "query", required = true),
+            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
     })
-    @ApiResponses({})
+    @ApiResponses({
+            @ApiResponse(code = 1001, message = "文件校验失败：如果是!spj：文件名需要成对出现，并且文件名一致（从1开始递增），后缀分别是in和out；如果是spj：文件名单个出现，并且文件名单个出现，并且文件名从1开始递增，后缀是in")
+    })
     @ApiOperationSupport(order=36)
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @PostMapping("/problemManager/uploadFile")
-    public APIResult<Boolean> uploadProblemJudgeFile(@RequestParam MultipartFile[] files, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) throws Exception {
-        return new APIResult<>(problemService.uploadProblemJudgeFile(files, problemId, userId));
+    public APIResult<Boolean> uploadTestCaseZip(@RequestParam MultipartFile file, @RequestParam Boolean spj, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) throws Exception {
+        return new APIResult<>(problemService.uploadTestCaseZip(file, spj, problemId, userId));
     }
 
 
-    @ApiOperation(value = "(题目文件)上传题目评测文件：spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiOperation(value = "(题目文件)下载zip评测文件", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "评测文件，属于特判题型的评测文件，只能是spj.cpp命名的文件", dataType = "MultipartFile", paramType = "query", required = true),
             @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
-    })
-    @ApiResponses({})
-    @ApiOperationSupport(order=37)
-    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @PostMapping("/problemManager/uploadSpj")
-    public APIResult<Boolean> uploadSpjProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) throws Exception {
-        return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.SPJ, userId));
-    }
-
-
-    @ApiOperation(value = "(题目文件)上传题目评测文件：insert.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "file", value = "评测文件，属于函数型题型的评测文件，只能是insert.cpp命名的文件", dataType = "MultipartFile", paramType = "query", required = true),
-            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
-    })
-    @ApiResponses({})
-    @ApiOperationSupport(order=38)
-    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @PostMapping("/problemManager/uploadInsert")
-    public APIResult<Boolean> uploadInsertProblemJudgeFile(@RequestParam MultipartFile file, @RequestParam Long problemId, @ApiIgnore @RequestAttribute Long userId) throws Exception {
-        return new APIResult<>(problemService.uploadOtherProblemJudgeFile(file, problemId, ProblemType.FUNCTION, userId));
-    }
-
-
-    @ApiOperation(value = "(题目文件)下载评测文件：in、out、insert.cpp、spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true),
-            @ApiImplicitParam(name = "fileName", value = "评测文件名", dataType = "String", paramType = "query", required = true)
     })
     @ApiResponses({})
     @ApiOperationSupport(order=39)
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/downloadFile")
-    public void downloadProblemJudgeFile(@RequestParam Long problemId, @RequestParam String fileName, HttpServletResponse response) throws Exception {
-        problemService.downloadProblemJudgeFile(problemId, fileName, response);
+    public void downloadTestCaseZip(@RequestParam Long problemId, HttpServletResponse response) throws Exception {
+        problemService.downloadTestCaseZip(problemId, response);
     }
 
 
-    @ApiOperation(value = "(题目文件)获取评测文件列表：in后缀、out后缀文件", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiOperation(value = "(题目文件)获取评测文件名列表", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
     })
@@ -642,49 +597,10 @@ public class AdminController {
     @ApiOperationSupport(order=40)
     @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
     @GetMapping("/problemManager/files")
-    public APIResult<List<String>> getProblemJudgeFileList(@RequestParam Long problemId) {
-        return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.ICPC));
+    public APIResult<List<String>> getTestCaseFileList(@RequestParam Long problemId) {
+        return new APIResult<>(problemService.getTestCaseFileList(problemId));
     }
 
-
-    @ApiOperation(value = "(题目文件)获取评测文件列表：spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
-    })
-    @ApiResponses({})
-    @ApiOperationSupport(order=41)
-    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @GetMapping("/problemManager/spj")
-    public APIResult<List<String>> getProblemSpjJudgeFile(@RequestParam Long problemId) {
-        return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.SPJ));
-    }
-
-
-    @ApiOperation(value = "(题目文件)获取评测文件列表：insert.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true)
-    })
-    @ApiResponses({})
-    @ApiOperationSupport(order=42)
-    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @GetMapping("/problemManager/function")
-    public APIResult<List<String>> getProblemFuncJudgeFile(@RequestParam Long problemId) {
-        return new APIResult<>(problemService.getProblemJudgeFileList(problemId, ProblemType.FUNCTION));
-    }
-
-
-    @ApiOperation(value = "(题目文件)删除指定评测文件：in、out、insert.cpp、spj.cpp文件", notes = "需要token：超级admin权限 or 普通admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "problemId", value = "题目ID", dataType = "Long", paramType = "query", required = true),
-            @ApiImplicitParam(name = "fileName", value = "评测文件名（当要删除in与out时，传入其中一个文件名(xxx.in)即可成对删除）", dataType = "String", paramType = "query", required = true)
-    })
-    @ApiResponses({})
-    @ApiOperationSupport(order=43)
-    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
-    @PostMapping("/problemManager/file/remove")
-    public APIResult<Boolean> removeProblemJudgeFile(@RequestParam Long problemId, @RequestParam String fileName, @ApiIgnore @RequestAttribute Long userId) {
-        return new APIResult<>(problemService.removeProblemJudgeFile(problemId, fileName, userId));
-    }
 
     @ApiOperation(value = "(比赛)创建比赛", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({

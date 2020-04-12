@@ -1,7 +1,6 @@
 package com.czeta.onlinejudge.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.czeta.onlinejudge.enums.ProblemType;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.DetailProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
@@ -39,50 +38,32 @@ public interface ProblemService {
     long saveNewProblemByMachine(MachineProblemModel machineProblemModel, Long adminId);
 
     /**
-     * 上传题目评测数据：每次上传成对上传文件，包含in文件与out文件，名称必须相同
-     * @param files
-     * @param problemId
-     * @param adminId
-     * @return
-     */
-    boolean uploadProblemJudgeFile(MultipartFile[] files, Long problemId, Long adminId) throws Exception;
-
-    /**
-     * 上传题目评测数据：spj文件或insert文件（分别对应spj题型和函数型题型）
+     * 上传题目评测数据：zip文件格式，
+     * 其中文件名规则：
+     * (1)如果不是spj，则文件名需要成对出现，并且文件名一致（从1开始递增），后缀分别是in和out；
+     * (2)如果是则文件名单个出现，并且文件名从1开始递增，后缀是in
      * @param file
+     * @param spj
      * @param problemId
-     * @param problemType
      * @param adminId
      * @return
-     * @throws Exception
      */
-    boolean uploadOtherProblemJudgeFile(MultipartFile file, Long problemId, ProblemType problemType, Long adminId) throws Exception;
+    boolean uploadTestCaseZip(MultipartFile file, Boolean spj, Long problemId, Long adminId) throws Exception;
 
     /**
-     * 根据文件名下载评测数据
+     * 下载评测数据zip文件
      * @param problemId
-     * @param fileName
      * @param httpServletResponse
      * @throws Exception
      */
-    void downloadProblemJudgeFile(Long problemId, String fileName, HttpServletResponse httpServletResponse) throws Exception;
+    void downloadTestCaseZip(Long problemId, HttpServletResponse httpServletResponse) throws Exception;
 
     /**
-     * 获取评测文件名列表，分为in、out和insert.cpp，spj.cpp
+     * 获取评测文件名列表
      * @param problemId
-     * @param problemType
      * @return
      */
-    List<String> getProblemJudgeFileList(Long problemId, ProblemType problemType);
-
-    /**
-     * 通过题号定位并移除指定的评测文件
-     * @param problemId
-     * @param fileName
-     * @param adminId
-     * @return
-     */
-    boolean removeProblemJudgeFile(Long problemId, String fileName, Long adminId);
+    List<String> getTestCaseFileList(Long problemId);
 
     /**
      * 查看评测机/爬虫方式评测的题目信息

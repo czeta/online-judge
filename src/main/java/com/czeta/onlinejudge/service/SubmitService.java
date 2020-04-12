@@ -34,5 +34,5 @@ public interface SubmitService {
      * @param userId
      * @return
      */
-    String getSubmitCode(Long submitId, Long problemId, Long userId);
+    String getSubmitMsgCode(Long submitId, Long problemId, Long userId);
 }

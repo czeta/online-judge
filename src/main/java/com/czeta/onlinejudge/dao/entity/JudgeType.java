@@ -33,10 +33,16 @@ public class JudgeType {
     private String hostname;
     @ApiModelProperty(value = "cpu核数")
     private Short cpuCore;
+    @ApiModelProperty(value = "任务数量")
+    private Short taskNumber;
     @ApiModelProperty(value = "cpu使用率")
     private String cpuUsage;
     @ApiModelProperty(value = "内存使用率")
     private String memoryUsage;
+    @ApiModelProperty(value = "评测机访问token值")
+    private String visitToken;
+    @ApiModelProperty(value = "评测机版本")
+    private String judgeVersion;
     @ApiModelProperty(value = "最后一次心跳上报的时间")
     private String lastHeartBeat;
 

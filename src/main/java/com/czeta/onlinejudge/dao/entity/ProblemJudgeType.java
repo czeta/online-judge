@@ -17,9 +17,11 @@ public class ProblemJudgeType {
     private Long id;
     private Long problemId;
     private Integer judgeTypeId;
-    private Integer problemType;
     private String codeTemplate;
     private Integer spj;
+    private String spjCode;
+    private String spjLanguage;
+    private String spjVersion;
     private Long spiderProblemId;
     private Short status;
     private String crtTs;

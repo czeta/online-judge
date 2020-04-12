@@ -25,7 +25,7 @@ public class MultipartProperties {
      */
     private String resourceAccessPath;
     /**
-     * 资源访问路径，后段配置，资源映射使用（映射成上传目录）
+     * 资源访问路径，后端配置，资源映射使用（映射成上传目录）
      */
     private String resourceAccessPatterns;
 
@@ -38,22 +38,8 @@ public class MultipartProperties {
      */
     private List<String> allowDownloadFileExtensions;
 
-    /**<= 评测文件目录 begin =>**/
-
     /**
      * 评测文件目录
      */
-    private String uploadJudgeFile;
-
-    /**
-     * 评测文件的数据目录
-     */
-    private String uploadJudgeFileData;
-
-    /**
-     * 评测文件的评测目录（结果目录）
-     */
-    private String uploadJudgeFileJudge;
-
-    /**<= 评测文件目录 end =>**/
+    private String uploadTestCase;
 }

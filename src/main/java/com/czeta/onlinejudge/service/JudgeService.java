@@ -1,7 +1,6 @@
 package com.czeta.onlinejudge.service;
 
 import com.czeta.onlinejudge.dao.entity.JudgeType;
-import com.czeta.onlinejudge.model.param.JudgeTypeModel;
 
 import java.util.List;
 
@@ -21,18 +20,18 @@ public interface JudgeService {
     List<JudgeType> getJudgeMachineList();
 
     /**
+     * 获取去重后的NORMAL评测机列表（种类去重）
+     * @return
+     */
+    List<JudgeType> getUniqueJudgeMachineList();
+
+    /**
      * 通过id获取指定的评测机信息
      * @param id
      * @return
      */
     JudgeType getJudgeMachineById(Integer id);
 
-    /**
-     * 添加新的评测机
-     * 需要新的评测机接入代码中，不然手动启用评测机，心跳会自动报abnormal，所以这里评测机默认是停止状态
-     * @param judgeTypeModel
-     */
-    void saveNewJudgeMachine(JudgeTypeModel judgeTypeModel);
 
     /**
      * 获取评测爬虫列表
@@ -41,16 +40,10 @@ public interface JudgeService {
     List<JudgeType> getJudgeSpiderList();
 
     /**
-     * 添加新的爬虫评测
-     * 需要新的爬虫接入代码中，不然手动启用爬虫，心跳会自动报abnormal，所以这里评测机默认是停止状态
-     * @param judgeTypeModel
-     */
-    void saveNewJudgeSpider(JudgeTypeModel judgeTypeModel);
-
-    /**
-     * 更新评测信息（评测机和爬虫）
-     * @param judgeTypeModel
+     * 更新评测状态（正常(1)/异常(-1) <-> 停用(0)）
+     * @param Status
+     * @param judgeTypeId
      * @return
      */
-    boolean updateJudgeInfoById(JudgeTypeModel judgeTypeModel);
+    boolean updateJudgeStatusById(Short Status, Integer judgeTypeId);
 }

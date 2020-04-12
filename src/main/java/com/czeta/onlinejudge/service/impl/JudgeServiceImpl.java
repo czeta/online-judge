@@ -1,23 +1,20 @@
 package com.czeta.onlinejudge.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.czeta.onlinejudge.convert.JudgeMapstructConvert;
 import com.czeta.onlinejudge.dao.entity.JudgeType;
 import com.czeta.onlinejudge.dao.mapper.JudgeTypeMapper;
-import com.czeta.onlinejudge.enums.BaseStatusMsg;
 import com.czeta.onlinejudge.enums.JudgeServerStatus;
 import com.czeta.onlinejudge.enums.JudgeTypeEnum;
-import com.czeta.onlinejudge.model.param.JudgeTypeModel;
 import com.czeta.onlinejudge.service.JudgeService;
-import com.czeta.onlinejudge.utils.utils.AssertUtils;
-import com.czeta.onlinejudge.utils.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @ClassName JudgeServiceImpl
@@ -42,27 +39,23 @@ public class JudgeServiceImpl implements JudgeService {
     }
 
     @Override
+    public List<JudgeType> getUniqueJudgeMachineList() {
+        List<JudgeType> rawList = this.getJudgeMachineList();
+        Set<String> nameSet = new HashSet<>();
+        List<JudgeType> ret = new ArrayList<>();
+        for (JudgeType judgeType : rawList) {
+            if (judgeType.getStatus().equals(JudgeServerStatus.NORMAL.getCode())
+                    && !nameSet.contains(judgeType.getName())) {
+                nameSet.add(judgeType.getName());
+                ret.add(judgeType);
+            }
+        }
+        return ret;
+    }
+
+    @Override
     public JudgeType getJudgeMachineById(Integer id) {
         return judgeTypeMapper.selectById(id);
-    }
-
-    @Override
-    public void saveNewJudgeMachine(JudgeTypeModel judgeTypeModel) {
-        AssertUtils.notNull(judgeTypeModel.getName(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        AssertUtils.notNull(judgeTypeModel.getUrl(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        JudgeType judgeType = JudgeMapstructConvert.INSTANCE.judgeTypeModelToJudgeType(judgeTypeModel);
-        judgeType.setType(JudgeTypeEnum.JUDGE_MACHINE.getCode());
-        judgeType.setStatus(JudgeServerStatus.STOPPED.getCode());
-        judgeTypeMapper.insert(judgeType);
-    }
-
-    @Override
-    public boolean updateJudgeInfoById(JudgeTypeModel judgeTypeModel) {
-        AssertUtils.notNull(judgeTypeModel.getId(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        JudgeType judgeType = JudgeMapstructConvert.INSTANCE.judgeTypeModelToJudgeType(judgeTypeModel);
-        judgeType.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        judgeTypeMapper.updateById(judgeType);
-        return true;
     }
 
     @Override
@@ -73,12 +66,11 @@ public class JudgeServiceImpl implements JudgeService {
     }
 
     @Override
-    public void saveNewJudgeSpider(JudgeTypeModel judgeTypeModel) {
-        AssertUtils.notNull(judgeTypeModel.getName(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        AssertUtils.notNull(judgeTypeModel.getUrl(), BaseStatusMsg.APIEnum.PARAM_ERROR);
-        JudgeType judgeType = JudgeMapstructConvert.INSTANCE.judgeTypeModelToJudgeType(judgeTypeModel);
-        judgeType.setType(JudgeTypeEnum.JUDGE_SPIDER.getCode());
-        judgeType.setStatus(JudgeServerStatus.STOPPED.getCode());
-        judgeTypeMapper.insert(judgeType);
+    public boolean updateJudgeStatusById(Short status, Integer judgeTypeId) {
+        JudgeType judgeType = new JudgeType();
+        judgeType.setId(judgeTypeId);
+        judgeType.setStatus(status);
+        judgeTypeMapper.updateById(judgeType);
+        return true;
     }
 }
