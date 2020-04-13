@@ -24,10 +24,11 @@ CREATE TABLE IF NOT EXISTS user (
   CONSTRAINT uk_username UNIQUE KEY(username)
 )
 
-INSERT INTO user VALUES(1, "user1", "123123", "75756786@qq.com", "asdfsadf@github.com", "asdfsadf@blog.com", NULL, "normal",
+-- 密码：123123
+INSERT INTO user VALUES(1, "user1", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "75756786@qq.com", "asdfsadf@github.com", "asdfsadf@blog.com", NULL, "normal",
 default, default, default , default , 1, NULL, 1, default, default, default);
 
-INSERT INTO user VALUES(2, "user2", "123123", "75756786@qq.com", "asdfsadf@github.com", "asdfsadf@blog.com", NULL, "normal",
+INSERT INTO user VALUES(2, "user2", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "75756786@qq.com", "asdfsadf@github.com", "asdfsadf@blog.com", NULL, "normal",
 default, default, default , default , 2, NULL, 1, default, default, default);
 
 -- 2.user_certification（实名认证表）
@@ -86,8 +87,8 @@ CREATE TABLE IF NOT EXISTS admin (
   CONSTRAINT uk_username UNIQUE KEY(username)
 )
 
-INSERT INTO admin VALUES(1, "admin", "123123", "common admin", 2, default ,default ,default );
-INSERT INTO admin VALUES(2, "superadmin", "123123", "super admin", 2, default ,default ,default );
+INSERT INTO admin VALUES(1, "admin", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "common admin", 2, default ,default ,default );
+INSERT INTO admin VALUES(2, "superadmin", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "super admin", 2, default ,default ,default );
 
 -- 6.role（角色表）
 CREATE TABLE IF NOT EXISTS role (
@@ -232,7 +233,7 @@ CREATE TABLE IF NOT EXISTS submit (
   id INT NOT NULL AUTO_INCREMENT,
   problem_id INT NOT NULL,
   code TEXT NOT NULL, -- base64位编码
-  msg VARCHAR(500), -- 运行结果详情（json格式）
+  msg TEXT, -- 运行结果详情（json格式）
   time VARCHAR(20), -- 运行时间（由于评测方式有多种，所以没有限制固定单位）
   memory VARCHAR(20), -- 运行内存（由于评测方式有多种，所以没有限制固定单位）
   language VARCHAR(10) NOT NULL,

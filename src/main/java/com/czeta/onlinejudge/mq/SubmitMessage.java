@@ -1,8 +1,11 @@
 package com.czeta.onlinejudge.mq;
 
+import com.czeta.onlinejudge.dao.entity.JudgeType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 
 /**
@@ -44,10 +47,16 @@ public class SubmitMessage {
     private String judgeName;
     @ApiModelProperty(value = "爬虫目标url或评测机服务所在url")
     private String judgeUrl;
+    @ApiModelProperty(value = "同名的评测方式列表")
+    private List<JudgeType> judgeTypeList;
+    @ApiModelProperty(value = "评测机访问token")
+    private String visitToken;
     @ApiModelProperty(value = "是否特判，1表示特判，0表示不是")
     private Integer spj;
     @ApiModelProperty(value = "特判代码(base64编码)")
     private String spjCode;
+    @ApiModelProperty(value = "特判代码的语言")
+    private String spjLanguage;
     @ApiModelProperty(value = "特判版本")
     private String spjVersion;
     @ApiModelProperty(value = "表示目标OJ的ID")

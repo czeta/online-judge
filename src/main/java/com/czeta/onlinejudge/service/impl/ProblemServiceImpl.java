@@ -631,8 +631,15 @@ public class ProblemServiceImpl implements ProblemService {
         submitMessage.setJudgeType(judgeType.getType());
         submitMessage.setJudgeName(judgeType.getName());
         submitMessage.setJudgeUrl(judgeType.getUrl());
+        List<JudgeType> judgeMachineList = judgeTypeMapper.selectList(Wrappers.<JudgeType>lambdaQuery()
+                .eq(JudgeType::getType, JudgeTypeEnum.JUDGE_MACHINE.getCode())
+                .eq(JudgeType::getStatus, JudgeServerStatus.NORMAL.getCode())
+                .eq(JudgeType::getName, judgeType.getName()));
+        submitMessage.setJudgeTypeList(judgeMachineList);
+        submitMessage.setVisitToken(judgeType.getVisitToken());
         submitMessage.setSpj(problemJudgeType.getSpj());
         submitMessage.setSpjCode(problemJudgeType.getSpjCode());
+        submitMessage.setSpjLanguage(problemJudgeType.getSpjLanguage());
         submitMessage.setSpjVersion(problemJudgeType.getSpjVersion());
         submitMessage.setSpiderProblemId(problemJudgeType.getSpiderProblemId());
 
