@@ -352,31 +352,6 @@ public class AdminController {
         return new APIResult<>(announcementService.updateHomePageAnnouncement(announcementModel));
     }
 
-
-    @ApiOperation(value = "(FAQ)获取FAQ内容", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({})
-    @ApiResponses({})
-    @ApiOperationSupport(order=21)
-    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @GetMapping("/faq")
-    public APIResult<String> getFAQContent() {
-        return new APIResult(announcementService.getFAQContent());
-    }
-
-
-    @ApiOperation(value = "(FAQ)更新FAQ内容", notes = "需要token：超级admin权限")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "content", value = "修改后的FAQ内容", dataType = "String", paramType = "query", required = true)
-    })
-    @ApiResponses({})
-    @ApiOperationSupport(order=22)
-    @RequiresRoles(RoleType.Names.SUPER_ADMIN)
-    @PostMapping("/faq/update")
-    public APIResult<Boolean> updateFAQContent(String content) {
-        return new APIResult<>(announcementService.updateFAQContent(content));
-    }
-
-
     @ApiOperation(value = "(评测服务)获得评测机信息列表", notes = "需要token：超级admin权限，或普通管理员权限（仅在创建题目时选择评测机）")
     @ApiImplicitParams({})
     @ApiResponses({})

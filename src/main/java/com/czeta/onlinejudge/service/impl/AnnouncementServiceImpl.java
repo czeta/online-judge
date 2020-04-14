@@ -83,23 +83,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    public String getFAQContent() {
-        return announcementMapper.selectOne(Wrappers.<Announcement>lambdaQuery()
-                .eq(Announcement::getSourceId, AnnouncementType.FAQ.getCode())
-                .eq(Announcement::getStatus, 1)).getContent();
-    }
-
-    @Override
-    public boolean updateFAQContent(String content) {
-        Announcement announcement = new Announcement();
-        announcement.setContent(content);
-        announcement.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
-        announcementMapper.update(announcement, Wrappers.<Announcement>lambdaQuery()
-                .eq(Announcement::getSourceId, AnnouncementType.FAQ.getCode()));
-        return true;
-    }
-
-    @Override
     public void saveNewContestAnnouncement(AnnouncementModel announcementModel, Long contestId, Long adminId) {
         AssertUtils.isTrue(announcementModel.getTitle() != null && announcementModel.getContent() != null
                 && contestId != null && adminId != null, BaseStatusMsg.APIEnum.PARAM_ERROR);

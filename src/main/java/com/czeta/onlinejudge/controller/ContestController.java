@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.cache.model.RankItemModel;
 import com.czeta.onlinejudge.dao.entity.Announcement;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.ContestConditionPageModel;
@@ -183,7 +184,7 @@ public class ContestController {
     @ApiOperationSupport(order=9)
     @RequiresRoles(RoleType.Names.COMMON_USER)
     @PostMapping("/contestInfo/{contestId}/rank")
-    public APIResult getRankItemListByContestId(@RequestBody PageModel pageModel, @PathVariable Long contestId, @ApiIgnore @RequestAttribute Long userId) {
+    public APIResult<IPage<RankItemModel>> getRankItemListByContestId(@RequestBody PageModel pageModel, @PathVariable Long contestId, @ApiIgnore @RequestAttribute Long userId) {
         return new APIResult<>(contestService.getRankItemListByContestId(pageModel, contestId, userId));
     }
 

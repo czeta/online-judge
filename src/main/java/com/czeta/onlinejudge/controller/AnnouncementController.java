@@ -45,12 +45,4 @@ public class AnnouncementController {
     public APIResult<Announcement> getHomePageAnnouncement(@PathVariable Long id) {
         return new APIResult<>(announcementService.getAnnouncementInfoById(id));
     }
-
-    @ApiOperation(value = "获取FAQ内容", notes = "不需要token")
-    @ApiImplicitParams({})
-    @ApiResponses({})
-    @GetMapping("/faq")
-    public APIResult<String> getFAQContent() {
-        return new APIResult(announcementService.getFAQContent());
-    }
 }

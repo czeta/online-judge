@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS announcement (
   title VARCHAR(50) NOT NULL,
   content TEXT NOT NULL,
   creator VARCHAR(50) NOT NULL,
-  source_id INT NOT NULL, -- 公告类型（来源）：-1表示主页公告、0表示FAQ、大于0表示竞赛的公告，数字代表竞赛ID
+  source_id INT NOT NULL, -- 公告类型（来源）：-1表示主页公告、大于0表示竞赛的公告，数字代表竞赛ID
   status TINYINT NOT NULL DEFAULT 1,
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

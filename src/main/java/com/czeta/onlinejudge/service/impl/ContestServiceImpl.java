@@ -463,7 +463,7 @@ public class ContestServiceImpl implements ContestService {
                 .map(s -> s.getUserId())
                 .collect(Collectors.toList());
         userIds.forEach(id -> userMapper.updateRatingNumIncrementOne(id));
-        // 计算并更新用户表：rating_score
+        // 更新用户表：rating_score
         // todo：elo算法计算参赛的rating_score并更新用户数据
 
         // 用户表：更新rank

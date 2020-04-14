@@ -43,19 +43,6 @@ public interface AnnouncementService {
     boolean updateHomePageAnnouncement(AnnouncementModel announcementModel);
 
     /**
-     * 获取FAQ内容
-     * @return
-     */
-    String getFAQContent();
-
-    /**
-     * 修改FAQ内容
-     * @param content
-     * @return
-     */
-    boolean updateFAQContent(String content);
-
-    /**
      * 添加比赛公告
      * @param announcementModel
      * @param contestId

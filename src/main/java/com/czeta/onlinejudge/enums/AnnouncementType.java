@@ -10,8 +10,7 @@ import com.czeta.onlinejudge.utils.enums.IEnumItem;
  * @Version 1.0
  */
 public enum AnnouncementType implements IEnumItem {
-    HOME_PAGE(-1, "首页公告"),
-    FAQ(0, "FAQ页面公告");
+    HOME_PAGE(-1, "首页公告");
 
     private Integer code;
     private String message;
