@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS user (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uk_username UNIQUE KEY(username)
-)
+);
 
 -- 密码：123123
 INSERT INTO user VALUES(1, "user1", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "75756786@qq.com", "asdfsadf@github.com", "asdfsadf@blog.com", NULL, "normal",
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS user_certification (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 3.certification（认证类型）
 CREATE TABLE IF NOT EXISTS certification (
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS certification (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 4.solved_problem（用户解决题目表）
 CREATE TABLE IF NOT EXISTS solved_problem (
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS solved_problem (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 5.admin（管理员表）
 CREATE TABLE IF NOT EXISTS admin (
@@ -85,10 +85,10 @@ CREATE TABLE IF NOT EXISTS admin (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uk_username UNIQUE KEY(username)
-)
+);
 
 INSERT INTO admin VALUES(1, "admin", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "common admin", 2, default ,default ,default );
-INSERT INTO admin VALUES(2, "superadmin", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "super admin", 2, default ,default ,default );
+INSERT INTO admin VALUES(2, "superadmin", "b822bb93905a9bd8b3a0c08168c427696436cf8bf37ed4ab8ebf41a07642ed1c", "super admin", 3, default ,default ,default );
 
 -- 6.role（角色表）
 CREATE TABLE IF NOT EXISTS role (
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS role (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uk_username UNIQUE KEY(name)
-)
+);
 
 INSERT INTO role VALUES(1, "CommonUser", "all", default ,default, default );
 INSERT INTO role VALUES(2, "CommonAdmin", "all", default ,default, default );
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS message (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 8.announcement（公告表）
 CREATE TABLE IF NOT EXISTS announcement (
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS announcement (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 9.problem（题目信息表）
 CREATE TABLE IF NOT EXISTS problem (
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS problem (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uq_id UNIQUE KEY(title)
-)
+);
 
 -- 10.problem_judge_type（题目评测方式表）
 CREATE TABLE IF NOT EXISTS problem_judge_type (
@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS problem_judge_type (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uq_id UNIQUE KEY(problem_id)
-)
+);
 
 
 -- 11.judge_type（评测方式标准表）
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS judge_type (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 
 
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS tag (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uq_id UNIQUE KEY(name)
-)
+);
 
 -- 13.problem_tag（题目标签表）
 CREATE TABLE IF NOT EXISTS problem_tag (
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS problem_tag (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 14.judge（提交评测表）
 CREATE TABLE IF NOT EXISTS submit (
@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS submit (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 15.contest（竞赛信息表）
 CREATE TABLE IF NOT EXISTS contest (
@@ -264,7 +264,7 @@ CREATE TABLE IF NOT EXISTS contest (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uq_id UNIQUE KEY(title)
-)
+);
 
 -- 16.contest_user（竞赛用户报名表）
 CREATE TABLE IF NOT EXISTS contest_user (
@@ -275,7 +275,7 @@ CREATE TABLE IF NOT EXISTS contest_user (
   crt_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id)
-)
+);
 
 -- 17.竞赛排名：实时计算(redis)+落地成表(封榜持久化)。
 
@@ -288,4 +288,4 @@ CREATE TABLE IF NOT EXISTS contest_rank (
   lm_ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT pk_id PRIMARY KEY(id),
   CONSTRAINT uq_id UNIQUE KEY(contest_id)
-)
+);

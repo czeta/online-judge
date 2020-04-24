@@ -51,7 +51,7 @@ public enum SubmitStatus {
     public static List<String> getEnumNameList() {
         List<String> list = new ArrayList<>();
         for (SubmitStatus p : SubmitStatus.values()) {
-            list.add(p.name());
+            list.add(p.getName());
         }
         return list;
     }

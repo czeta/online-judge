@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.czeta.onlinejudge.dao.entity.Tag;
 import com.czeta.onlinejudge.enums.ProblemStatus;
 import com.czeta.onlinejudge.enums.RoleType;
 import com.czeta.onlinejudge.model.param.PageModel;
@@ -9,13 +10,18 @@ import com.czeta.onlinejudge.model.param.SubmitModel;
 import com.czeta.onlinejudge.model.result.DetailProblemModel;
 import com.czeta.onlinejudge.model.result.PublicSimpleProblemModel;
 import com.czeta.onlinejudge.service.ProblemService;
+import com.czeta.onlinejudge.service.TagService;
 import com.czeta.onlinejudge.utils.response.APIResult;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.List;
 
 /**
  * @ClassName ProblemController
@@ -33,6 +39,9 @@ public class ProblemController {
     @Autowired
     private ProblemService problemService;
 
+    @Autowired
+    private TagService tagService;
+
     @ApiOperation(value = "分页获得公共题目列表", notes = "不需要token")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageModel", value = "分页请求参数，这里的paramData置为null", dataType = "PageModel", paramType = "body", required = true)
@@ -41,6 +50,14 @@ public class ProblemController {
     @PostMapping("/problemList")
     public APIResult<IPage<PublicSimpleProblemModel>> getPublicProblemList(@RequestBody PageModel pageModel) {
         return new APIResult<>(problemService.getPublicProblemList(pageModel));
+    }
+
+    @ApiOperation(value = "获取所有题目标签", notes = "不需要token")
+    @ApiImplicitParams({})
+    @ApiResponses({})
+    @GetMapping("/tags")
+    public APIResult<List<Tag>> getTagInfoList() {
+        return new APIResult<>(tagService.getTagInfoList());
     }
 
     @ApiOperation(value = "根据筛选条件，分页获得公共题目列表", notes = "不需要token")

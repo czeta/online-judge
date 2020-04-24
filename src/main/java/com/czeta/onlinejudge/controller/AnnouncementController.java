@@ -35,14 +35,4 @@ public class AnnouncementController {
     public APIResult<IPage<Announcement>> getHomePageAnnouncementList(@RequestBody PageModel pageModel) {
         return new APIResult<>(announcementService.getPublicHomePageAnnouncementList(pageModel));
     }
-
-
-    @ApiOperation(value = "根据公告ID获取首页公告信息", notes = "不需要token")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "公告ID", dataType = "Long", paramType = "path", required = true)})
-    @ApiResponses({})
-    @GetMapping("/ancInfo/{id}")
-    public APIResult<Announcement> getHomePageAnnouncement(@PathVariable Long id) {
-        return new APIResult<>(announcementService.getAnnouncementInfoById(id));
-    }
 }
