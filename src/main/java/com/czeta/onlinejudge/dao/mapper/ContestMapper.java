@@ -16,12 +16,12 @@ import java.util.List;
  */
 @Repository
 public interface ContestMapper extends BaseMapper<Contest> {
-    @Select("SELECT id FROM Contest WHERE status = 1 AND UNIX_TIMESTAMP(start_time) > #{currentTime}")
+    @Select("SELECT id FROM contest WHERE status = 1 AND UNIX_TIMESTAMP(start_time) > #{currentTime}")
     List<Long> selectContestIdsBeforeRunning(Long currentTime);
 
-    @Select("SELECT id FROM Contest WHERE status = 1 AND UNIX_TIMESTAMP(start_time) <= #{currentTime} AND UNIX_TIMESTAMP(end_time) >= #{currentTime}")
+    @Select("SELECT id FROM contest WHERE status = 1 AND UNIX_TIMESTAMP(start_time) <= #{currentTime} AND UNIX_TIMESTAMP(end_time) >= #{currentTime}")
     List<Long> selectContestIdsRunning(Long currentTime);
 
-    @Select("SELECT id FROM Contest WHERE status = 1 AND UNIX_TIMESTAMP(end_time) < #{currentTime}")
+    @Select("SELECT id FROM contest WHERE status = 1 AND UNIX_TIMESTAMP(end_time) < #{currentTime}")
     List<Long> selectContestIdsAfterRunning(Long currentTime);
 }

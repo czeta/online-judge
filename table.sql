@@ -136,12 +136,12 @@ CREATE TABLE IF NOT EXISTS announcement (
 CREATE TABLE IF NOT EXISTS problem (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(50) NOT NULL,
-  description TEXT NOT NULL,
-  input_description TEXT NOT NULL,
-  output_description TEXT NOT NULL,
+  description LONGTEXT NOT NULL,
+  input_description LONGTEXT NOT NULL,
+  output_description LONGTEXT NOT NULL,
   input_samples VARCHAR(300) NOT NULL,
   output_samples VARCHAR(300) NOT NULL,
-  hint TEXT,
+  hint LONGTEXT,
   source_id INT NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分为0。
   source_name VARCHAR(50) NOT NULL, -- 比赛界面创建的题目这部分自动填充，题目界面创建的题目这部分必须以@开头。
   time_limit INT NOT NULL,  -- 单位固定ms
@@ -251,7 +251,7 @@ CREATE TABLE IF NOT EXISTS submit (
 CREATE TABLE IF NOT EXISTS contest (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(50) NOT NULL,
-  description TEXT NOT NULL,
+  description LONGTEXT NOT NULL,
   start_time VARCHAR(50) NOT NULL,
   end_time VARCHAR(50) NOT NULL,
   sign_up_rule VARCHAR(10) NOT NULL, -- 报名规则：(1)公开：不用认证与审核(2)认证：认证+审核(3)密码：成功输入密码即可成功

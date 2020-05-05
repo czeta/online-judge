@@ -131,6 +131,11 @@ public class CertificationServiceImpl implements CertificationService {
             if (typeEntry.getValue().equals(0)) { // 新创建的类型
                 Certification certification = new Certification();
                 certification.setName(typeEntry.getKey());
+                certification.setLmTs(DateUtils.getYYYYMMDDHHMMSS(new Date()));
+                certification.setStatus(CommonItemStatus.ENABLE.getCode());
+                int count = certificationMapper.update(certification, Wrappers.<Certification>lambdaQuery()
+                        .eq(Certification::getName, certification.getName()));
+                if (count != 0) continue;
                 try {
                     certificationMapper.insert(certification);
                 } catch (Exception e) {

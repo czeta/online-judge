@@ -85,7 +85,8 @@ public class SubmitServiceImpl implements SubmitService {
         IPage<Submit> submitIPage = submitMapper.selectPage(page, Wrappers.<Submit>lambdaQuery()
                 .in(Submit::getProblemId, problemIds)
                 .in(Submit::getSubmitStatus, submitStatuses)
-                .like(Submit::getCreator, "%" + creatorKey + "%"));
+                .like(Submit::getCreator, "%" + creatorKey + "%")
+                .orderByDesc(Submit::getCrtTs));
         List<PublicSubmitModel> list = new ArrayList<>();
         for (Submit s : submitIPage.getRecords()) {
             PublicSubmitModel publicSubmitModel = SubmitMapstructConvert.INSTANCE.submitToPublicSubmitModel(s);
