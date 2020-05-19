@@ -2,7 +2,6 @@ package com.czeta.onlinejudge;
 
 import com.czeta.onlinejudge.config.MultipartProperties;
 import com.czeta.onlinejudge.dao.mapper.UserCertificationMapper;
-import com.czeta.onlinejudge.model.param.SpiderProblemModel;
 import com.czeta.onlinejudge.model.param.UserRegisterModel;
 import com.czeta.onlinejudge.mq.SubmitMessage;
 import com.czeta.onlinejudge.mq.producer.SubmitProducer;
@@ -64,6 +63,26 @@ class OnlineSubmitApplicationTests {
             list.add(data);
         }
         return list;
+    }
+
+    @Test
+    void test1() {
+        int Ra = 1000, Rb = 1000, Sa = 1;
+        double Ea = 1 / (1 + Math.pow(10, (Rb - Ra) / 400));
+//        double Eb = 1 / (1 + Math.pow(10, (Ra - Rb) / 400));
+//        System.out.println("Ea=" + Ea + ", Eb=" + Eb);
+        int Ka = computeK(Ra);
+        double Awin = Ra + Ka * (Sa - Ea);
+        System.out.println("A win's score = " + Awin);
+    }
+
+    int computeK(int rating) {
+        if (rating >= 2400)
+            return 16;
+        else if (rating >= 2100)
+            return 24;
+        else
+            return 36;
     }
 
 //    @Test

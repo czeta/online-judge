@@ -1,5 +1,6 @@
 package com.czeta.onlinejudge.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -25,7 +26,10 @@ import com.czeta.onlinejudge.service.ProblemService;
 import com.czeta.onlinejudge.service.TagService;
 import com.czeta.onlinejudge.service.UserService;
 import com.czeta.onlinejudge.spider.SpiderService;
+import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
+import com.czeta.onlinejudge.utils.spider.request.SpiderRequestBody;
+import com.czeta.onlinejudge.utils.spider.response.SpiderResponse;
 import com.czeta.onlinejudge.utils.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -34,6 +38,12 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.shiro.codec.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -343,6 +353,56 @@ public class ProblemServiceImpl implements ProblemService {
         }
         Collections.sort(fileNameList);
         return fileNameList;
+    }
+
+    @Override
+    public Boolean compileSpjCode(String spjCode, String spjLanguage, String judgeServerName) {
+        final String LANGUAGE_JSON_STR = "[{\"spj\":{\"config\":{\"command\":\"{exe_path} {in_file_path} {user_out_file_path}\",\"exe_name\":\"spj-{spj_version}\",\"seccomp_rule\":\"c_cpp\"},\"compile\":{\"exe_name\":\"spj-{spj_version}\",\"src_name\":\"spj-{spj_version}.c\",\"max_memory\":1073741824,\"max_cpu_time\":3000,\"max_real_time\":10000,\"compile_command\":\"/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c11 {src_path} -lm -o {exe_path}\"}},\"name\":\"C\",\"config\":{\"run\":{\"env\":[\"LANG=en_US.UTF-8\",\"LANGUAGE=en_US:en\",\"LC_ALL=en_US.UTF-8\"],\"command\":\"{exe_path}\",\"seccomp_rule\":{\"File IO\":\"c_cpp_file_io\",\"Standard IO\":\"c_cpp\"}},\"compile\":{\"exe_name\":\"main\",\"src_name\":\"main.c\",\"max_memory\":268435456,\"max_cpu_time\":3000,\"max_real_time\":10000,\"compile_command\":\"/usr/bin/gcc -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c11 {src_path} -lm -o {exe_path}\"}},\"description\":\"GCC 5.4\",\"content_type\":\"text/x-csrc\"},{\"spj\":{\"config\":{\"command\":\"{exe_path} {in_file_path} {user_out_file_path}\",\"exe_name\":\"spj-{spj_version}\",\"seccomp_rule\":\"c_cpp\"},\"compile\":{\"exe_name\":\"spj-{spj_version}\",\"src_name\":\"spj-{spj_version}.cpp\",\"max_memory\":1073741824,\"max_cpu_time\":10000,\"max_real_time\":20000,\"compile_command\":\"/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}\"}},\"name\":\"C++\",\"config\":{\"run\":{\"env\":[\"LANG=en_US.UTF-8\",\"LANGUAGE=en_US:en\",\"LC_ALL=en_US.UTF-8\"],\"command\":\"{exe_path}\",\"seccomp_rule\":{\"File IO\":\"c_cpp_file_io\",\"Standard IO\":\"c_cpp\"}},\"compile\":{\"exe_name\":\"main\",\"src_name\":\"main.cpp\",\"max_memory\":1073741824,\"max_cpu_time\":10000,\"max_real_time\":20000,\"compile_command\":\"/usr/bin/g++ -DONLINE_JUDGE -O2 -w -fmax-errors=3 -std=c++14 {src_path} -lm -o {exe_path}\"}},\"description\":\"G++ 5.4\",\"content_type\":\"text/x-c++src\"},{\"name\":\"Java\",\"config\":{\"run\":{\"env\":[\"LANG=en_US.UTF-8\",\"LANGUAGE=en_US:en\",\"LC_ALL=en_US.UTF-8\"],\"command\":\"/usr/bin/java -cp {exe_dir} -XX:MaxRAM={max_memory}k -Djava.security.manager -Dfile.encoding=UTF-8 -Djava.security.policy==/etc/java_policy -Djava.awt.headless=true Main\",\"seccomp_rule\":null,\"memory_limit_check_only\":1},\"compile\":{\"exe_name\":\"Main\",\"src_name\":\"Main.java\",\"max_memory\":-1,\"max_cpu_time\":5000,\"max_real_time\":10000,\"compile_command\":\"/usr/bin/javac {src_path} -d {exe_dir} -encoding UTF8\"}},\"description\":\"OpenJDK 1.8\",\"content_type\":\"text/x-java\"},{\"name\":\"Python2\",\"config\":{\"run\":{\"env\":[\"LANG=en_US.UTF-8\",\"LANGUAGE=en_US:en\",\"LC_ALL=en_US.UTF-8\"],\"command\":\"/usr/bin/python {exe_path}\",\"seccomp_rule\":\"general\"},\"compile\":{\"exe_name\":\"solution.pyc\",\"src_name\":\"solution.py\",\"max_memory\":134217728,\"max_cpu_time\":3000,\"max_real_time\":10000,\"compile_command\":\"/usr/bin/python -m py_compile {src_path}\"}},\"description\":\"Python 2.7\",\"content_type\":\"text/x-python\"},{\"name\":\"Python3\",\"config\":{\"run\":{\"env\":[\"LANG=en_US.UTF-8\",\"LANGUAGE=en_US:en\",\"LC_ALL=en_US.UTF-8\"],\"command\":\"/usr/bin/python3 {exe_path}\",\"seccomp_rule\":\"general\"},\"compile\":{\"exe_name\":\"__pycache__/solution.cpython-35.pyc\",\"src_name\":\"solution.py\",\"max_memory\":134217728,\"max_cpu_time\":3000,\"max_real_time\":10000,\"compile_command\":\"/usr/bin/python3 -m py_compile {src_path}\"}},\"description\":\"Python 3.5\",\"content_type\":\"text/x-python\"}]";
+        final Map<String, JSONObject> LANGUAGE_JSON_MAP = new HashMap<>();
+        JSONArray jsonArray = JSONArray.parseArray(LANGUAGE_JSON_STR);;
+        for (int i = 0; i < jsonArray.size(); ++i) {
+            JSONObject obj = jsonArray.getJSONObject(i);
+            LANGUAGE_JSON_MAP.put((String) obj.get("name"), obj);
+        }
+        spjCode = Base64.decodeToString(spjCode);
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        CloseableHttpResponse response = null;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("src", spjCode);
+            jsonObject.put("spj_version", DigestUtils.sha256Hex(spjLanguage + spjCode));
+            jsonObject.put("spj_compile_config", LANGUAGE_JSON_MAP.get(spjLanguage).getJSONObject("spj").getJSONObject("compile"));
+            SpiderRequestBody spiderRequestBody = SpiderRequestBody.json(JSONObject.toJSONString(jsonObject), "utf-8");
+            ByteArrayEntity entity =  new ByteArrayEntity(spiderRequestBody.getBody(), spiderRequestBody.getContentType());
+            List<JudgeType> judgeTypeList = judgeTypeMapper.selectList(Wrappers.<JudgeType>lambdaQuery()
+                    .eq(JudgeType::getStatus, JudgeServerStatus.NORMAL.getCode())
+                    .eq(JudgeType::getName, judgeServerName));
+            AssertUtils.notEmpty(judgeTypeList, BaseStatusMsg.APIEnum.FAILED, "请选择可用的评测机");
+            JudgeType judgeType = judgeTypeList.get(0);
+            HttpPost httpPost = new HttpPost(judgeType.getUrl() + "/compile_spj");
+            httpPost.setEntity(entity);
+            httpPost.addHeader("X-Judge-Server-Token", judgeType.getVisitToken());
+            response = httpClient.execute(httpPost);
+            SpiderResponse spiderResponse = SpiderResponse.build(null, response);
+            log.info("ProblemServiceImpl compileSpjCode spiderResponseJson={}", JSONObject.toJSONString(spiderResponse.getJsonObject()));
+            if (spiderResponse.getJsonObject().get("data").toString().equals("success"))
+                return true;
+        } catch (IOException e) {
+            throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED, e.getMessage());
+        } finally {
+            try {
+                // 释放资源
+                if (httpClient != null) {
+                    httpClient.close();
+                }
+                if (response != null) {
+                    response.close();
+                }
+            } catch (IOException e) {
+                throw new APIRuntimeException(BaseStatusMsg.APIEnum.FAILED, e.getMessage());
+            }
+        }
+        return false;
     }
 
     @Override

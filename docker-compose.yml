@@ -2,6 +2,28 @@
 # 每次更新jar包或者其它本地化文件，需要restart容器。
 version: '3'
 services:
+  # online-judge api服务
+  onlinejudge:
+    image: java:8
+    container_name: onlinejudge
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - '8080:8080'
+    volumes:
+      - ~/data/onlinejudge/workspace/online-judge.jar:/data/online-judge.jar # jar包所在位置宿主机本地化
+      - ~/data/onlinejudge/logs:/opt/logs/online-judge # 项目打印日志文件本地化
+      - ~/data/onlinejudge/upload:/opt/upload # 项目文件夹本地化
+      - ~/data/onlinejudge/test_case:/opt/upload/test_case # 项目评测文件本地化
+      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
+    network_mode: 'host' # 将应用内访问容器localhost转为访问宿主机的localhost
+    command: [
+      'java',
+      '-Xmx200m',
+      '-jar',
+      '/data/online-judge.jar'
+    ]
+    restart: always
   # 关系型数据库
   mysql:
     image: mysql/mysql-server:5.7
@@ -32,28 +54,6 @@ services:
     command: [
       'redis-server',
       '/etc/redis.conf'
-    ]
-    restart: always
-  # online-judge api服务
-  onlinejudge:
-    image: java:8
-    container_name: onlinejudge
-    environment:
-      TZ: Asia/Shanghai
-    ports:
-      - '8080:8080'
-    volumes:
-      - ~/data/onlinejudge/workspace/online-judge.jar:/data/online-judge.jar # jar包所在位置宿主机本地化
-      - ~/data/onlinejudge/logs:/opt/logs/online-judge # 项目打印日志文件本地化
-      - ~/data/onlinejudge/upload:/opt/upload # 项目文件夹本地化
-      - ~/data/onlinejudge/test_case:/opt/upload/test_case # 项目评测文件本地化
-      - /etc/localtime:/etc/localtime # 指定容器时间为宿主机时间
-    network_mode: 'host' # 将应用内访问容器localhost转为访问宿主机的localhost
-    command: [
-      'java',
-      '-Xmx200m',
-      '-jar',
-      '/data/online-judge.jar'
     ]
     restart: always
   # 同步评测文件 rsync master服务

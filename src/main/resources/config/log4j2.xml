@@ -66,12 +66,14 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
                 <SizeBasedTriggeringPolicy size="200 MB"/>
             </Policies>
             <!--距离最后的修改日期超过30天的文件-->
-            <DefaultRolloverStrategy>
-                <Delete basePath="${log_file_path}/logs" maxDepth="1">
-                    <IfFileName glob="info.log.*"/>
-                    <IfLastModified age="30d"/>
-                </Delete>
-            </DefaultRolloverStrategy>
+<!--            <DefaultRolloverStrategy>-->
+<!--                <Delete basePath="${log_file_path}/logs" maxDepth="1">-->
+<!--                    <IfFileName glob="info.log.*"/>-->
+<!--                    <IfLastModified age="30d"/>-->
+<!--                </Delete>-->
+<!--            </DefaultRolloverStrategy>-->
+            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件 -->
+            <DefaultRolloverStrategy/>
         </RollingRandomAccessFile>
         <!--DEBUG级别日志的滚动文件配置-->
         <RollingRandomAccessFile name="debug_file"
@@ -86,14 +88,10 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+                <SizeBasedTriggeringPolicy size="200 MB"/>
             </Policies>
-            <!--距离最后的修改日期超过30天的文件-->
-            <DefaultRolloverStrategy>
-                <Delete basePath="${log_file_path}/logs" maxDepth="1">
-                    <IfFileName glob="debug.log.*"/>
-                    <IfLastModified age="30d"/>
-                </Delete>
-            </DefaultRolloverStrategy>
+            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件 -->
+            <DefaultRolloverStrategy/>
         </RollingRandomAccessFile>
     </Appenders>
 

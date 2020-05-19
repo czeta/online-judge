@@ -66,6 +66,15 @@ public interface ProblemService {
     List<String> getTestCaseFileList(Long problemId);
 
     /**
+     * 编译spj代码
+     * @param spjCode
+     * @param spjLanguage
+     * @param judgeServerName
+     * @return
+     */
+    Boolean compileSpjCode(String spjCode, String spjLanguage, String judgeServerName);
+
+    /**
      * 查看评测机/爬虫方式评测的题目信息
      * @param problemId
      * @return

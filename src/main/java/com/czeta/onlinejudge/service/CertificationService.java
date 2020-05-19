@@ -59,7 +59,7 @@ public interface CertificationService {
     List<Certification> getCertificationTypes();
 
     /**
-     * 获取有效的实名认证leix
+     * 获取有效的实名认证类型
      */
     List<Certification> getValidCertificationTypes();
 

@@ -1,6 +1,7 @@
 package com.czeta.onlinejudge.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,4 +30,7 @@ public class ContestUser {
     private String crtTs;
     @ApiModelProperty(value = "最后修改时间")
     private String lmTs;
+    @ApiModelProperty(value = "额外信息字段：这里是报名的用户的认证信息，序列化后")
+    @TableField(exist = false)
+    private String detailMsg;
 }

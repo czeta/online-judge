@@ -45,8 +45,12 @@ public class SpiderResponse {
         spiderResponse.setStatusCode(response.getStatusLine().getStatusCode());
         HttpEntity entity = response.getEntity();
         String contentTypeStr = entity.getContentType().getValue();
-        spiderResponse.setContentType(contentTypeStr.substring(0, contentTypeStr.indexOf(";")));
-        spiderResponse.setCharSet(contentTypeStr.substring(contentTypeStr.lastIndexOf("=") + 1));
+        if (contentTypeStr.equals(SpiderConstant.ContentType.JSON)) {
+            spiderResponse.setContentType(contentTypeStr);
+        } else {
+            spiderResponse.setContentType(contentTypeStr.substring(0, contentTypeStr.indexOf(";")));
+            spiderResponse.setCharSet(contentTypeStr.substring(contentTypeStr.lastIndexOf("=") + 1));
+        }
         Map<String, String> headers = new HashMap<>();
         for (Header h : response.getAllHeaders()) {
             headers.put(h.getName(), h.getValue());
@@ -60,7 +64,7 @@ public class SpiderResponse {
             spiderResponse.setDocument(Jsoup.parse(writer.toString()));
         }
         spiderResponse.setRawText(writer.toString());
-        log.info("SpiderResponse={}", JSONObject.toJSONString(spiderResponse));
+//        log.info("SpiderResponse={}", JSONObject.toJSONString(spiderResponse));
         return spiderResponse;
     }
 }

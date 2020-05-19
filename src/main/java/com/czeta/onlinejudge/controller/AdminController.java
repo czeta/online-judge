@@ -466,6 +466,19 @@ public class AdminController {
         return new APIResult<>(problemService.saveNewProblemByMachine(machineProblemModel, userId));
     }
 
+    @ApiOperation(value = "(题目)SPJ代码编译检查，检查通过返回true，反之false", notes = "需要token：超级admin权限 or 普通admin权限")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "spjCode", value = "经过base64编码后的spj代码", dataType = "String", paramType = "query", required = true),
+            @ApiImplicitParam(name = "spjLanguage", value = "spj代码语言", dataType = "String", paramType = "query", required = true),
+            @ApiImplicitParam(name = "judgeServerName", value = "编译spj代码所选择的评测机名称", dataType = "String", paramType = "query", required = true)
+    })
+    @ApiResponses({})
+    @ApiOperationSupport(order=32)
+    @RequiresRoles(value = {RoleType.Names.SUPER_ADMIN, RoleType.Names.COMMON_ADMIN}, logical = Logical.OR)
+    @PostMapping("/problemManager/machine/compileSpj")
+    public APIResult<Boolean> compileSpjCode(@RequestParam String spjCode, @RequestParam String spjLanguage, @RequestParam String judgeServerName) {
+        return new APIResult<>(problemService.compileSpjCode(spjCode, spjLanguage, judgeServerName));
+    }
 
     @ApiOperation(value = "(题目)获取评测机/爬虫评测的题目信息", notes = "需要token：超级admin权限 or 普通admin权限")
     @ApiImplicitParams({

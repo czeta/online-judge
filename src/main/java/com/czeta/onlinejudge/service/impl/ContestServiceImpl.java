@@ -2,6 +2,7 @@ package com.czeta.onlinejudge.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -17,10 +18,7 @@ import com.czeta.onlinejudge.dao.mapper.*;
 import com.czeta.onlinejudge.enums.*;
 import com.czeta.onlinejudge.model.param.*;
 import com.czeta.onlinejudge.model.result.*;
-import com.czeta.onlinejudge.service.AnnouncementService;
-import com.czeta.onlinejudge.service.ContestService;
-import com.czeta.onlinejudge.service.ProblemService;
-import com.czeta.onlinejudge.service.UserService;
+import com.czeta.onlinejudge.service.*;
 import com.czeta.onlinejudge.utils.enums.IBaseStatusMsg;
 import com.czeta.onlinejudge.utils.exception.APIRuntimeException;
 import com.czeta.onlinejudge.utils.utils.AssertUtils;
@@ -61,6 +59,9 @@ public class ContestServiceImpl implements ContestService {
 
     @Autowired
     private AnnouncementService announcementService;
+
+    @Autowired
+    private CertificationService certificationService;
 
     @Autowired
     private MessageMapper messageMapper;
@@ -158,9 +159,16 @@ public class ContestServiceImpl implements ContestService {
     @Override
     public IPage<ContestUser> getAppliedContestUserList(PageModel pageParam, Long contestId) {
         Page<ContestUser> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
-        return contestUserMapper.selectPage(page, Wrappers.<ContestUser>lambdaQuery()
+        IPage<ContestUser> contestUserIPage = contestUserMapper.selectPage(page, Wrappers.<ContestUser>lambdaQuery()
                 .eq(ContestUser::getContestId, contestId)
                 .orderByAsc(ContestUser::getCrtTs));
+        List<ContestUser> contestUserList = contestUserIPage.getRecords();
+        for (ContestUser contestUser : contestUserList) {
+            UserCertification userCertification = certificationService.getUserCertification(contestUser.getUserId());
+            contestUser.setDetailMsg(JSONObject.toJSONString(userCertification, SerializerFeature.WriteMapNullValue));
+        }
+        contestUserIPage.setRecords(contestUserList);
+        return contestUserIPage;
     }
 
     @Override
@@ -464,8 +472,47 @@ public class ContestServiceImpl implements ContestService {
                 .collect(Collectors.toList());
         userIds.forEach(id -> userMapper.updateRatingNumIncrementOne(id));
         // 更新用户表：rating_score
-        // todo：elo算法计算参赛的rating_score并更新用户数据
-
+        // elo天梯算法计算rating_score：第一次参加积分赛的选手都有1000的基础分，非第一次参加的则按照原本的分数，在这个基础上进行加减分。
+        // 由于是多人比赛，所以需要分别计算1v(n-1)的分数进行累加或者累减，来确认积分赛最终的积分。
+        ContestRank contestRank = contestRankMapper.selectOne(Wrappers.<ContestRank>lambdaQuery()
+                .eq(ContestRank::getContestId, contestId));
+        AssertUtils.notNull(contestRank, BaseStatusMsg.APIEnum.FAILED);
+        CacheContestRankModel fromJsonToCacheModel = JSONObject.toJavaObject((JSONObject) JSONObject.parse(contestRank.getRankJson()), CacheContestRankModel.class);
+        List<User> rankUserList = new ArrayList<>(); // 下标为排名，从1开始，值为用户信息
+        rankUserList.add(null);
+        for (Long userId : fromJsonToCacheModel.getRankItemMap().keySet()) {
+            rankUserList.add(userMapper.selectById(userId));
+        }
+        List<Integer> accumulateScoreListOfPlayer = new ArrayList<>();
+        for (int i = 1 ; i < rankUserList.size(); ++i) {
+            accumulateScoreListOfPlayer.add(0); // 累计列表初始化为0
+        }
+        for (int i = 1; i < rankUserList.size(); ++i) {
+            for (int j = i + 1; j < rankUserList.size(); ++j) {
+                int baseRatingOfWinner = rankUserList.get(i).getRatingScore() != 0 ? rankUserList.get(i).getRatingScore() : 1000;
+                int baseRatingOfLoser = rankUserList.get(j).getRatingScore() != 0 ? rankUserList.get(j).getRatingScore() : 1000;
+                int scoreAdjust  = 1;
+                double valueOfWinner = 1 / (1 + Math.pow(10, (baseRatingOfLoser - baseRatingOfWinner) / 400));
+                int k;
+                if (baseRatingOfWinner >= 2400) {
+                    k = 16;
+                } else if (baseRatingOfWinner >= 2100) {
+                    k = 24;
+                } else {
+                    k = 36;
+                }
+                int accumulateScore = (int) (k * (scoreAdjust - valueOfWinner));
+                accumulateScoreListOfPlayer.add(i, accumulateScoreListOfPlayer.get(i) + accumulateScore);
+                accumulateScoreListOfPlayer.add(j, accumulateScoreListOfPlayer.get(j) - accumulateScore);
+            }
+        }
+        log.info("elo alg accumulateScoreListOfPlayer={}", JSONObject.toJSONString(accumulateScoreListOfPlayer));
+        for (int i = 1; i < rankUserList.size(); ++i) {
+            User user = rankUserList.get(i);
+            user.setRatingScore(user.getRatingScore() != 0 ? user.getRatingScore() + accumulateScoreListOfPlayer.get(i)
+                    : 1000 + accumulateScoreListOfPlayer.get(i));
+            userMapper.updateById(user);
+        }
         // 用户表：更新rank
         List<User> userList = userMapper.selectList(null);
         Collections.sort(userList, (o1, o2) -> {
