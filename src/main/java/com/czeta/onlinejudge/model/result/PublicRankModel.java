@@ -1,6 +1,8 @@
 package com.czeta.onlinejudge.model.result;
 
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,6 +17,8 @@ import lombok.Data;
 @ApiModel(description = "rank榜单 model")
 @Data
 public class PublicRankModel {
+    @ApiModelProperty(value = "用户ID")
+    private Long id;
     @ApiModelProperty(value = "用户名")
     private String username;
     @ApiModelProperty(value = "心情")
