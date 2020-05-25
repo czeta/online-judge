@@ -19,3 +19,10 @@ docker-compose ps
 ```shell
 docker-compose restart
 ```
+
+# API接口访问
+
+使用了knife4j作为后台API服务的接口文档，服务启动后访问：
+```shell
+http://IP:8080/doc.html
+```
