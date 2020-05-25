@@ -19,7 +19,3 @@ docker-compose ps
 ```shell
 docker-compose restart
 ```
-
-
-# todolist
--[ ] 提高竞赛实时排名数据的可用性（可能会出现服务器内存错误导致数据丢失）
