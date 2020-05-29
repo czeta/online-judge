@@ -1,4 +1,7 @@
 /*数据表结构*/
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123123' WITH GRANT OPTION;
+
+CREATE DATABASE onlinejudge;
 
 -- 1.user（用户表）
 CREATE TABLE IF NOT EXISTS user (

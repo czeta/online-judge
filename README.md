@@ -9,7 +9,7 @@ API服务。
 # docker部署
 本应用使用docker-compose部署。
 
-将项目根目录docker-compose.yml文件上传至服务器，并将项目jar包和初始化数据库sql文件上传到宿主机目录中（见docker-compose.yml文件具体说明），然后docker-compose命令创建并启动容器即可访问。
+将项目根目录docker-compose.yml文件上传至服务器，并将项目jar包和初始化数据库sql文件上传到宿主机目录中（sql文件的话直接将项目根目录的init.sql文件上传至init文件夹中即可，具体见docker-compose文件说明），然后docker-compose命令创建并启动容器即可访问。
 
 启动服务：
 ```shell
