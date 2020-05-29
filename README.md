@@ -25,6 +25,17 @@ docker-compose ps
 docker-compose restart
 ```
 
+# application.yml配置文件修改说明
+
+#### mysql
+mysql数据库链接修改为mysql所在服务器IP
+
+#### redis
+redis修改为redis所在服务器IP
+
+#### kafka
+kafka代理地址修改为部署的kafka集群IP
+
 # API接口访问
 
 使用了knife4j作为后台API服务的接口文档，服务启动后访问：
