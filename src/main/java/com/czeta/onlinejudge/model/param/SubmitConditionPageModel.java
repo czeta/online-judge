@@ -23,4 +23,5 @@ public class SubmitConditionPageModel {
     private Long problemId;
     @ApiModelProperty(value = "筛选参数：提交状态：Accepted等...")
     private String submitStatus;
+
 }

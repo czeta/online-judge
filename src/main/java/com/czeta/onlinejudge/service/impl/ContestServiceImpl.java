@@ -187,7 +187,8 @@ public class ContestServiceImpl implements ContestService {
                 CommonReviewItemStatus.PASS.getMessage() : CommonReviewItemStatus.NO_PASS.getMessage();
         message.setContent("申请报名的比赛标题：" + contestInfo.getTitle() + "\n审核结果：" + result + "\n审核人：" + adminInfo.getUsername());
         message.setCreator(adminInfo.getUsername());
-        message.setUserId(id);
+        ContestUser contestUserInfo = contestUserMapper.selectById(id);
+        message.setUserId(contestUserInfo.getUserId());
         messageMapper.insert(message);
         return true;
     }
@@ -196,7 +197,7 @@ public class ContestServiceImpl implements ContestService {
     public IPage<PublicSimpleContestModel> getPublicContestList(PageModel pageParam) {
         Page<Contest> page = new Page<>(pageParam.getOffset(), pageParam.getLimit());
         IPage<Contest> contestIPage = contestMapper.selectPage(page, Wrappers.<Contest>lambdaQuery()
-                .eq(Contest::getStatus, CommonItemStatus.ENABLE.getCode())
+                .ne(Contest::getStatus, ContestStatus.ABNORMAL.getCode())
                 .orderByDesc(Contest::getStartTime));
         List<PublicSimpleContestModel> list = new ArrayList<>();
         for (Contest c : contestIPage.getRecords()) {
@@ -224,7 +225,7 @@ public class ContestServiceImpl implements ContestService {
             }
         } else {
             contestIds = contestMapper.selectList(Wrappers.<Contest>lambdaQuery()
-                    .eq(Contest::getStatus, CommonItemStatus.ENABLE.getCode()))
+                    .ne(Contest::getStatus, ContestStatus.ABNORMAL.getCode()))
                     .stream()
                     .map(p -> p.getId())
                     .collect(Collectors.toList());;
@@ -246,11 +247,12 @@ public class ContestServiceImpl implements ContestService {
         }
         Page<Contest> page = new Page<>(contestConditionPageModel.getPageModel().getOffset(), contestConditionPageModel.getPageModel().getLimit());
         IPage<Contest> contestIPage = contestMapper.selectPage(page, Wrappers.<Contest>lambdaQuery()
-                .eq(Contest::getStatus, CommonItemStatus.ENABLE.getCode())
+                .ne(Contest::getStatus, ContestStatus.ABNORMAL.getCode())
                 .in(Contest::getSignUpRule, signUpRule)
                 .in(Contest::getRankModel, rankModel)
                 .in(Contest::getId, contestIds)
-                .like(Contest::getTitle, "%" + titleKey + "%"));
+                .like(Contest::getTitle, "%" + titleKey + "%")
+                .orderByDesc(Contest::getStartTime));
         List<PublicSimpleContestModel> list = new ArrayList<>();
         for (Contest c : contestIPage.getRecords()) {
             PublicSimpleContestModel publicSimpleContestModel = ContestMapstructConvert.INSTANCE.contestToPublicSimpleContestModel(c);
@@ -454,7 +456,7 @@ public class ContestServiceImpl implements ContestService {
         // 校验：比赛是否已经结束
         AssertUtils.isTrue(currentTime > endTime, BaseStatusMsg.APIEnum.PARAM_ERROR, "比赛尚未结束");
         // 校验：比赛是否是积分赛
-        AssertUtils.isTrue(contestInfo.getRankModel().equals(ContestRankModel.RATING.getCode()), BaseStatusMsg.NOT_RATING_CONTEST);
+        AssertUtils.isTrue(contestInfo.getRankModel().equals(ContestRankModel.RATING.getMessage()), BaseStatusMsg.NOT_RATING_CONTEST);
         // 校验：比赛是否已经计算过rating score了
         AssertUtils.isTrue(contestInfo.getStatus().equals(ContestStatus.NORMAL.getCode()), BaseStatusMsg.ENDED_CONTEST);
 
@@ -476,7 +478,9 @@ public class ContestServiceImpl implements ContestService {
         // 由于是多人比赛，所以需要分别计算1v(n-1)的分数进行累加或者累减，来确认积分赛最终的积分。
         ContestRank contestRank = contestRankMapper.selectOne(Wrappers.<ContestRank>lambdaQuery()
                 .eq(ContestRank::getContestId, contestId));
-        AssertUtils.notNull(contestRank, BaseStatusMsg.APIEnum.FAILED);
+        if (contestRank == null) {
+            return;
+        }
         CacheContestRankModel fromJsonToCacheModel = JSONObject.toJavaObject((JSONObject) JSONObject.parse(contestRank.getRankJson()), CacheContestRankModel.class);
         List<User> rankUserList = new ArrayList<>(); // 下标为排名，从1开始，值为用户信息
         rankUserList.add(null);
@@ -484,7 +488,7 @@ public class ContestServiceImpl implements ContestService {
             rankUserList.add(userMapper.selectById(userId));
         }
         List<Integer> accumulateScoreListOfPlayer = new ArrayList<>();
-        for (int i = 1 ; i < rankUserList.size(); ++i) {
+        for (int i = 0 ; i < rankUserList.size(); ++i) {
             accumulateScoreListOfPlayer.add(0); // 累计列表初始化为0
         }
         for (int i = 1; i < rankUserList.size(); ++i) {
@@ -492,7 +496,7 @@ public class ContestServiceImpl implements ContestService {
                 int baseRatingOfWinner = rankUserList.get(i).getRatingScore() != 0 ? rankUserList.get(i).getRatingScore() : 1000;
                 int baseRatingOfLoser = rankUserList.get(j).getRatingScore() != 0 ? rankUserList.get(j).getRatingScore() : 1000;
                 int scoreAdjust  = 1;
-                double valueOfWinner = 1 / (1 + Math.pow(10, (baseRatingOfLoser - baseRatingOfWinner) / 400));
+                double probabilityOfWinner = 1 / (1 + Math.pow(10, (baseRatingOfLoser - baseRatingOfWinner) / 400));
                 int k;
                 if (baseRatingOfWinner >= 2400) {
                     k = 16;
@@ -501,9 +505,10 @@ public class ContestServiceImpl implements ContestService {
                 } else {
                     k = 36;
                 }
-                int accumulateScore = (int) (k * (scoreAdjust - valueOfWinner));
-                accumulateScoreListOfPlayer.add(i, accumulateScoreListOfPlayer.get(i) + accumulateScore);
-                accumulateScoreListOfPlayer.add(j, accumulateScoreListOfPlayer.get(j) - accumulateScore);
+                int accumulateScore = (int) (k * (scoreAdjust - probabilityOfWinner));
+                accumulateScoreListOfPlayer.set(i, accumulateScoreListOfPlayer.get(i) + accumulateScore);
+                accumulateScoreListOfPlayer.set(j, accumulateScoreListOfPlayer.get(j) - accumulateScore);
+                log.info("elo accumulateScore={} accumulateScoreListOfPlayer={}", accumulateScore, accumulateScoreListOfPlayer);
             }
         }
         log.info("elo alg accumulateScoreListOfPlayer={}", JSONObject.toJSONString(accumulateScoreListOfPlayer));

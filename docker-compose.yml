@@ -9,7 +9,7 @@ services:
     environment:
       TZ: Asia/Shanghai
     ports:
-      - '8080:8080'
+      - '80:80'
     volumes:
       - ~/data/onlinejudge/workspace/online-judge.jar:/data/online-judge.jar # jar包所在位置宿主机本地化
       - ~/data/onlinejudge/logs:/opt/logs/online-judge # 项目打印日志文件本地化

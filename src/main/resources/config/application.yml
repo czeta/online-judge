@@ -8,7 +8,7 @@ spring:
 
 ############################# jetty config start #############################
 server:
-  port: 8080
+  port: 80
   servlet:
     context-path: /
   jetty:
