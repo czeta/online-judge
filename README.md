@@ -1,5 +1,10 @@
 # online-judge
-acm在线评测平台
+API服务。
+
+在线编程竞赛平台分为三个服务，一个是前台服务，一个是后台API服务，最后是后台核心评测服务。
+- [前台服务](https://github.com/evanlaochen/online-judge-fe)
+- [API服务](https://github.com/evanlaochen/online-judge)
+- [核心评测服务](https://github.com/evanlaochen/online-judge-core)。
 
 # docker部署
 本应用使用docker-compose部署。
