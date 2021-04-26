@@ -36,7 +36,7 @@
         <reflections.version>0.9.11</reflections.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-io.version>2.6</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <commons-codec.version>1.13</commons-codec.version>
         <commons-compress.version>1.19</commons-compress.version>
         <commons-net.version>3.6</commons-net.version>
